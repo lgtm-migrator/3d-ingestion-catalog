@@ -7,22 +7,9 @@ interface IntegrationMetadata extends Omit<Metadata, 'SourceDateStart' | 'Source
   SourceDateEnd: string;
 }
 
-export const createRandom = (): string => {
-  const LEN = 36;
-  return faker.random.alphaNumeric(LEN);
-};
-
-export const createUuid = (): string => {
-  return faker.random.uuid();
-};
-
-export const createDate = (): Date => {
-  return faker.date.past();
-};
-
 export const createFakeMetadata = (): IMetadata => {
   return {
-    productId: 'string',
+    productId: faker.random.uuid(),
     productName: 'string',
     geographicArea: 'string',
     productVersion: 1,
@@ -32,8 +19,8 @@ export const createFakeMetadata = (): IMetadata => {
     footprint: 'string',
     extentLowerLeft: 'string',
     extentUpperRight: 'string',
-    SourceDateStart: createDate(),
-    SourceDateEnd: createDate(),
+    SourceDateStart: faker.date.past(),
+    SourceDateEnd: faker.date.past(),
     producerName: 'IDFMU',
     SRS: 'string',
     SRSOrigin: 'string',
@@ -49,12 +36,7 @@ export const createFakeMetadata = (): IMetadata => {
   };
 };
 
-export const createFakeIntegrationMetadata = (): IntegrationMetadata => {
-  const metadata = createFakeMetadata();
-  return convertToISOTimestamp(metadata);
-};
-
-export const convertToISOTimestamp = (metadata: IMetadata): IntegrationMetadata => {
+export const convertTimestampToISOString = (metadata: IMetadata): IntegrationMetadata => {
   const { SourceDateStart, SourceDateEnd, ...rest } = metadata;
   return { ...rest, SourceDateStart: SourceDateStart.toISOString(), SourceDateEnd: SourceDateEnd.toISOString() };
 };

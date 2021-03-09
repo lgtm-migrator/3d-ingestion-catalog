@@ -3,7 +3,7 @@ import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Metadata } from '../../../../src/metadata/models/metadata';
-import { createFakeMetadata } from '../../../helpers/helpers';
+import { convertTimestampToISOString, createFakeMetadata } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
 import { createDbMetadata, getRepositoryFromContainer } from './helpers/db';
 import * as requestSender from './helpers/requestSender';
@@ -39,7 +39,7 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.OK);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(response.body).toHaveLength(1);
-        expect(response.body).toMatchObject([metadata]);
+        expect(response.body).toMatchObject([convertTimestampToISOString(metadata)]);
       });
     });
 
@@ -69,18 +69,37 @@ describe('MetadataController', function () {
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        expect(response.body).toBe(metadata);
+        expect(response.body).toMatchObject(convertTimestampToISOString(metadata));
       });
     });
 
     describe('Bad Path 😡', function () {
-      it('should return 400 status code and error message if path field is missing', async function () {
+      it('should return 400 status code and error message if mandatory fields are missing', async function () {
         const metadata = createFakeMetadata();
+        delete metadata.productId;
+        delete metadata.productName;
+        delete metadata.geographicArea;
+        delete metadata.productVersion;
+        delete metadata.productType;
+        delete metadata.extentLowerLeft;
+        delete metadata.extentUpperRight;
+        delete metadata.SourceDateStart;
+        delete metadata.SourceDateEnd;
+        delete metadata.producerName;
+        delete metadata.SRS;
+        delete metadata.accuracyLE90;
+        delete metadata.horizontalAccuracyCE90;
+        delete metadata.relativeAccuracyLE90;
+        delete metadata.sensor;
+        delete metadata.productionSystem;
 
         const response = await requestSender.createMetadata(app, metadata);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', "request.body should have required property 'productId'");
+        expect(response.body).toHaveProperty(
+          'message',
+          "request.body should have required property 'productId', request.body should have required property 'productName', request.body should have required property 'geographicArea', request.body should have required property 'extentLowerLeft', request.body should have required property 'extentUpperRight', request.body should have required property 'SourceDateStart', request.body should have required property 'SourceDateEnd', request.body should have required property 'SRS', request.body should have required property 'accuracyLE90', request.body should have required property 'horizontalAccuracyCE90', request.body should have required property 'relativeAccuracyLE90', request.body should have required property 'sensor', request.body should have required property 'productionSystem'"
+        );
       });
     });
 
