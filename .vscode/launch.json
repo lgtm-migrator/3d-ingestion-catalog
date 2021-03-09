@@ -17,6 +17,32 @@
       "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"],
       "outFiles": ["${workspaceFolder}/dist/**/*.js", "!**/node_modules/**"],
       "program": "${workspaceFolder}/src/index.ts"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "UTs",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["${fileBasenameNoExtension}", "--config", "./tests/configurations/unit/jest.config.ts"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "ITs",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["${fileBasenameNoExtension}", "--config", "./tests/configurations/integration/jest.config.ts"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
     }
   ]
 }

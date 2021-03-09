@@ -7,7 +7,8 @@ import { container, inject, injectable } from 'tsyringe';
 import { RequestLogger } from './common/middlewares/RequestLogger';
 import { Services } from './common/constants';
 import { IConfig, ILogger } from './common/interfaces';
-import { resourceNameRouterFactory } from './resourceName/routes/resourceNameRouter';
+import { metadataRouterFactory } from './metadata/routes/metadataRouter';
+
 @injectable()
 export class ServerBuilder {
   private readonly serverInstance: express.Application;
@@ -35,7 +36,7 @@ export class ServerBuilder {
   }
 
   private buildRoutes(): void {
-    this.serverInstance.use('/resourceName', resourceNameRouterFactory(container));
+    this.serverInstance.use('/metadata', metadataRouterFactory(container));
     this.buildDocsRoutes();
   }
 
