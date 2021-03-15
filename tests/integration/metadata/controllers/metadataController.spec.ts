@@ -1,6 +1,6 @@
-import { Application } from 'express';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
+import { Application } from 'express';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Metadata } from '../../../../src/metadata/models/metadata';
 import { convertTimestampToISOString, createFakeMetadata } from '../../../helpers/helpers';
@@ -23,7 +23,7 @@ describe('MetadataController', function () {
     container.reset();
   });
 
-  describe('GET /jobs', function () {
+  describe('GET /metadata', function () {
     describe('Happy Path 🙂', function () {
       it('should return 204 if there are no metadata records', async function () {
         const response = await requestSender.getAll(app);
@@ -60,7 +60,7 @@ describe('MetadataController', function () {
     });
   });
 
-  describe('POST /jobs', function () {
+  describe('POST /metadata', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added metadata record', async function () {
         const metadata = createFakeMetadata();
