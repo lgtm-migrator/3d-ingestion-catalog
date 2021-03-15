@@ -104,7 +104,7 @@ describe('MetadataController', function () {
     });
 
     describe('Sad Path 😥', function () {
-      it('should return 422 status code if a job with the same id exists', async function () {
+      it('should return 422 status code if a metadata record with the same id already exists', async function () {
         const metadata = createFakeMetadata();
         const findMock = jest.fn().mockResolvedValue(metadata);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
