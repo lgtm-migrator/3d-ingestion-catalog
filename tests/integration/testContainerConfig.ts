@@ -1,4 +1,3 @@
-import { readFileSync } from 'fs';
 import { container } from 'tsyringe';
 import config from 'config';
 import { Services } from '../../src/common/constants';
