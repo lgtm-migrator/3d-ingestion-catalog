@@ -50,7 +50,7 @@ production.json:
     "level": "info"
   },
   "server": {
-    "port": "8080"
+    "port": "8085"
   },
   "db": {
     "type": "postgres",

@@ -29,7 +29,7 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-      const metadata = await this.manager.createMetadata(req.body);
+      const metadata = await this.manager.createRecord(req.body);
       return res.status(httpStatus.CREATED).json(metadata);
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {

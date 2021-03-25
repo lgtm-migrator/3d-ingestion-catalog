@@ -19,6 +19,6 @@ export async function getAll(app: Application): Promise<supertest.Response> {
   return supertest.agent(app).get('/metadata').set('Content-Type', 'application/json');
 }
 
-export async function createMetadata(app: Application, body: IMetadata): Promise<supertest.Response> {
-  return supertest.agent(app).post('/metadata').set('Content-Type', 'application/json').send(body);
+export async function createMetadata(app: Application, payload: IMetadata): Promise<supertest.Response> {
+  return supertest.agent(app).post('/metadata').set('Content-Type', 'application/json').send(payload);
 }

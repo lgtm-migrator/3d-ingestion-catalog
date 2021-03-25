@@ -76,22 +76,12 @@ describe('MetadataController', function () {
     describe('Bad Path 😡', function () {
       it('should return 400 status code and error message if mandatory fields are missing', async function () {
         const metadata = createFakeMetadata();
-        delete metadata.productId;
-        delete metadata.productName;
-        delete metadata.geographicArea;
-        delete metadata.productVersion;
-        delete metadata.productType;
-        delete metadata.extentLowerLeft;
-        delete metadata.extentUpperRight;
-        delete metadata.SourceDateStart;
-        delete metadata.SourceDateEnd;
-        delete metadata.producerName;
-        delete metadata.SRS;
-        delete metadata.accuracyLE90;
-        delete metadata.horizontalAccuracyCE90;
-        delete metadata.relativeAccuracyLE90;
-        delete metadata.sensor;
-        delete metadata.productionSystem;
+        delete metadata.identifier;
+        delete metadata.typeName;
+        delete metadata.schema;
+        delete metadata.mdSource;
+        delete metadata.xml;
+        delete metadata.anytext;
 
         const response = await requestSender.createMetadata(app, metadata);
 
@@ -112,7 +102,7 @@ describe('MetadataController', function () {
         const response = await requestSender.createMetadata(mockedApp, metadata);
 
         expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.productId} already exists`);
+        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} already exists`);
       });
 
       it('should return 500 status code if a db exception happens', async function () {

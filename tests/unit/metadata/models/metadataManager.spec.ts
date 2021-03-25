@@ -43,7 +43,7 @@ describe('MetadataManager', () => {
     });
   });
 
-  describe('#createMetadata', () => {
+  describe('#createRecord', () => {
     const insert = jest.fn();
     const findOne = jest.fn();
     beforeEach(() => {
@@ -59,7 +59,7 @@ describe('MetadataManager', () => {
       insert.mockResolvedValue(undefined);
       const metadata = createFakeMetadata();
 
-      const createPromise = metadataManager.createMetadata(metadata);
+      const createPromise = metadataManager.createRecord(metadata);
 
       await expect(createPromise).resolves.toStrictEqual(metadata);
     });
@@ -68,7 +68,7 @@ describe('MetadataManager', () => {
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
       const metadata = createFakeMetadata();
 
-      const createPromise = metadataManager.createMetadata(metadata);
+      const createPromise = metadataManager.createRecord(metadata);
 
       await expect(createPromise).rejects.toThrow(QueryFailedError);
     });
@@ -78,7 +78,7 @@ describe('MetadataManager', () => {
       findOne.mockResolvedValue(metadata);
       insert.mockResolvedValue(undefined);
 
-      const createPromise = metadataManager.createMetadata(metadata);
+      const createPromise = metadataManager.createRecord(metadata);
 
       await expect(createPromise).rejects.toThrow(IdAlreadyExistsError);
     });

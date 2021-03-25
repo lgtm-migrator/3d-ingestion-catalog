@@ -17,11 +17,11 @@ export class MetadataManager {
     return this.repository.find();
   }
 
-  public async createMetadata(newMetadata: IMetadata): Promise<IMetadata> {
+  public async createRecord(newMetadata: IMetadata): Promise<IMetadata> {
     this.logger.log('info', `Create a new metadata record: ${JSON.stringify(newMetadata)}`);
-    let dbMetadata = await this.repository.findOne({ where: [{ productId: newMetadata.productId }] });
+    let dbMetadata = await this.repository.findOne({ where: [{ identifier: newMetadata.identifier }] });
     if (dbMetadata != undefined) {
-      throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.productId} already exists`);
+      throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.identifier} already exists`);
     }
     await this.repository.insert(newMetadata);
     return newMetadata;
