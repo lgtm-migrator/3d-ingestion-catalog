@@ -105,7 +105,7 @@ components:
           description: Anytext
         wktGeometry:
           type: string
-          description: WKT geometry
+          description: Well-Known-Text geometry
         title:
           type: string
           description: Title
@@ -160,10 +160,8 @@ components:
           format: date-time
           description: Ending time
         sensorType:
-          type: array
-          items:
-            type: string
-          description: The sensor used as the source of the product (possibly more than one)
+          type: string
+          description: The sensor used as the source of the product
         region:
           type: string
           description: Region

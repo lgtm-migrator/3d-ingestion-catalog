@@ -47,6 +47,7 @@
     "@map-colonies/mc-model-types": "^3.0.1",
     "@map-colonies/mc-probe": "^1.0.0",
     "@map-colonies/openapi-express-viewer": "^2.0.1",
+    "@types/geojson": "^7946.0.7",
     "config": "^3.3.3",
     "express": "^4.17.1",
     "express-openapi-validator": "^4.10.9",

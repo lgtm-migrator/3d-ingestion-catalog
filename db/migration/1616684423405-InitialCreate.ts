@@ -1,44 +1,43 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitialCreate1616666664705 implements MigrationInterface {
-  public name = 'InitialCreate1616666664705';
+export class InitialCreate1616684423405 implements MigrationInterface {
+  public name = 'InitialCreate1616684423405';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `CREATE TABLE "records" (
-                "identifier" character varying NOT NULL, 
-                "typename" character varying NOT NULL, 
-                "schema" character varying NOT NULL, 
-                "mdsource" character varying NOT NULL, 
-                "xml" character varying NOT NULL, 
-                "anytext" character varying NOT NULL, 
-                "wkt_geometry" character varying NOT NULL, 
-                "title" character varying NOT NULL, 
-                "producer_name" character varying NOT NULL DEFAULT 'IDFMU', 
-                "description" character varying NOT NULL, 
-                "insert_date" TIMESTAMP NOT NULL, 
-                "creation_date" TIMESTAMP NOT NULL, 
-                "validation_date" TIMESTAMP NOT NULL, 
-                "type" character varying NOT NULL, 
-                "classification" character varying NOT NULL, 
-                "srs" character varying NOT NULL, 
-                "project_name" character varying NOT NULL, 
-                "version" character varying NOT NULL, 
-                "centroid" character varying NOT NULL, 
-                "footprint" character varying NOT NULL, 
-                "time_begin" TIMESTAMP NOT NULL, 
-                "time_end" TIMESTAMP NOT NULL, 
-                "sensor_type" json NOT NULL, 
-                "region" character varying NOT NULL, 
-                "nominal_resolution" character varying NOT NULL, 
-                "accuracy_le_90" character varying NOT NULL, 
-                "horizontal_accuracy_ce_90" character varying NOT NULL, 
-                "relative_accuracy_le_90" character varying NOT NULL, 
-                "estimated_precision" character varying NOT NULL, 
-                "measured_precision" character varying NOT NULL, 
-                "links" character varying NOT NULL, 
-                "anytext_tsvector" character varying NOT NULL, 
-                "wkb_geometry" character varying NOT NULL, 
+                "identifier" text NOT NULL, 
+                "typename" text NOT NULL, 
+                "schema" text NOT NULL, 
+                "mdsource" text NOT NULL, 
+                "xml" text NOT NULL, 
+                "anytext" text NOT NULL, 
+                "wkt_geometry" text, 
+                "title" text, 
+                "producer_name" text DEFAULT 'IDFMU', 
+                "description" text, 
+                "insert_date" TIMESTAMP, 
+                "creation_date" TIMESTAMP, 
+                "validation_date" TIMESTAMP, 
+                "type" text, 
+                "classification" text, 
+                "srs" text, 
+                "project_name" text, 
+                "version" text, 
+                "centroid" text, 
+                "footprint" text, 
+                "time_begin" TIMESTAMP, 
+                "time_end" TIMESTAMP, 
+                "sensor_type" text, 
+                "region" text, 
+                "nominal_resolution" text, 
+                "accuracy_le_90" text, 
+                "horizontal_accuracy_ce_90" text, 
+                "relative_accuracy_le_90" text, 
+                "estimated_precision" text, 
+                "measured_precision" text, 
+                "links" text, 
+                "anytext_tsvector" tsvector, 
                 CONSTRAINT "PK_2853dfd49850d5f439dfc462cd0" PRIMARY KEY ("identifier")
             )`
     );
@@ -71,11 +70,9 @@ export class InitialCreate1616666664705 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX "ix_records_measured_precision" ON "records" ("measured_precision") `);
     await queryRunner.query(`CREATE INDEX "ix_records_links" ON "records" ("links") `);
     await queryRunner.query(`CREATE INDEX "ix_records_anytext_tsvector" ON "records" ("anytext_tsvector") `);
-    await queryRunner.query(`CREATE INDEX "ix_records_wkb_geometry" ON "records" ("wkb_geometry") `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX "ix_records_wkb_geometry"`);
     await queryRunner.query(`DROP INDEX "ix_records_anytext_tsvector"`);
     await queryRunner.query(`DROP INDEX "ix_records_links"`);
     await queryRunner.query(`DROP INDEX "ix_records_measured_precision"`);

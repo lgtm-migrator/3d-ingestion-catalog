@@ -1,3 +1,4 @@
+-- Table: public.records
 -- DROP TABLE public.records;
 CREATE TABLE public.records
 (
@@ -226,6 +227,18 @@ CREATE TRIGGER ftsupdate
     ON public.records
     FOR EACH ROW
     EXECUTE PROCEDURE tsvector_update_trigger('anytext_tsvector', 'pg_catalog.english', 'anytext');
+-- FUNCTION: public.records_update_geometry()
+-- DROP FUNCTION public.records_update_geometry();
+CREATE FUNCTION public.records_update_geometry()
+    RETURNS trigger AS $records_update_geometry$
+BEGIN
+    IF NEW.wkt_geometry IS NULL THEN
+        RETURN NEW;
+    END IF;
+    NEW.wkb_geometry := ST_GeomFromText(NEW.wkt_geometry,4326);
+    RETURN NEW;
+END;
+$records_update_geometry$ LANGUAGE plpgsql;
 -- Trigger: records_update_geometry
 -- DROP TRIGGER records_update_geometry ON public.records;
 CREATE TRIGGER records_update_geometry

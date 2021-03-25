@@ -1,4 +1,5 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import { Geometry } from 'geojson';
 
 export interface IMetadata {
   /**
@@ -26,7 +27,7 @@ export interface IMetadata {
    */
   anytext: string;
   /**
-   * WKT geometry
+   * Well-Known-Text geometry
    */
   wktGeometry?: string;
   /**
@@ -90,9 +91,9 @@ export interface IMetadata {
    */
   timeEnd?: Date;
   /**
-   * The sensor used as the source of the product (possibly more than one)
+   * The sensor used as the source of the product
    */
-  sensorType?: string[];
+  sensorType?: string;
   /**
    * Region
    */
@@ -132,105 +133,107 @@ export interface IMetadata {
   /**
    * WKB geometry
    */
-  wkbGeometry?: string;
+  // wkbGeometry?: Geometry;
 }
 
 @Entity({ name: 'records' })
 export class Metadata implements IMetadata {
-  @PrimaryColumn()
+  @PrimaryColumn('text')
   identifier!: string;
-  @Column({ name: 'typename' })
+  @Column('text', { name: 'typename' })
   @Index('ix_records_typename')
   typeName!: string;
-  @Column()
+  @Column('text')
   @Index('ix_records_schema')
   schema!: string;
-  @Column({ name: 'mdsource' })
+  @Column('text', { name: 'mdsource' })
   @Index('ix_records_mdsource')
   mdSource!: string;
-  @Column()
+  @Column('text')
   xml!: string;
-  @Column()
+  @Column('text')
   anytext!: string;
-  @Column({ name: 'wkt_geometry' })
+  @Column('text', { name: 'wkt_geometry', nullable: true })
   @Index('ix_records_wkt_geometry')
   wktGeometry?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_title')
   title?: string;
-  @Column({ name: 'producer_name', default: 'IDFMU' })
+  @Column('text', { name: 'producer_name', default: 'IDFMU', nullable: true })
   @Index('ix_records_producer_name')
   producerName?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_description')
   description?: string;
-  @Column({ name: 'insert_date' })
+  @Column({ name: 'insert_date', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_insert_date')
   insertDate?: Date;
-  @Column({ name: 'creation_date' })
+  @Column({ name: 'creation_date', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_creation_date')
   creationDate?: Date;
-  @Column({ name: 'validation_date' })
+  @Column({ name: 'validation_date', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_validation_date')
   validationDate?: Date;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_type')
   type?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_classification')
   classification?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_srs')
   srs?: string;
-  @Column({ name: 'project_name' })
+  @Column('text', { name: 'project_name', nullable: true })
   @Index('ix_records_project_name')
   projectName?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_version')
   version?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_centroid')
   centroid?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_footprint')
   footprint?: string;
-  @Column({ name: 'time_begin' })
+  @Column({ name: 'time_begin', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_time_begin')
   timeBegin?: Date;
-  @Column({ name: 'time_end' })
+  @Column({ name: 'time_end', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_time_end')
   timeEnd?: Date;
-  @Column({ name: 'sensor_type', type: 'json' })
+  @Column('text', { name: 'sensor_type', nullable: true })
   @Index('ix_records_sensor_type')
-  sensorType?: string[];
-  @Column()
+  sensorType?: string;
+  @Column('text', { nullable: true })
   @Index('ix_records_region')
   region?: string;
-  @Column({ name: 'nominal_resolution' })
+  @Column('text', { name: 'nominal_resolution', nullable: true })
   @Index('ix_records_nominal_resolution')
   nominalResolution?: string;
-  @Column({ name: 'accuracy_le_90' })
+  @Column('text', { name: 'accuracy_le_90', nullable: true })
   @Index('ix_records_accuracy_le_90')
   accuracyLE90?: string;
-  @Column({ name: 'horizontal_accuracy_ce_90' })
+  @Column('text', { name: 'horizontal_accuracy_ce_90', nullable: true })
   @Index('ix_records_horizontal_accuracy_ce_90')
   horizontalAccuracyCE90?: string;
-  @Column({ name: 'relative_accuracy_le_90' })
+  @Column('text', { name: 'relative_accuracy_le_90', nullable: true })
   @Index('ix_records_relative_accuracy_le_90')
   relativeAccuracyLE90?: string;
-  @Column({ name: 'estimated_precision' })
+  @Column('text', { name: 'estimated_precision', nullable: true })
   @Index('ix_records_estimated_precision')
   estimatedPrecision?: string;
-  @Column({ name: 'measured_precision' })
+  @Column('text', { name: 'measured_precision', nullable: true })
   @Index('ix_records_measured_precision')
   measuredPrecision?: string;
-  @Column()
+  @Column('text', { nullable: true })
   @Index('ix_records_links')
   links?: string;
-  @Column({ name: 'anytext_tsvector' })
+  @Column({ name: 'anytext_tsvector', type: 'tsvector', nullable: true })
   @Index('ix_records_anytext_tsvector')
   anytextTsvector?: string;
-  @Column({ name: 'wkb_geometry' })
-  @Index('ix_records_wkb_geometry')
-  wkbGeometry?: string;
+  // @Column({ name: 'wkb_geometry', spatialFeatureType: 'Geometry', srid: 4326 })
+  // @Index('ix_records_wkb_geometry', { spatial: true })
+  // wkbGeometry?: Geometry;
+  // @BeforeInsert()
+  // @BeforeUpdate()
 }

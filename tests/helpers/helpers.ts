@@ -20,7 +20,7 @@ export const createFakeMetadata = (): IMetadata => {
     anytext: faker.random.word(),
     wktGeometry: faker.random.word(),
     title: faker.random.word(),
-    producerName: faker.random.word(),
+    producerName: 'IDFMU',
     description: faker.random.word(),
     insertDate: faker.date.past(),
     creationDate: faker.date.past(),
@@ -34,7 +34,7 @@ export const createFakeMetadata = (): IMetadata => {
     footprint: faker.random.word(),
     timeBegin: faker.date.past(),
     timeEnd: faker.date.past(),
-    sensorType: [faker.random.word()],
+    sensorType: faker.random.word(),
     region: faker.random.word(),
     nominalResolution: faker.random.word(),
     accuracyLE90: faker.random.word(),
@@ -44,7 +44,7 @@ export const createFakeMetadata = (): IMetadata => {
     measuredPrecision: faker.random.word(),
     links: faker.random.word(),
     anytextTsvector: faker.random.word(),
-    wkbGeometry: faker.random.word(),
+    // wkbGeometry: faker.random.word()
   };
 };
 

@@ -88,7 +88,7 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty(
           'message',
-          "request.body should have required property 'productId', request.body should have required property 'productName', request.body should have required property 'geographicArea', request.body should have required property 'extentLowerLeft', request.body should have required property 'extentUpperRight', request.body should have required property 'SourceDateStart', request.body should have required property 'SourceDateEnd', request.body should have required property 'SRS', request.body should have required property 'accuracyLE90', request.body should have required property 'horizontalAccuracyCE90', request.body should have required property 'relativeAccuracyLE90', request.body should have required property 'sensor', request.body should have required property 'productionSystem'"
+          "request.body should have required property 'identifier', request.body should have required property 'typeName', request.body should have required property 'schema', request.body should have required property 'mdsource', request.body should have required property 'xml', request.body should have required property 'anytext'"
         );
       });
     });
