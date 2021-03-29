@@ -81,9 +81,9 @@ components:
         - typeName
         - schema
         - mdsource
-        - insertDate
         - xml
         - anytext
+        - insertDate
       properties:
         identifier:
           type: string
@@ -103,6 +103,18 @@ components:
         anytext:
           type: string
           description: Anytext
+        insertDate:
+          type: string
+          format: date-time
+          description: Insertion date
+        creationDate:
+          type: string
+          format: date-time
+          description: Creation date
+        validationDate:
+          type: string
+          format: date-time
+          description: Validation date
         wktGeometry:
           type: string
           description: Well-Known-Text geometry
@@ -118,18 +130,6 @@ components:
         description:
           type: string
           description: Description
-        insertDate:
-          type: string
-          format: date-time
-          description: Insertion date
-        creationDate:
-          type: string
-          format: date-time
-          description: Creation date
-        validationDate:
-          type: string
-          format: date-time
-          description: Validation date
         type:
           type: string
           description: Type

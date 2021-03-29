@@ -1,5 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryColumn } from 'typeorm';
-import { Geometry } from 'geojson';
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
 export interface IMetadata {
   /**
@@ -27,6 +26,18 @@ export interface IMetadata {
    */
   anytext: string;
   /**
+   * Record insertion date
+   */
+  insertDate?: Date;
+  /**
+   * Creation date
+   */
+  creationDate?: Date;
+  /**
+   * Validation date
+   */
+  validationDate?: Date;
+  /**
    * Well-Known-Text geometry
    */
   wktGeometry?: string;
@@ -42,18 +53,6 @@ export interface IMetadata {
    * Description
    */
   description?: string;
-  /**
-   * Record insertion date
-   */
-  insertDate?: Date;
-  /**
-   * Creation date
-   */
-  creationDate?: Date;
-  /**
-   * Validation date
-   */
-  validationDate?: Date;
   /**
    * Type
    */
@@ -133,7 +132,7 @@ export interface IMetadata {
   /**
    * WKB geometry
    */
-  // wkbGeometry?: Geometry;
+  wkbGeometry?: string;
 }
 
 @Entity({ name: 'records' })
@@ -153,6 +152,15 @@ export class Metadata implements IMetadata {
   xml!: string;
   @Column('text')
   anytext!: string;
+  @Column({ name: 'insert_date', type: 'timestamp without time zone' })
+  @Index('ix_records_insert_date')
+  insertDate!: Date;
+  @Column({ name: 'creation_date', type: 'timestamp without time zone', nullable: true })
+  @Index('ix_records_creation_date')
+  creationDate?: Date;
+  @Column({ name: 'validation_date', type: 'timestamp without time zone', nullable: true })
+  @Index('ix_records_validation_date')
+  validationDate?: Date;
   @Column('text', { name: 'wkt_geometry', nullable: true })
   @Index('ix_records_wkt_geometry')
   wktGeometry?: string;
@@ -165,15 +173,6 @@ export class Metadata implements IMetadata {
   @Column('text', { nullable: true })
   @Index('ix_records_description')
   description?: string;
-  @Column({ name: 'insert_date', type: 'timestamp without time zone', nullable: true })
-  @Index('ix_records_insert_date')
-  insertDate?: Date;
-  @Column({ name: 'creation_date', type: 'timestamp without time zone', nullable: true })
-  @Index('ix_records_creation_date')
-  creationDate?: Date;
-  @Column({ name: 'validation_date', type: 'timestamp without time zone', nullable: true })
-  @Index('ix_records_validation_date')
-  validationDate?: Date;
   @Column('text', { nullable: true })
   @Index('ix_records_type')
   type?: string;
@@ -231,9 +230,7 @@ export class Metadata implements IMetadata {
   @Column({ name: 'anytext_tsvector', type: 'tsvector', nullable: true })
   @Index('ix_records_anytext_tsvector')
   anytextTsvector?: string;
-  // @Column({ name: 'wkb_geometry', spatialFeatureType: 'Geometry', srid: 4326 })
-  // @Index('ix_records_wkb_geometry', { spatial: true })
-  // wkbGeometry?: Geometry;
-  // @BeforeInsert()
-  // @BeforeUpdate()
+  @Column('geometry', { name: 'wkb_geometry', spatialFeatureType: 'Geometry', srid: 4326, nullable: true })
+  @Index('ix_records_wkb_geometry', { spatial: true })
+  wkbGeometry?: string;
 }

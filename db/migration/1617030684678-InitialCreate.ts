@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitialCreate1616684423405 implements MigrationInterface {
-  public name = 'InitialCreate1616684423405';
+export class InitialCreate1617030684678 implements MigrationInterface {
+  public name = 'InitialCreate1617030684678';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -12,13 +12,13 @@ export class InitialCreate1616684423405 implements MigrationInterface {
                 "mdsource" text NOT NULL, 
                 "xml" text NOT NULL, 
                 "anytext" text NOT NULL, 
+                "insert_date" TIMESTAMP NOT NULL, 
+                "creation_date" TIMESTAMP, 
+                "validation_date" TIMESTAMP, 
                 "wkt_geometry" text, 
                 "title" text, 
                 "producer_name" text DEFAULT 'IDFMU', 
                 "description" text, 
-                "insert_date" TIMESTAMP, 
-                "creation_date" TIMESTAMP, 
-                "validation_date" TIMESTAMP, 
                 "type" text, 
                 "classification" text, 
                 "srs" text, 
@@ -38,19 +38,20 @@ export class InitialCreate1616684423405 implements MigrationInterface {
                 "measured_precision" text, 
                 "links" text, 
                 "anytext_tsvector" tsvector, 
+                "wkb_geometry" geometry(Geometry,4326), 
                 CONSTRAINT "PK_2853dfd49850d5f439dfc462cd0" PRIMARY KEY ("identifier")
             )`
     );
     await queryRunner.query(`CREATE INDEX "ix_records_typename" ON "records" ("typename") `);
     await queryRunner.query(`CREATE INDEX "ix_records_schema" ON "records" ("schema") `);
     await queryRunner.query(`CREATE INDEX "ix_records_mdsource" ON "records" ("mdsource") `);
+    await queryRunner.query(`CREATE INDEX "ix_records_insert_date" ON "records" ("insert_date") `);
+    await queryRunner.query(`CREATE INDEX "ix_records_creation_date" ON "records" ("creation_date") `);
+    await queryRunner.query(`CREATE INDEX "ix_records_validation_date" ON "records" ("validation_date") `);
     await queryRunner.query(`CREATE INDEX "ix_records_wkt_geometry" ON "records" ("wkt_geometry") `);
     await queryRunner.query(`CREATE INDEX "ix_records_title" ON "records" ("title") `);
     await queryRunner.query(`CREATE INDEX "ix_records_producer_name" ON "records" ("producer_name") `);
     await queryRunner.query(`CREATE INDEX "ix_records_description" ON "records" ("description") `);
-    await queryRunner.query(`CREATE INDEX "ix_records_insert_date" ON "records" ("insert_date") `);
-    await queryRunner.query(`CREATE INDEX "ix_records_creation_date" ON "records" ("creation_date") `);
-    await queryRunner.query(`CREATE INDEX "ix_records_validation_date" ON "records" ("validation_date") `);
     await queryRunner.query(`CREATE INDEX "ix_records_type" ON "records" ("type") `);
     await queryRunner.query(`CREATE INDEX "ix_records_classification" ON "records" ("classification") `);
     await queryRunner.query(`CREATE INDEX "ix_records_srs" ON "records" ("srs") `);
@@ -70,9 +71,11 @@ export class InitialCreate1616684423405 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX "ix_records_measured_precision" ON "records" ("measured_precision") `);
     await queryRunner.query(`CREATE INDEX "ix_records_links" ON "records" ("links") `);
     await queryRunner.query(`CREATE INDEX "ix_records_anytext_tsvector" ON "records" ("anytext_tsvector") `);
+    await queryRunner.query(`CREATE INDEX "ix_records_wkb_geometry" ON "records" USING GiST ("wkb_geometry") `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP INDEX "ix_records_wkb_geometry"`);
     await queryRunner.query(`DROP INDEX "ix_records_anytext_tsvector"`);
     await queryRunner.query(`DROP INDEX "ix_records_links"`);
     await queryRunner.query(`DROP INDEX "ix_records_measured_precision"`);
@@ -92,13 +95,13 @@ export class InitialCreate1616684423405 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "ix_records_srs"`);
     await queryRunner.query(`DROP INDEX "ix_records_classification"`);
     await queryRunner.query(`DROP INDEX "ix_records_type"`);
-    await queryRunner.query(`DROP INDEX "ix_records_validation_date"`);
-    await queryRunner.query(`DROP INDEX "ix_records_creation_date"`);
-    await queryRunner.query(`DROP INDEX "ix_records_insert_date"`);
     await queryRunner.query(`DROP INDEX "ix_records_description"`);
     await queryRunner.query(`DROP INDEX "ix_records_producer_name"`);
     await queryRunner.query(`DROP INDEX "ix_records_title"`);
     await queryRunner.query(`DROP INDEX "ix_records_wkt_geometry"`);
+    await queryRunner.query(`DROP INDEX "ix_records_validation_date"`);
+    await queryRunner.query(`DROP INDEX "ix_records_creation_date"`);
+    await queryRunner.query(`DROP INDEX "ix_records_insert_date"`);
     await queryRunner.query(`DROP INDEX "ix_records_mdsource"`);
     await queryRunner.query(`DROP INDEX "ix_records_schema"`);
     await queryRunner.query(`DROP INDEX "ix_records_typename"`);
