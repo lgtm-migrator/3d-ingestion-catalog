@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import faker, { fake } from 'faker';
+import faker from 'faker';
 import { IMetadata, Metadata } from '../../src/metadata/models/metadata';
 
 interface IntegrationMetadata extends Omit<Metadata, 'insertDate' | 'creationDate' | 'validationDate' | 'timeBegin' | 'timeEnd'> {
@@ -52,7 +51,7 @@ export const convertTimestampToISOString = (metadata: IMetadata): IntegrationMet
   const { insertDate, creationDate, validationDate, timeBegin, timeEnd, ...rest } = metadata;
   return {
     ...rest,
-    insertDate: insertDate ? insertDate.toISOString() : '',
+    insertDate: insertDate.toISOString(),
     creationDate: creationDate ? creationDate.toISOString() : '',
     validationDate: validationDate ? validationDate.toISOString() : '',
     timeBegin: timeBegin ? timeBegin.toISOString() : '',
