@@ -82,13 +82,14 @@ describe('MetadataController', function () {
         delete metadata.mdSource;
         delete metadata.xml;
         delete metadata.anytext;
+        delete metadata.insertDate;
 
         const response = await requestSender.createMetadata(app, metadata);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty(
           'message',
-          "request.body should have required property 'identifier', request.body should have required property 'typeName', request.body should have required property 'schema', request.body should have required property 'mdsource', request.body should have required property 'xml', request.body should have required property 'anytext'"
+          "request.body should have required property 'identifier', request.body should have required property 'typeName', request.body should have required property 'schema', request.body should have required property 'mdSource', request.body should have required property 'xml', request.body should have required property 'anytext', request.body should have required property 'insertDate'"
         );
       });
     });

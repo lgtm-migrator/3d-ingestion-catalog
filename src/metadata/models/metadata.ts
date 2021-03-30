@@ -28,7 +28,7 @@ export interface IMetadata {
   /**
    * Record insertion date
    */
-  insertDate?: Date;
+  insertDate: Date;
   /**
    * Creation date
    */

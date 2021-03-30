@@ -80,7 +80,7 @@ components:
         - identifier
         - typeName
         - schema
-        - mdsource
+        - mdSource
         - xml
         - anytext
         - insertDate
@@ -94,7 +94,7 @@ components:
         schema:
           type: string
           description: Schema
-        mdsource:
+        mdSource:
           type: string
           description: MD source
         xml:
