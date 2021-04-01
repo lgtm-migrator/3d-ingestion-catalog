@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitialCreate1617103194132 implements MigrationInterface {
-  public name = 'InitialCreate1617103194132';
+export class InitialCreate1617273302869 implements MigrationInterface {
+  public name = 'InitialCreate1617273302869';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -18,8 +18,7 @@ export class InitialCreate1617103194132 implements MigrationInterface {
                 "wkt_geometry" text, 
                 "title" text, 
                 "producer_name" text DEFAULT 'IDFMU', 
-                "description" text, 
-                "type" text, 
+                "description" text, "type" text, 
                 "classification" text, 
                 "srs" text, 
                 "project_name" text, 
@@ -70,8 +69,24 @@ export class InitialCreate1617103194132 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX "ix_records_estimated_precision" ON "records" ("estimated_precision") `);
     await queryRunner.query(`CREATE INDEX "ix_records_measured_precision" ON "records" ("measured_precision") `);
     await queryRunner.query(`CREATE INDEX "ix_records_links" ON "records" ("links") `);
-    await queryRunner.query(`CREATE INDEX "ix_records_anytext_tsvector" ON "records" ("anytext_tsvector") `);
+    await queryRunner.query(`CREATE INDEX "ix_records_anytext_tsvector" ON "records" USING Gin ("anytext_tsvector") `);
     await queryRunner.query(`CREATE INDEX "ix_records_wkb_geometry" ON "records" USING GiST ("wkb_geometry") `);
+    await queryRunner.query(`CREATE FUNCTION public.records_update_geometry()
+        RETURNS trigger AS $records_update_geometry$
+    BEGIN
+        IF NEW.wkt_geometry IS NULL THEN
+            RETURN NEW;
+        END IF;
+        NEW.wkb_geometry := ST_GeomFromText(NEW.wkt_geometry,4326);
+        RETURN NEW;
+    END;
+    $records_update_geometry$ LANGUAGE plpgsql;`);
+    await queryRunner.query(
+      `CREATE TRIGGER "ftsupdate" BEFORE INSERT OR UPDATE ON "records" FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger("anytext_tsvector", "pg_catalog.english", "anytext")`
+    );
+    await queryRunner.query(
+      `CREATE TRIGGER "records_update_geometry" BEFORE INSERT OR UPDATE ON "records" FOR EACH ROW EXECUTE PROCEDURE records_update_geometry()`
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -105,6 +120,9 @@ export class InitialCreate1617103194132 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "ix_records_mdsource"`);
     await queryRunner.query(`DROP INDEX "ix_records_schema"`);
     await queryRunner.query(`DROP INDEX "ix_records_typename"`);
+    await queryRunner.query(`DROP TRIGGER "ftsupdate" ON "records"`);
+    await queryRunner.query(`DROP TRIGGER "records_update_geometry" ON "records"`);
+    await queryRunner.query(`DROP FUNCTION records_update_geometry()`);
     await queryRunner.query(`DROP TABLE "records"`);
   }
 }

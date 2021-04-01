@@ -130,107 +130,107 @@ export interface IMetadata {
    */
   anytextTsvector?: string;
   /**
-   * WKB geometry
+   * Well-Known-Binary geometry
    */
   wkbGeometry?: string;
 }
 
 @Entity({ name: 'records' })
 export class Metadata implements IMetadata {
-  @PrimaryColumn('text')
+  @PrimaryColumn({ type: 'text' })
   public identifier!: string;
-  @Column('text', { name: 'typename' })
   @Index('ix_records_typename')
+  @Column({ name: 'typename', type: 'text' })
   public typeName!: string;
-  @Column('text')
   @Index('ix_records_schema')
+  @Column({ type: 'text' })
   public schema!: string;
-  @Column('text', { name: 'mdsource' })
   @Index('ix_records_mdsource')
+  @Column({ name: 'mdsource', type: 'text' })
   public mdSource!: string;
-  @Column('text')
+  @Column({ type: 'text' })
   public xml!: string;
-  @Column('text')
+  @Column({ type: 'text' })
   public anytext!: string;
-  @Column({ name: 'insert_date', type: 'timestamp without time zone' })
   @Index('ix_records_insert_date')
+  @Column({ name: 'insert_date', type: 'timestamp without time zone' })
   public insertDate!: Date;
-  @Column({ name: 'creation_date', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_creation_date')
+  @Column({ name: 'creation_date', type: 'timestamp without time zone', nullable: true })
   public creationDate?: Date;
-  @Column({ name: 'validation_date', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_validation_date')
+  @Column({ name: 'validation_date', type: 'timestamp without time zone', nullable: true })
   public validationDate?: Date;
-  @Column('text', { name: 'wkt_geometry', nullable: true })
   @Index('ix_records_wkt_geometry')
+  @Column({ name: 'wkt_geometry', type: 'text', nullable: true })
   public wktGeometry?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_title')
+  @Column({ type: 'text', nullable: true })
   public title?: string;
-  @Column('text', { name: 'producer_name', default: 'IDFMU', nullable: true })
   @Index('ix_records_producer_name')
+  @Column({ name: 'producer_name', type: 'text', default: 'IDFMU', nullable: true })
   public producerName?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_description')
+  @Column({ type: 'text', nullable: true })
   public description?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_type')
+  @Column({ type: 'text', nullable: true })
   public type?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_classification')
+  @Column({ type: 'text', nullable: true })
   public classification?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_srs')
+  @Column({ type: 'text', nullable: true })
   public srs?: string;
-  @Column('text', { name: 'project_name', nullable: true })
   @Index('ix_records_project_name')
+  @Column({ name: 'project_name', type: 'text', nullable: true })
   public projectName?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_version')
+  @Column({ type: 'text', nullable: true })
   public version?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_centroid')
+  @Column({ type: 'text', nullable: true })
   public centroid?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_footprint')
+  @Column({ type: 'text', nullable: true })
   public footprint?: string;
-  @Column({ name: 'time_begin', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_time_begin')
+  @Column({ name: 'time_begin', type: 'timestamp without time zone', nullable: true })
   public timeBegin?: Date;
-  @Column({ name: 'time_end', type: 'timestamp without time zone', nullable: true })
   @Index('ix_records_time_end')
+  @Column({ name: 'time_end', type: 'timestamp without time zone', nullable: true })
   public timeEnd?: Date;
-  @Column('text', { name: 'sensor_type', nullable: true })
   @Index('ix_records_sensor_type')
+  @Column({ name: 'sensor_type', type: 'text', nullable: true })
   public sensorType?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_region')
+  @Column({ type: 'text', nullable: true })
   public region?: string;
-  @Column('text', { name: 'nominal_resolution', nullable: true })
   @Index('ix_records_nominal_resolution')
+  @Column({ name: 'nominal_resolution', type: 'text', nullable: true })
   public nominalResolution?: string;
-  @Column('text', { name: 'accuracy_le_90', nullable: true })
   @Index('ix_records_accuracy_le_90')
+  @Column({ name: 'accuracy_le_90', type: 'text', nullable: true })
   public accuracyLE90?: string;
-  @Column('text', { name: 'horizontal_accuracy_ce_90', nullable: true })
   @Index('ix_records_horizontal_accuracy_ce_90')
+  @Column({ name: 'horizontal_accuracy_ce_90', type: 'text', nullable: true })
   public horizontalAccuracyCE90?: string;
-  @Column('text', { name: 'relative_accuracy_le_90', nullable: true })
   @Index('ix_records_relative_accuracy_le_90')
+  @Column({ name: 'relative_accuracy_le_90', type: 'text', nullable: true })
   public relativeAccuracyLE90?: string;
-  @Column('text', { name: 'estimated_precision', nullable: true })
   @Index('ix_records_estimated_precision')
+  @Column({ name: 'estimated_precision', type: 'text', nullable: true })
   public estimatedPrecision?: string;
-  @Column('text', { name: 'measured_precision', nullable: true })
   @Index('ix_records_measured_precision')
+  @Column({ name: 'measured_precision', type: 'text', nullable: true })
   public measuredPrecision?: string;
-  @Column('text', { nullable: true })
   @Index('ix_records_links')
+  @Column({ nullable: true, type: 'text' })
   public links?: string;
-  @Column({ name: 'anytext_tsvector', type: 'tsvector', nullable: true })
   @Index('ix_records_anytext_tsvector')
+  @Column({ name: 'anytext_tsvector', type: 'tsvector', nullable: true })
   public anytextTsvector?: string;
-  @Column('geometry', { name: 'wkb_geometry', spatialFeatureType: 'Geometry', srid: 4326, nullable: true })
   @Index('ix_records_wkb_geometry', { spatial: true })
+  @Column({ name: 'wkb_geometry', type: 'geometry', spatialFeatureType: 'Geometry', srid: 4326, nullable: true })
   public wkbGeometry?: string;
 }

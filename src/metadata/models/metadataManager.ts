@@ -19,7 +19,7 @@ export class MetadataManager {
 
   public async createRecord(newMetadata: IMetadata): Promise<IMetadata> {
     this.logger.log('info', `Create a new metadata record: ${JSON.stringify(newMetadata)}`);
-    let dbMetadata = await this.repository.findOne({ where: [{ identifier: newMetadata.identifier }] });
+    const dbMetadata = await this.repository.findOne({ where: [{ identifier: newMetadata.identifier }] });
     if (dbMetadata != undefined) {
       throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.identifier} already exists`);
     }

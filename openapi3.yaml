@@ -191,4 +191,4 @@ components:
           description: Anytext tsvector
         wkbGeometry:
           type: string
-          description: WKB geometry
+          description: Well-Known-Binary geometry
