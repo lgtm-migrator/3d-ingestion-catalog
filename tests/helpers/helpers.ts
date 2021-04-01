@@ -16,11 +16,11 @@ export const createFakeMetadata = (): IMetadata => {
     schema: faker.random.word(),
     mdSource: faker.random.word(),
     xml: faker.random.word(),
-    anytext: faker.random.word(),
+    anytext: 'test',
     insertDate: faker.date.past(),
     creationDate: faker.date.past(),
     validationDate: faker.date.past(),
-    wktGeometry: faker.random.word(),
+    wktGeometry: 'POINT(20.0924758 72.7341809)',
     title: faker.random.word(),
     producerName: 'IDFMU',
     description: faker.random.word(),
@@ -42,8 +42,8 @@ export const createFakeMetadata = (): IMetadata => {
     estimatedPrecision: faker.random.word(),
     measuredPrecision: faker.random.word(),
     links: faker.random.word(),
-    anytextTsvector: "'" + faker.random.word() + "'",
-    // wkbGeometry: ''
+    anytextTsvector: "'test':1",
+    // wkbGeometry: JSON.stringify({ type: 'Point', coordinates: ['20.0924758', '72.7341809'] })
   };
 };
 
