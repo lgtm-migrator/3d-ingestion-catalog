@@ -3,7 +3,7 @@ import { container } from 'tsyringe';
 import { Application } from 'express';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Metadata } from '../../../../src/metadata/models/metadata';
-import { convertTimestampToISOString, createFakeMetadata } from '../../../helpers/helpers';
+import { convertObjectToResponse, createFakeMetadata } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
 import { createDbMetadata, getRepositoryFromContainer } from './helpers/db';
 import * as requestSender from './helpers/requestSender';
@@ -39,7 +39,7 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.OK);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(response.body).toHaveLength(1);
-        // expect(response.body).toMatchObject([convertTimestampToISOString(metadata)]);
+        expect(response.body).toMatchObject([convertObjectToResponse(metadata)]);
       });
     });
 
@@ -67,9 +67,11 @@ describe('MetadataController', function () {
 
         const response = await requestSender.createMetadata(app, metadata);
 
+        const created = convertObjectToResponse(metadata);
+        delete created.wkbGeometry;
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        expect(response.body).toMatchObject(convertTimestampToISOString(metadata));
+        expect(response.body).toMatchObject(created);
       });
     });
 

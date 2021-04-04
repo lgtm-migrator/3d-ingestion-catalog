@@ -1,12 +1,13 @@
 import faker from 'faker';
 import { IMetadata, Metadata } from '../../src/metadata/models/metadata';
 
-interface IntegrationMetadata extends Omit<Metadata, 'insertDate' | 'creationDate' | 'validationDate' | 'timeBegin' | 'timeEnd'> {
+interface IntegrationMetadata extends Omit<Metadata, 'insertDate' | 'creationDate' | 'validationDate' | 'timeBegin' | 'timeEnd' | 'wkbGeometry'> {
   insertDate: string;
   creationDate: string;
   validationDate: string;
   timeBegin: string;
   timeEnd: string;
+  wkbGeometry: Record<string, unknown>;
 }
 
 export const createFakeMetadata = (): IMetadata => {
@@ -43,11 +44,12 @@ export const createFakeMetadata = (): IMetadata => {
     measuredPrecision: faker.random.word(),
     links: faker.random.word(),
     anytextTsvector: "'test':1",
-    // wkbGeometry: JSON.stringify({ type: 'Point', coordinates: ['20.0924758', '72.7341809'] })
   };
 };
 
-export const convertTimestampToISOString = (metadata: IMetadata): IntegrationMetadata => {
+export const convertObjectToResponse = (metadata: IMetadata): IntegrationMetadata => {
+  const LAT = 20.0924758;
+  const LON = 72.7341809;
   const { insertDate, creationDate, validationDate, timeBegin, timeEnd, ...rest } = metadata;
   return {
     ...rest,
@@ -56,5 +58,6 @@ export const convertTimestampToISOString = (metadata: IMetadata): IntegrationMet
     validationDate: validationDate ? validationDate.toISOString() : '',
     timeBegin: timeBegin ? timeBegin.toISOString() : '',
     timeEnd: timeEnd ? timeEnd.toISOString() : '',
+    wkbGeometry: { coordinates: [LAT, LON], type: 'Point' },
   };
 };
