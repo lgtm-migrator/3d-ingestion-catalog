@@ -38,7 +38,7 @@ paths:
               $ref: '#/components/schemas/record'
       responses:
         201:
-          description: created
+          description: Created
           content:
             application/json:
               schema:
@@ -47,10 +47,80 @@ paths:
           $ref: '#/components/responses/badRequest'
         '5XX':
           $ref: '#/components/responses/unexpectedError'
+  /metadata/{identifier}:
+    get:
+      operationId: getRecord
+      summary: Get a specific 3d model metadata record by record identifier
+      tags:
+        - metadata
+      parameters:
+        - $ref: '#/components/parameters/identifier'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/record'
+        404:
+          $ref: '#/components/responses/notFound'
+        '5XX':
+          $ref: '#/components/responses/unexpectedError'
+    put:
+      operationId: updateRecord
+      summary: Update 3d model metadata record fields
+      tags:
+        - metadata
+      parameters:
+        - $ref: '#/components/parameters/identifier'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/record'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/record'
+        400:
+          $ref: '#/components/responses/badRequest'
+        404:
+          $ref: '#/components/responses/notFound'
+        '5XX':
+          $ref: '#/components/responses/unexpectedError'
+    delete:
+      operationId: deleteRecord
+      summary: Delete a specific 3d model metadata record by record identifier
+      tags:
+        - metadata
+      parameters:
+        - $ref: '#/components/parameters/identifier'
+      responses:
+        204:
+          description: No Content
+        '5XX':
+          $ref: '#/components/responses/unexpectedError'
 components:
+  parameters:
+    identifier:
+      in: path
+      name: identifier
+      required: true
+      schema:
+        type: string
+      description: Metadata record identifier
   responses:
     badRequest:
       description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    notFound:
+      description: Not Found
       content:
         application/json:
           schema:

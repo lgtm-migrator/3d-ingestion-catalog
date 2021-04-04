@@ -2,14 +2,21 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { Services } from '../../common/constants';
-import { HttpError } from '../../common/errors';
+import { HttpError, NotFoundError } from '../../common/errors';
 import { ILogger } from '../../common/interfaces';
-import { IdAlreadyExistsError } from '../models/errors';
+import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
 import { IMetadata } from '../models/metadata';
 
+interface MetadataParams {
+  identifier: string;
+}
+
 type GetAllRequestHandler = RequestHandler<undefined, IMetadata[]>;
+type GetRequestHandler = RequestHandler<MetadataParams, IMetadata>;
 type CreateRequestHandler = RequestHandler<undefined, IMetadata, IMetadata>;
+type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadata, IMetadata>;
+type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
 export class MetadataController {
@@ -27,6 +34,20 @@ export class MetadataController {
     }
   };
 
+  public get: GetRequestHandler = async (req, res, next) => {
+    try {
+      const { identifier } = req.params;
+      const metadata = await this.manager.getRecord(identifier);
+      if (!metadata) {
+        const error = new NotFoundError('Metadata record with given identifier was not found.');
+        return next(error);
+      }
+      return res.status(httpStatus.OK).json(metadata);
+    } catch (error) {
+      return next(error);
+    }
+  };
+
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
       const metadata = await this.manager.createRecord(req.body);
@@ -35,6 +56,29 @@ export class MetadataController {
       if (error instanceof IdAlreadyExistsError) {
         (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
       }
+      return next(error);
+    }
+  };
+
+  public put: UpdateRequestHandler = async (req, res, next) => {
+    try {
+      const { identifier } = req.params;
+      const metadata = await this.manager.updateRecord(identifier, req.body);
+      return res.status(httpStatus.OK).json(metadata);
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+
+  public delete: DeleteRequestHandler = async (req, res, next) => {
+    try {
+      const { identifier } = req.params;
+      const deleted = await this.manager.deleteRecord(identifier);
+      return res.sendStatus(httpStatus.NO_CONTENT);
+    } catch (error) {
       return next(error);
     }
   };

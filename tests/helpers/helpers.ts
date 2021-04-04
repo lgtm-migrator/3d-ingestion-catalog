@@ -1,6 +1,9 @@
 import faker from 'faker';
 import { IMetadata, Metadata } from '../../src/metadata/models/metadata';
 
+const LAT = 20.0924758;
+const LON = 72.7341809;
+
 interface IntegrationMetadata extends Omit<Metadata, 'insertDate' | 'creationDate' | 'validationDate' | 'timeBegin' | 'timeEnd' | 'wkbGeometry'> {
   insertDate: string;
   creationDate: string;
@@ -21,7 +24,7 @@ export const createFakeMetadata = (): IMetadata => {
     insertDate: faker.date.past(),
     creationDate: faker.date.past(),
     validationDate: faker.date.past(),
-    wktGeometry: 'POINT(20.0924758 72.7341809)',
+    wktGeometry: `POINT(${LAT} ${LON})`,
     title: faker.random.word(),
     producerName: 'IDFMU',
     description: faker.random.word(),
@@ -48,8 +51,6 @@ export const createFakeMetadata = (): IMetadata => {
 };
 
 export const convertObjectToResponse = (metadata: IMetadata): IntegrationMetadata => {
-  const LAT = 20.0924758;
-  const LON = 72.7341809;
   const { insertDate, creationDate, validationDate, timeBegin, timeEnd, ...rest } = metadata;
   return {
     ...rest,
