@@ -38,6 +38,9 @@ export class MetadataManager {
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
+    metadata.identifier = dbMetadata.identifier;
+    delete metadata.anytextTsvector;
+    delete metadata.wkbGeometry;
     const updatedMetadata = await this.repository.save(metadata);
     return updatedMetadata;
   }

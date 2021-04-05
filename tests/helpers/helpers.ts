@@ -13,7 +13,7 @@ interface IntegrationMetadata extends Omit<Metadata, 'insertDate' | 'creationDat
   wkbGeometry: Record<string, unknown>;
 }
 
-export const createFakeMetadata = (): IMetadata => {
+export const createFakeMetadataRecord = (): IMetadata => {
   return {
     identifier: faker.random.uuid(),
     typeName: faker.random.word(),

@@ -1,7 +1,7 @@
 import { container } from 'tsyringe';
 import config from 'config';
-import { Services } from '../../src/common/constants';
 import { Connection } from 'typeorm';
+import { Services } from '../../src/common/constants';
 import { Metadata } from '../../src/metadata/models/metadata';
 import { ILogger } from '../../src/common/interfaces';
 import { initializeConnection } from '../../src/common/utils/db';

@@ -2,7 +2,7 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../../../../src/metadata/models/errors';
 import { Metadata } from '../../../../src/metadata/models/metadata';
 import { MetadataManager } from '../../../../src/metadata/models/metadataManager';
-import { createFakeMetadata } from '../../../helpers/helpers';
+import { createFakeMetadataRecord } from '../../../helpers/helpers';
 
 let metadataManager: MetadataManager;
 
@@ -18,7 +18,7 @@ describe('MetadataManager', () => {
     });
 
     it('returns a metadata list', async () => {
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
       find.mockResolvedValue([metadata]);
 
       const getPromise = metadataManager.getAll();
@@ -54,7 +54,7 @@ describe('MetadataManager', () => {
     });
 
     it('returns a metadata record', async () => {
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
       findOne.mockResolvedValue(metadata);
 
       const getPromise = metadataManager.getRecord(metadata.identifier);
@@ -93,7 +93,7 @@ describe('MetadataManager', () => {
     it('resolves without errors if id is not in use', async () => {
       findOne.mockResolvedValue(undefined);
       insert.mockResolvedValue(undefined);
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
 
       const createPromise = metadataManager.createRecord(metadata);
 
@@ -102,7 +102,7 @@ describe('MetadataManager', () => {
 
     it('rejects on DB error', async () => {
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
 
       const createPromise = metadataManager.createRecord(metadata);
 
@@ -110,7 +110,7 @@ describe('MetadataManager', () => {
     });
 
     it('rejects if record already exists', async () => {
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
       findOne.mockResolvedValue(metadata);
       insert.mockResolvedValue(undefined);
 
@@ -132,7 +132,7 @@ describe('MetadataManager', () => {
     });
 
     it('resolves without errors if id is not in use', async () => {
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
       findOne.mockResolvedValue(metadata);
       save.mockResolvedValue(metadata);
 
@@ -143,7 +143,7 @@ describe('MetadataManager', () => {
 
     it('rejects on DB error', async () => {
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
 
       const updatePromise = metadataManager.updateRecord(metadata.identifier, metadata);
 
@@ -151,7 +151,7 @@ describe('MetadataManager', () => {
     });
 
     it('rejects if record does not exists', async () => {
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
       findOne.mockResolvedValue(undefined);
 
       const updatePromise = metadataManager.updateRecord(metadata.identifier, metadata);
@@ -171,7 +171,7 @@ describe('MetadataManager', () => {
     });
 
     it('resolves without errors if record exists or not', async () => {
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
 
       await metadataManager.deleteRecord(metadata.identifier);
 
@@ -180,7 +180,7 @@ describe('MetadataManager', () => {
 
     it('rejects on DB error', async () => {
       del.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
-      const metadata = createFakeMetadata();
+      const metadata = createFakeMetadataRecord();
 
       const deletePromise = metadataManager.deleteRecord(metadata.identifier);
 
