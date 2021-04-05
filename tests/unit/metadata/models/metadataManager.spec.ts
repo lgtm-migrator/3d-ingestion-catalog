@@ -160,10 +160,10 @@ describe('MetadataManager', () => {
     });
   });
 
-  /*describe('#deleteRecord', () => {
+  describe('#deleteRecord', () => {
     const del = jest.fn();
     beforeEach(() => {
-      const repository = ({ del } as unknown) as Repository<Metadata>;
+      const repository = ({ delete: del } as unknown) as Repository<Metadata>;
       metadataManager = new MetadataManager(repository, { log: jest.fn() });
     });
     afterEach(() => {
@@ -172,11 +172,10 @@ describe('MetadataManager', () => {
 
     it('resolves without errors if record exists or not', async () => {
       const metadata = createFakeMetadata();
-      del.mockResolvedValue(metadata);
 
-      const deletePromise = metadataManager.deleteRecord(metadata.identifier);
+      await metadataManager.deleteRecord(metadata.identifier);
 
-      await expect(deletePromise).resolves.toStrictEqual(metadata);
+      expect(del).toHaveBeenCalled();
     });
 
     it('rejects on DB error', async () => {
@@ -187,5 +186,5 @@ describe('MetadataManager', () => {
 
       await expect(deletePromise).rejects.toThrow(QueryFailedError);
     });
-  });*/
+  });
 });

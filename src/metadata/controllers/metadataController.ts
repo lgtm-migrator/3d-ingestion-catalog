@@ -76,7 +76,7 @@ export class MetadataController {
   public delete: DeleteRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
-      const deleted = await this.manager.deleteRecord(identifier);
+      await this.manager.deleteRecord(identifier);
       return res.sendStatus(httpStatus.NO_CONTENT);
     } catch (error) {
       return next(error);

@@ -60,6 +60,37 @@ describe('MetadataController', function () {
     });
   });
 
+  describe('GET /metadata/{identifier}', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 200 status code and the metadata record', async function () {
+        const metadata = await createDbMetadata();
+
+        const response = await requestSender.getRecord(app, metadata.identifier);
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        expect(response.body).toHaveLength(1);
+        expect(response.body).toMatchObject([convertObjectToResponse(metadata)]);
+      });
+    });
+
+    describe('Bad Path 😡', function () {
+      // No bad paths here!
+    });
+
+    describe('Sad Path 😥', function () {
+      it('should return 500 status code if a db exception happens', async function () {
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ find: findMock });
+
+        const response = await requestSender.getAll(mockedApp);
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+      });
+    });
+  });
+
   describe('POST /metadata', function () {
     describe('Happy Path 🙂', function () {
       it('should return 201 status code and the added metadata record', async function () {
