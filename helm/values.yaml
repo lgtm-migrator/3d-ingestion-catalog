@@ -1,0 +1,9 @@
+metadata:
+  port: 8080
+  image: mapcolonies/3d-ingestion-catalog:latest
+
+ingress:
+  enabled: true
+
+route:
+  enabled: false
