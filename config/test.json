@@ -2,8 +2,6 @@
   "db": {
     "host": "postgres",
     "username": "postgres",
-    "password": "1234",
-    "schema": "public",
-    "enableSslAuth": false
+    "password": "1234"
   }
 }
