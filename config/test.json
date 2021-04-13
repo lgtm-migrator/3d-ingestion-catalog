@@ -3,6 +3,7 @@
     "host": "postgres",
     "username": "postgres",
     "password": "postgres",
-    "schema": "public"
+    "schema": "public",
+    "enableSslAuth": false
   }
 }
