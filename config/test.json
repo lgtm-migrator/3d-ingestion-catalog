@@ -1,6 +1,8 @@
 {
   "db": {
     "host": "postgres",
+    "username": "postgres",
+    "password": "postgres",
     "schema": "public"
   }
 }
