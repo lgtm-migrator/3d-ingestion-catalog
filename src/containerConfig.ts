@@ -3,9 +3,9 @@ import { container } from 'tsyringe';
 import config from 'config';
 import { Probe } from '@map-colonies/mc-probe';
 import { MCLogger, ILoggerConfig, IServiceConfig } from '@map-colonies/mc-logger';
+import { Connection } from 'typeorm';
 import { DB_TIMEOUT, Services } from './common/constants';
 import { promiseTimeout } from './common/utils/promiseTimeout';
-import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 import { Metadata } from './metadata/models/metadata';
 import { initializeConnection } from './common/utils/db';
 
