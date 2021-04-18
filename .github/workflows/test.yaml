@@ -12,12 +12,14 @@ jobs:
       # Label used to access the service container
       db:
         # Docker Hub image
-        image: postgis/postgis
+        image: postgis/postgis:10-2.5
         # Provide the user and password for postgres
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: catalog
+        ports:
+          - 5432:5432
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
