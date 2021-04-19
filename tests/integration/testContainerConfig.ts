@@ -13,7 +13,7 @@ async function registerTestValues(): Promise<void> {
   container.register(Services.LOGGER, { useValue: mockLogger });
 
   const connection = await initializeConnection();
-  await connection.synchronize();
+  // await connection.synchronize();
   const repository = connection.getRepository(Metadata);
   container.register(Connection, { useValue: connection });
   container.register(Services.REPOSITORY, { useValue: repository });

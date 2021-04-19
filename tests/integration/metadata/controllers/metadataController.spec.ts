@@ -39,7 +39,7 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.OK);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(response.body).toHaveLength(1);
-        // expect(response.body).toMatchObject([convertObjectToResponse(metadata)]);
+        expect(response.body).toMatchObject([convertObjectToResponse(metadata)]);
       });
     });
 
@@ -69,7 +69,7 @@ describe('MetadataController', function () {
 
         expect(response.status).toBe(httpStatusCodes.OK);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        // expect(response.body).toMatchObject(convertObjectToResponse(metadata));
+        expect(response.body).toMatchObject(convertObjectToResponse(metadata));
       });
     });
 
