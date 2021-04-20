@@ -2,7 +2,7 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../../../../src/metadata/models/errors';
 import { Metadata } from '../../../../src/metadata/models/metadata';
 import { MetadataManager } from '../../../../src/metadata/models/metadataManager';
-import { createFakeMetadataRecord } from '../../../helpers/helpers';
+import { createFakeMetadataRecord, getPayload } from '../../../helpers/helpers';
 
 let metadataManager: MetadataManager;
 
@@ -80,10 +80,10 @@ describe('MetadataManager', () => {
   });
 
   describe('#createRecord', () => {
-    const insert = jest.fn();
+    const save = jest.fn();
     const findOne = jest.fn();
     beforeEach(() => {
-      const repository = ({ insert, findOne } as unknown) as Repository<Metadata>;
+      const repository = ({ save, findOne } as unknown) as Repository<Metadata>;
       metadataManager = new MetadataManager(repository, { log: jest.fn() });
     });
     afterEach(() => {
@@ -91,30 +91,32 @@ describe('MetadataManager', () => {
     });
 
     it('resolves without errors if id is not in use', async () => {
-      findOne.mockResolvedValue(undefined);
-      insert.mockResolvedValue(undefined);
       const metadata = createFakeMetadataRecord();
+      const payload = getPayload(metadata);
+      findOne.mockResolvedValue(undefined);
+      save.mockResolvedValue(metadata);
 
-      const createPromise = metadataManager.createRecord(metadata);
+      const createPromise = metadataManager.createRecord(payload);
 
       await expect(createPromise).resolves.toStrictEqual(metadata);
     });
 
     it('rejects on DB error', async () => {
-      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
       const metadata = createFakeMetadataRecord();
+      const payload = getPayload(metadata);
+      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const createPromise = metadataManager.createRecord(metadata);
+      const createPromise = metadataManager.createRecord(payload);
 
       await expect(createPromise).rejects.toThrow(QueryFailedError);
     });
 
     it('rejects if record already exists', async () => {
       const metadata = createFakeMetadataRecord();
+      const payload = getPayload(metadata);
       findOne.mockResolvedValue(metadata);
-      insert.mockResolvedValue(undefined);
 
-      const createPromise = metadataManager.createRecord(metadata);
+      const createPromise = metadataManager.createRecord(payload);
 
       await expect(createPromise).rejects.toThrow(IdAlreadyExistsError);
     });
@@ -133,28 +135,31 @@ describe('MetadataManager', () => {
 
     it('resolves without errors if id is not in use', async () => {
       const metadata = createFakeMetadataRecord();
+      const payload = getPayload(metadata);
       findOne.mockResolvedValue(metadata);
       save.mockResolvedValue(metadata);
 
-      const updatePromise = metadataManager.updateRecord(metadata.identifier, metadata);
+      const updatePromise = metadataManager.updateRecord(metadata.identifier, payload);
 
       await expect(updatePromise).resolves.toStrictEqual(metadata);
     });
 
     it('rejects on DB error', async () => {
-      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
       const metadata = createFakeMetadataRecord();
+      const payload = getPayload(metadata);
+      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const updatePromise = metadataManager.updateRecord(metadata.identifier, metadata);
+      const updatePromise = metadataManager.updateRecord(metadata.identifier, payload);
 
       await expect(updatePromise).rejects.toThrow(QueryFailedError);
     });
 
     it('rejects if record does not exists', async () => {
       const metadata = createFakeMetadataRecord();
+      const payload = getPayload(metadata);
       findOne.mockResolvedValue(undefined);
 
-      const updatePromise = metadataManager.updateRecord(metadata.identifier, metadata);
+      const updatePromise = metadataManager.updateRecord(metadata.identifier, payload);
 
       await expect(updatePromise).rejects.toThrow(EntityNotFoundError);
     });

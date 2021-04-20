@@ -10,6 +10,8 @@ export const getRepositoryFromContainer = <T>(target: EntityTarget<T>): Reposito
 
 export const createDbMetadataRecord = async (): Promise<IMetadata> => {
   const repository = getRepositoryFromContainer(Metadata);
-  const createdMetadata = repository.create(createFakeMetadataRecord());
-  return repository.save(createdMetadata);
+  const metadata = createFakeMetadataRecord();
+  delete metadata.anytextTsvector;
+  delete metadata.wkbGeometry;
+  return repository.save(metadata);
 };

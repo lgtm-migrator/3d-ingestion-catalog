@@ -1,5 +1,5 @@
 import faker from 'faker';
-import { IMetadata, Metadata } from '../../src/metadata/models/metadata';
+import { IMetadata, Metadata, Payload } from '../../src/metadata/models/metadata';
 
 const LAT = 20.0924758;
 const LON = 72.7341809;
@@ -16,7 +16,7 @@ interface IntegrationMetadata extends Omit<Metadata, 'insertDate' | 'creationDat
 export const createFakeMetadataRecord = (): IMetadata => {
   return {
     identifier: faker.random.uuid(),
-    typeName: faker.random.word(),
+    typename: faker.random.word(),
     schema: faker.random.word(),
     mdSource: faker.random.word(),
     xml: faker.random.word(),
@@ -45,9 +45,23 @@ export const createFakeMetadataRecord = (): IMetadata => {
     relativeAccuracyLE90: faker.random.word(),
     estimatedPrecision: faker.random.word(),
     measuredPrecision: faker.random.word(),
-    links: faker.random.word(),
+    links: ',,3DTILES,dragon_high.b3dm^,,3DTILES,city/tileset.json',
     anytextTsvector: "'test':1",
+    wkbGeometry: "{ coordinates: [LAT, LON], type: 'Point' }",
   };
+};
+
+export const getPayload = (metadata: IMetadata): Payload => {
+  const payload = {
+    ...metadata,
+    links: [
+      { protocol: '3DTILES', url: 'dragon_high.b3dm' },
+      { protocol: '3DTILES', url: 'city/tileset.json' },
+    ],
+  };
+  delete payload.anytextTsvector;
+  delete payload.wkbGeometry;
+  return payload;
 };
 
 export const convertObjectToResponse = (metadata: IMetadata): IntegrationMetadata => {
@@ -59,6 +73,7 @@ export const convertObjectToResponse = (metadata: IMetadata): IntegrationMetadat
     validationDate: validationDate ? validationDate.toISOString() : '',
     timeBegin: timeBegin ? timeBegin.toISOString() : '',
     timeEnd: timeEnd ? timeEnd.toISOString() : '',
+    anytextTsvector: "'test':1",
     wkbGeometry: { coordinates: [LAT, LON], type: 'Point' },
   };
 };

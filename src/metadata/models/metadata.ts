@@ -1,16 +1,23 @@
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
-export interface IMetadata {
+export interface ILink {
+  name?: string;
+  description?: string;
+  protocol: string;
+  url: string;
+}
+
+export interface Base {
   /**
-   * Product's unique identifier
+   * Unique identifier
    */
   identifier: string;
   /**
-   * Product name
+   * Typename for the metadata; typically the value of the root element tag (e.g. csw:Record, gmd:MD_Metadata)
    */
-  typeName: string;
+  typename: string;
   /**
-   * Schema
+   * Schema for the metadata; typically the target namespace (e.g. http://www.opengis.net/cat/csw/2.0.2, http://www.isotc211.org/2005/gmd)
    */
   schema: string;
   /**
@@ -18,15 +25,15 @@ export interface IMetadata {
    */
   mdSource: string;
   /**
-   * XML
+   * Full XML representation
    */
   xml: string;
   /**
-   * Anytext
+   * Bag of XML element text values, used for full text search
    */
   anytext: string;
   /**
-   * Record insertion date
+   * Date of insertion
    */
   insertDate: Date;
   /**
@@ -38,7 +45,7 @@ export interface IMetadata {
    */
   validationDate?: Date;
   /**
-   * Well-Known-Text geometry
+   * Well-Known-Text markup language for representing vector geometry objects
    */
   wktGeometry?: string;
   /**
@@ -121,8 +128,18 @@ export interface IMetadata {
    * Measured precision
    */
   measuredPrecision?: string;
+}
+
+export interface Payload extends Base {
   /**
-   * Links
+   * Structure of links
+   */
+  links?: ILink[];
+}
+
+export interface IMetadata extends Base {
+  /**
+   * Structure of links in the format “name,description,protocol,url[^,,,[^,,,]]”
    */
   links?: string;
   /**
@@ -130,7 +147,7 @@ export interface IMetadata {
    */
   anytextTsvector?: string;
   /**
-   * Well-Known-Binary geometry
+   * Well-Known-Binary used to transfer and store the WKT information in a more compact form convenient for computer processing but that is not human-readable
    */
   wkbGeometry?: string;
 }
@@ -140,8 +157,8 @@ export class Metadata implements IMetadata {
   @PrimaryColumn({ type: 'text' })
   public identifier!: string;
   @Index('ix_records_typename')
-  @Column({ name: 'typename', type: 'text' })
-  public typeName!: string;
+  @Column({ type: 'text' })
+  public typename!: string;
   @Index('ix_records_schema')
   @Column({ type: 'text' })
   public schema!: string;
@@ -225,7 +242,7 @@ export class Metadata implements IMetadata {
   @Column({ name: 'measured_precision', type: 'text', nullable: true })
   public measuredPrecision?: string;
   @Index('ix_records_links')
-  @Column({ nullable: true, type: 'text' })
+  @Column({ type: 'text', nullable: true })
   public links?: string;
   @Index('ix_records_anytext_tsvector')
   @Column({ name: 'anytext_tsvector', type: 'tsvector', nullable: true })

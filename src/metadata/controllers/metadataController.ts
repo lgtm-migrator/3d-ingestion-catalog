@@ -6,7 +6,7 @@ import { HttpError, NotFoundError } from '../../common/errors';
 import { ILogger } from '../../common/interfaces';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
-import { IMetadata } from '../models/metadata';
+import { IMetadata, Payload } from '../models/metadata';
 
 interface MetadataParams {
   identifier: string;
@@ -14,8 +14,8 @@ interface MetadataParams {
 
 type GetAllRequestHandler = RequestHandler<undefined, IMetadata[]>;
 type GetRequestHandler = RequestHandler<MetadataParams, IMetadata>;
-type CreateRequestHandler = RequestHandler<undefined, IMetadata, IMetadata>;
-type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadata, IMetadata>;
+type CreateRequestHandler = RequestHandler<undefined, IMetadata, Payload>;
+type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadata, Payload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()

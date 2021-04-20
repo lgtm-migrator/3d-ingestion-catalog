@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
-import { IMetadata, Metadata } from './metadata';
+import { IMetadata, Metadata, Payload } from './metadata';
 
 @injectable()
 export class MetadataManager {
@@ -22,26 +22,28 @@ export class MetadataManager {
     return this.repository.findOne(identifier);
   }
 
-  public async createRecord(newMetadata: IMetadata): Promise<IMetadata> {
-    this.logger.log('info', `Create a new metadata record: ${JSON.stringify(newMetadata)}`);
-    const dbMetadata = await this.repository.findOne({ where: [{ identifier: newMetadata.identifier }] });
+  public async createRecord(payload: Payload): Promise<IMetadata> {
+    this.logger.log('info', `Create a new metadata record: ${JSON.stringify(payload)}`);
+    const dbMetadata = await this.repository.findOne({ where: [{ identifier: payload.identifier }] });
     if (dbMetadata != undefined) {
       throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.identifier} already exists`);
     }
-    await this.repository.insert(newMetadata);
+    const links = payload.links?.map((link) => `,,${link.protocol},${link.url}`).join('^');
+    const metadata = { ...payload, links };
+    const newMetadata = await this.repository.save(metadata);
     return newMetadata;
   }
 
-  public async updateRecord(identifier: string, metadata: IMetadata): Promise<IMetadata> {
-    this.logger.log('info', `Update metadata record ${identifier}: ${JSON.stringify(metadata)}`);
-    const dbMetadata = await this.repository.findOne(identifier);
+  public async updateRecord(identifier: string, payload: Payload): Promise<IMetadata> {
+    this.logger.log('info', `Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
+    let dbMetadata = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    metadata.identifier = dbMetadata.identifier;
-    delete metadata.anytextTsvector;
-    delete metadata.wkbGeometry;
-    const updatedMetadata = await this.repository.save(metadata);
+    dbMetadata = { ...payload, identifier, links: payload.links?.map((link) => `,,${link.protocol},${link.url}`).join('^') };
+    delete dbMetadata.anytextTsvector;
+    delete dbMetadata.wkbGeometry;
+    const updatedMetadata = await this.repository.save(dbMetadata);
     return updatedMetadata;
   }
 

@@ -17,13 +17,9 @@ paths:
         - metadata
       responses:
         200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/records'
+          $ref: '#/components/responses/list'
         204:
-          description: OK
+          description: No Content
         '5XX':
           $ref: '#/components/responses/unexpectedError'
     post:
@@ -35,14 +31,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/record'
+              $ref: '#/components/schemas/payload'
       responses:
         201:
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/record'
+          $ref: '#/components/responses/created'
         400:
           $ref: '#/components/responses/badRequest'
         '5XX':
@@ -57,11 +49,7 @@ paths:
         - $ref: '#/components/parameters/identifier'
       responses:
         200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/record'
+          $ref: '#/components/responses/success'
         404:
           $ref: '#/components/responses/notFound'
         '5XX':
@@ -77,14 +65,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/record'
+              $ref: '#/components/schemas/payload'
       responses:
         200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/record'
+          $ref: '#/components/responses/success'
         400:
           $ref: '#/components/responses/badRequest'
         404:
@@ -113,6 +97,24 @@ components:
         type: string
       description: Metadata record identifier
   responses:
+    success:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/record'
+    list:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/records'
+    created:
+      description: Created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/record'
     badRequest:
       description: Bad Request
       content:
@@ -139,16 +141,27 @@ components:
       properties:
         message:
           type: string
-    records:
-      type: array
-      items:
-        $ref: '#/components/schemas/record'
-    record:
+    link:
       type: object
-      description: 3d tiles metadata record
+      description: Structure of link
+      required:
+        - protocol
+        - url
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        protocol:
+          type: string
+        url:
+          type: string
+    payload:
+      type: object
+      description: 3d tiles metadata payload
       required:
         - identifier
-        - typeName
+        - typename
         - schema
         - mdSource
         - xml
@@ -157,26 +170,26 @@ components:
       properties:
         identifier:
           type: string
-          description: Product's unique identifier
-        typeName:
+          description: Unique identifier
+        typename:
           type: string
-          description: Product name
+          description: Typename for the metadata; typically the value of the root element tag (e.g. csw:Record, gmd:MD_Metadata)
         schema:
           type: string
-          description: Schema
+          description: Schema for the metadata; typically the target namespace (e.g. http://www.opengis.net/cat/csw/2.0.2, http://www.isotc211.org/2005/gmd)
         mdSource:
           type: string
           description: MD source
         xml:
           type: string
-          description: XML
+          description: Full XML representation
         anytext:
           type: string
-          description: Anytext
+          description: Bag of XML element text values, used for full text search
         insertDate:
           type: string
           format: date-time
-          description: Insertion date
+          description: Date of insertion
         creationDate:
           type: string
           format: date-time
@@ -187,7 +200,127 @@ components:
           description: Validation date
         wktGeometry:
           type: string
-          description: Well-Known-Text geometry
+          description: Well-Known-Text markup language for representing vector geometry objects
+        title:
+          type: string
+          description: Title
+        producerName:
+          type: string
+          description: The organization that produced/supplied the product
+          enum:
+            - IDFMU
+          default: IDFMU
+        description:
+          type: string
+          description: Description
+        type:
+          type: string
+          description: Type
+        classification:
+          type: string
+          description: Product classification
+        srs:
+          type: string
+          description: The product reference system, including a vertical data
+        projectName:
+          type: string
+          description: Project name
+        version:
+          type: string
+          description: Version
+        centroid:
+          type: string
+          description: Centroid
+        footprint:
+          type: string
+          description: Footprint
+        timeBegin:
+          type: string
+          format: date-time
+          description: Begining time
+        timeEnd:
+          type: string
+          format: date-time
+          description: Ending time
+        sensorType:
+          type: string
+          description: The sensor used as the source of the product
+        region:
+          type: string
+          description: Region
+        nominalResolution:
+          type: string
+          description: Nominal resolution
+        accuracyLE90:
+          type: string
+          description: LE90 of the height values
+        horizontalAccuracyCE90:
+          type: string
+          description: CE90 of location of elevation points
+        relativeAccuracyLE90:
+          type: string
+          description: LE90 of distance measurement
+        estimatedPrecision:
+          type: string
+          description: Estimated precision
+        measuredPrecision:
+          type: string
+          description: Measured precision
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/link'
+          description: Structure of links
+    records:
+      type: array
+      items:
+        $ref: '#/components/schemas/record'
+      description: A list of 3d tiles metadata records
+    record:
+      type: object
+      description: 3d tiles metadata record
+      required:
+        - identifier
+        - typename
+        - schema
+        - mdSource
+        - xml
+        - anytext
+        - insertDate
+      properties:
+        identifier:
+          type: string
+          description: Unique identifier
+        typename:
+          type: string
+          description: Typename for the metadata; typically the value of the root element tag (e.g. csw:Record, gmd:MD_Metadata)
+        schema:
+          type: string
+          description: Schema for the metadata; typically the target namespace (e.g. http://www.opengis.net/cat/csw/2.0.2, http://www.isotc211.org/2005/gmd)
+        mdSource:
+          type: string
+          description: MD source
+        xml:
+          type: string
+          description: Full XML representation
+        anytext:
+          type: string
+          description: Bag of XML element text values, used for full text search
+        insertDate:
+          type: string
+          format: date-time
+          description: Date of insertion
+        creationDate:
+          type: string
+          format: date-time
+          description: Creation date
+        validationDate:
+          type: string
+          format: date-time
+          description: Validation date
+        wktGeometry:
+          type: string
+          description: Well-Known-Text markup language for representing vector geometry objects
         title:
           type: string
           description: Title
@@ -255,10 +388,10 @@ components:
           description: Measured precision
         links:
           type: string
-          description: Links
+          description: Structure of links in the format “name,description,protocol,url[^,,,[^,,,]]”
         anytextTsvector:
           type: string
           description: Anytext tsvector
         wkbGeometry:
           type: string
-          description: Well-Known-Binary geometry
+          description: Well-Known-Binary used to transfer and store the WKT information in a more compact form convenient for computer processing but that is not human-readable
