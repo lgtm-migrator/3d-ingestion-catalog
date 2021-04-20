@@ -1,13 +1,6 @@
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
-export interface ILink {
-  name?: string;
-  description?: string;
-  protocol: string;
-  url: string;
-}
-
-export interface Base {
+interface IMetadataBase {
   /**
    * Unique identifier
    */
@@ -130,14 +123,21 @@ export interface Base {
   measuredPrecision?: string;
 }
 
-export interface Payload extends Base {
+interface ILink {
+  name?: string;
+  description?: string;
+  protocol: string;
+  url: string;
+}
+
+export interface IPayload extends IMetadataBase {
   /**
    * Structure of links
    */
   links?: ILink[];
 }
 
-export interface IMetadata extends Base {
+export interface IMetadata extends IMetadataBase {
   /**
    * Structure of links in the format “name,description,protocol,url[^,,,[^,,,]]”
    */

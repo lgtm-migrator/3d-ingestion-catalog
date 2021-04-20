@@ -1,5 +1,5 @@
 import faker from 'faker';
-import { IMetadata, Metadata, Payload } from '../../src/metadata/models/metadata';
+import { IMetadata, Metadata, IPayload } from '../../src/metadata/models/metadata';
 
 const LAT = 20.0924758;
 const LON = 72.7341809;
@@ -51,7 +51,7 @@ export const createFakeMetadataRecord = (): IMetadata => {
   };
 };
 
-export const getPayload = (metadata: IMetadata): Payload => {
+export const getPayload = (metadata: IMetadata): IPayload => {
   const payload = {
     ...metadata,
     links: [

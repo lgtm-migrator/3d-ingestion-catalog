@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
-import { IMetadata, Metadata, Payload } from './metadata';
+import { IMetadata, Metadata, IPayload } from './metadata';
 
 @injectable()
 export class MetadataManager {
@@ -22,7 +22,7 @@ export class MetadataManager {
     return this.repository.findOne(identifier);
   }
 
-  public async createRecord(payload: Payload): Promise<IMetadata> {
+  public async createRecord(payload: IPayload): Promise<IMetadata> {
     this.logger.log('info', `Create a new metadata record: ${JSON.stringify(payload)}`);
     const dbMetadata = await this.repository.findOne({ where: [{ identifier: payload.identifier }] });
     if (dbMetadata != undefined) {
@@ -34,7 +34,7 @@ export class MetadataManager {
     return newMetadata;
   }
 
-  public async updateRecord(identifier: string, payload: Payload): Promise<IMetadata> {
+  public async updateRecord(identifier: string, payload: IPayload): Promise<IMetadata> {
     this.logger.log('info', `Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
     let dbMetadata = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
