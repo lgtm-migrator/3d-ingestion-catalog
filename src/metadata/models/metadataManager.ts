@@ -2,6 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
+import { formatLinks } from '../../common/utils/format';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 import { IMetadata, Metadata, IPayload } from './metadata';
 
@@ -28,22 +29,21 @@ export class MetadataManager {
     if (dbMetadata != undefined) {
       throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.identifier} already exists`);
     }
-    const links = payload.links?.map((link) => `,,${link.protocol},${link.url}`).join('^');
-    const metadata = { ...payload, links };
+    const metadata = { ...payload, links: formatLinks(payload) };
     const newMetadata = await this.repository.save(metadata);
     return newMetadata;
   }
 
   public async updateRecord(identifier: string, payload: IPayload): Promise<IMetadata> {
     this.logger.log('info', `Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    let dbMetadata = await this.repository.findOne(identifier);
+    const dbMetadata = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    dbMetadata = { ...payload, identifier, links: payload.links?.map((link) => `,,${link.protocol},${link.url}`).join('^') };
-    delete dbMetadata.anytextTsvector;
-    delete dbMetadata.wkbGeometry;
-    const updatedMetadata = await this.repository.save(dbMetadata);
+    const metadata = { ...dbMetadata, ...payload, identifier, links: formatLinks(payload) };
+    delete metadata.anytextTsvector;
+    delete metadata.wkbGeometry;
+    const updatedMetadata = await this.repository.save(metadata);
     return updatedMetadata;
   }
 
