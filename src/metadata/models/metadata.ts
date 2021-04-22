@@ -123,7 +123,7 @@ interface IMetadataBase {
   measuredPrecision?: string;
 }
 
-interface ILink {
+export interface ILink {
   name?: string;
   description?: string;
   protocol: string;

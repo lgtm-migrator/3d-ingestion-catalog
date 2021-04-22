@@ -29,7 +29,7 @@ export class MetadataManager {
     if (dbMetadata != undefined) {
       throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.identifier} already exists`);
     }
-    const metadata = { ...payload, links: formatLinks(payload) };
+    const metadata = { ...payload, links: formatLinks(payload.links) };
     const newMetadata = await this.repository.save(metadata);
     return newMetadata;
   }
@@ -40,7 +40,7 @@ export class MetadataManager {
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    const metadata = { ...dbMetadata, ...payload, identifier, links: formatLinks(payload) };
+    const metadata = { ...dbMetadata, ...payload, identifier, links: formatLinks(payload.links) };
     delete metadata.anytextTsvector;
     delete metadata.wkbGeometry;
     const updatedMetadata = await this.repository.save(metadata);
