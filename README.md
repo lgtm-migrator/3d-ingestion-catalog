@@ -1,53 +1,86 @@
-# Map Colonies typescript service template
+# 3d-ingestion-catalog
 
-----------------------------------
-![badge-alerts-lgtm](https://img.shields.io/lgtm/alerts/github/MapColonies/ts-server-boilerplate?style=for-the-badge)
-![grade-badge-lgtm](https://img.shields.io/lgtm/grade/javascript/github/MapColonies/ts-server-boilerplate?style=for-the-badge)
-![snyk](https://img.shields.io/snyk/vulnerabilities/github/MapColonies/ts-server-boilerplate?style=for-the-badge)
-----------------------------------
+A RESTful API for querying 3d metadata
 
-This is a basic template for building new map colonies services in typescript.
+----------------------------------------
 
-### template features:
-- eslint configuration with @map-colonies/eslint-config
-- prettier
-- jest
-- nvm configuration
-- Dockerfile
-- commitlint setup
-- git hooks
-- logger using @map-colonies/mc-logger
-- swagger ui & swagger json serve
-- config load
-- github templates
-  - bug report
-  - feature request
-  - pull request
-- github actions
-  - lint
-  - test
+## Run Migrations
+Run migrations before you start the app
 
-### usage:
+### Shell
+Run the following command:
 
-1. copy the template files to new service repository.
-1. run `npm install `.
-1. run `npm rebuild husky` to configure commit messages linting.
-1. add the required logic for the new service:
-   - to add new routes: create an express router and connect it to express server in ServerBuilder registerControllers function. when adding handler to the router make sure to add "validate" middleware from 'openapi-express-validator' for request validation.
-   - modify the global error handler in the middleware folder to return better error responses and catch the errors before the global handler (currently it returns empty 500 response )
-
-### usage notes:
-
-1. when importing external dependencies from DI (such as McLogger) in class constructor the following decorator must be used to retrieve instance:
-
-```typescript
-@inject(delay(() => <injection token>)) <variable definition>
+```sh
+npm run migration:run
 ```
 
-usage example:
+### Docker
+Build the migrations image:
 
-```typescript
-public constructor(
-    @inject(delay(() => MCLogger)) private readonly logger: MCLogger) {
+```sh
+docker build -t 3d-ingestion-catalog:latest -f migrations.Dockerfile .
+```
+Run image:
+```sh
+docker run -it --rm --network host 3d-ingestion-catalog:latest
+```
+
+If you want to change the connection properties you can do it via either:
+1. Env variables
+2. Inject a config file based on your environment
+
+
+Via env variables:
+```sh
+docker run -it -e DB_USERNAME=VALUE  -e DB_PASSWORD=VALUE -e DB_NAME=VALUE -e DB_TYPE=VALUE -e DB_HOST=VALUE -e DB_PORT=VALUE --rm --network host 3d-ingestion-catalog:latest
+```
+
+Via injecting a config file, assuming you want to run the migrations on your production:
+
+production.json:
+```json
+{
+  "openapiConfig": {
+    "filePath": "./openapi3.yaml",
+    "basePath": "/docs",
+    "rawPath": "/api",
+    "uiPath": "/api"
+  },
+  "logger": {
+    "level": "info"
+  },
+  "server": {
+    "port": "8085"
+  },
+  "db": {
+    "type": "postgres",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "catalog",
+    "port": 5432
   }
+}
+```
+```sh
+docker run -it --rm -e NODE_ENV=production --network host -v /path/to/proudction.json:/usr/app/config/production.json 3d-ingestion-catalog:latest
+```
+-------------------------------------------------------
+
+## Build and Run
+
+```sh
+npm install
+npm start
+```
+## Test
+### Integration:
+Test against a postgres db
+
+```sh
+DB_TYPE=postgres DB_HOST=VALUE DB_PORT=VALUE DB_USERNAME=VALUE DB_NAME=VALUE DB_PASSWORD=VALUE npm run test:integration
+```
+
+### Unit:
+```sh
+npm run test:unit
 ```

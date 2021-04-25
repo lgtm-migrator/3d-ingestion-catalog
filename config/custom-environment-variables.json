@@ -12,5 +12,16 @@
         "limit": "REQUEST_PAYLOAD_LIMIT"
       }
     }
+  },
+  "db": {
+    "type": "DB_TYPE",
+    "host": "DB_HOST",
+    "port": {
+      "__name": "DB_PORT",
+      "__format": "number"
+    },
+    "username": "DB_USERNAME",
+    "password": "DB_PASSWORD",
+    "database": "DB_NAME"
   }
 }

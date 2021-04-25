@@ -1,28 +1,22 @@
-module.exports = {
+import type { Config } from '@jest/types';
+
+const config: Config.InitialOptions = {
+  rootDir: '../../../.',
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
   testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
-  coverageReporters: ['text', 'html'],
-  collectCoverage: true,
-  collectCoverageFrom: [
-    '<rootDir>/src/**/*.ts',
-    '!*/node_modules/',
-    '!/vendor/**',
-    '!*/common/**',
-    '!**/controllers/**',
-    '!**/routes/**',
-    '!<rootDir>/src/*',
-  ],
-  coverageDirectory: '<rootDir>/coverage',
+  setupFiles: ['<rootDir>/tests/configurations/jest.setup.js'],
   reporters: [
     'default',
     ['jest-html-reporters', { multipleReportsUnitePath: './reports', pageTitle: 'unit', publicPath: './reports', filename: 'unit.html' }],
   ],
-  rootDir: '../../../.',
-  setupFiles: ['<rootDir>/tests/configurations/jest.setup.js'],
   preset: 'ts-jest',
   testEnvironment: 'node',
+  collectCoverage: true,
+  coverageReporters: ['text', 'html', 'json'],
+  collectCoverageFrom: ['<rootDir>/src/metadata/models/*.ts', '!<rootDir>/src/metadata/models/metadata.ts'],
+  coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
     global: {
       branches: 80,
@@ -31,4 +25,7 @@ module.exports = {
       statements: -10,
     },
   },
+  verbose: true,
 };
+
+export default config;
