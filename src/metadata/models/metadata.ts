@@ -244,10 +244,10 @@ export class Metadata implements IMetadata {
   @Index('ix_records_links')
   @Column({ type: 'text', nullable: true })
   public links?: string;
-  @Index('ix_records_anytext_tsvector')
+  @Index('records_fts_gin_idx')
   @Column({ name: 'anytext_tsvector', type: 'tsvector', nullable: true })
   public anytextTsvector?: string;
-  @Index('ix_records_wkb_geometry', { spatial: true })
+  @Index('records_wkb_geometry_idx', { spatial: true })
   @Column({ name: 'wkb_geometry', type: 'geometry', spatialFeatureType: 'Geometry', srid: 4326, nullable: true })
   public wkbGeometry?: string;
 }

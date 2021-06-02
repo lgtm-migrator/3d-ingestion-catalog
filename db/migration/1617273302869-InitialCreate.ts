@@ -69,8 +69,8 @@ export class InitialCreate1617273302869 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX "ix_records_estimated_precision" ON "records" ("estimated_precision") `);
     await queryRunner.query(`CREATE INDEX "ix_records_measured_precision" ON "records" ("measured_precision") `);
     await queryRunner.query(`CREATE INDEX "ix_records_links" ON "records" ("links") `);
-    await queryRunner.query(`CREATE INDEX "ix_records_anytext_tsvector" ON "records" USING Gin ("anytext_tsvector") `);
-    await queryRunner.query(`CREATE INDEX "ix_records_wkb_geometry" ON "records" USING GiST ("wkb_geometry") `);
+    await queryRunner.query(`CREATE INDEX "records_fts_gin_idx" ON "records" USING Gin ("anytext_tsvector") `);
+    await queryRunner.query(`CREATE INDEX "records_wkb_geometry_idx" ON "records" USING GiST ("wkb_geometry") `);
     await queryRunner.query(`CREATE FUNCTION public.records_update_geometry()
         RETURNS trigger AS $records_update_geometry$
     BEGIN
