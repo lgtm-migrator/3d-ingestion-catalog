@@ -6,7 +6,7 @@ import { HttpError, NotFoundError } from '../../common/errors';
 import { ILogger } from '../../common/interfaces';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
-import { IMetadata, IPayload } from '../models/metadata';
+import { IMetadata, IPayload, IUpdatePayload } from '../models/metadata';
 
 interface MetadataParams {
   identifier: string;
@@ -16,6 +16,7 @@ type GetAllRequestHandler = RequestHandler<undefined, IMetadata[]>;
 type GetRequestHandler = RequestHandler<MetadataParams, IMetadata>;
 type CreateRequestHandler = RequestHandler<undefined, IMetadata, IPayload>;
 type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadata, IPayload>;
+type UpdatePartialRequestHandler = RequestHandler<MetadataParams, IMetadata, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
@@ -64,6 +65,19 @@ export class MetadataController {
     try {
       const { identifier } = req.params;
       const metadata = await this.manager.updateRecord(identifier, req.body);
+      return res.status(httpStatus.OK).json(metadata);
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+
+  public patch: UpdatePartialRequestHandler = async (req, res, next) => {
+    try {
+      const { identifier } = req.params;
+      const metadata = await this.manager.updatePartialRecord(identifier, req.body);
       return res.status(httpStatus.OK).json(metadata);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {

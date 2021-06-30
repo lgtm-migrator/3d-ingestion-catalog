@@ -137,6 +137,25 @@ export interface IPayload extends IMetadataBase {
   links?: ILink[];
 }
 
+export interface IUpdatePayload {
+  /**
+   * Title
+   */
+  title?: string;
+  /**
+   * Description
+   */
+  description?: string;
+  /**
+   * Product classification
+   */
+  classification?: string;
+  /**
+   * The sensor used as the source of the product
+   */
+  sensorType?: string;
+}
+
 export interface IMetadata extends IMetadataBase {
   /**
    * Structure of links in the format “name,description,protocol,url[^,,,[^,,,]]”

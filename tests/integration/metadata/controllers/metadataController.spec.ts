@@ -3,7 +3,7 @@ import { container } from 'tsyringe';
 import { Application } from 'express';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Metadata } from '../../../../src/metadata/models/metadata';
-import { convertObjectToResponse, createFakeMetadataRecord, getPayload } from '../../../helpers/helpers';
+import { convertObjectToResponse, createFakeMetadataRecord, getPayload, getUpdatePayload } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
 import { createDbMetadataRecord, getRepositoryFromContainer } from './helpers/db';
 import * as requestSender from './helpers/requestSender';
@@ -210,6 +210,58 @@ describe('MetadataController', function () {
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
         const response = await requestSender.updateRecord(mockedApp, metadata.identifier, payload);
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+      });
+    });
+  });
+
+  describe('PATCH /metadata/{identifier}', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 200 status code and the updated metadata record', async function () {
+        let metadata = createFakeMetadataRecord();
+        const payload = getUpdatePayload();
+        const findMock = jest.fn().mockResolvedValue(metadata);
+        metadata = { ...metadata, ...payload };
+        const saveMock = jest.fn().mockResolvedValue(metadata);
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
+
+        const response = await requestSender.updatePartialRecord(mockedApp, metadata.identifier, payload);
+
+        const updated = convertObjectToResponse(metadata);
+        delete updated.wkbGeometry;
+
+        expect(response.status).toBe(httpStatusCodes.OK);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        expect(response.body).toMatchObject(updated);
+      });
+    });
+
+    describe('Bad Path 😡', function () {
+      // No bad paths here!
+    });
+
+    describe('Sad Path 😥', function () {
+      it('should return 404 status code if the metadata record does not exist', async function () {
+        const metadata = createFakeMetadataRecord();
+        const payload = getUpdatePayload();
+        const findMock = jest.fn().mockResolvedValue(undefined);
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+
+        const response = await requestSender.updatePartialRecord(mockedApp, metadata.identifier, payload);
+
+        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} does not exist`);
+      });
+
+      it('should return 500 status code if a db exception happens', async function () {
+        const metadata = createFakeMetadataRecord();
+        const payload = getUpdatePayload();
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+
+        const response = await requestSender.updatePartialRecord(mockedApp, metadata.identifier, payload);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');

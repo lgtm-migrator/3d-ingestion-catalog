@@ -4,7 +4,7 @@ import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
 import { formatLinks } from '../../common/utils/format';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
-import { IMetadata, Metadata, IPayload } from './metadata';
+import { IMetadata, Metadata, IPayload, IUpdatePayload } from './metadata';
 
 @injectable()
 export class MetadataManager {
@@ -41,6 +41,19 @@ export class MetadataManager {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
     const metadata = { ...dbMetadata, ...payload, identifier, links: formatLinks(payload.links) };
+    delete metadata.anytextTsvector;
+    delete metadata.wkbGeometry;
+    const updatedMetadata = await this.repository.save(metadata);
+    return updatedMetadata;
+  }
+
+  public async updatePartialRecord(identifier: string, payload: IUpdatePayload): Promise<IMetadata> {
+    this.logger.log('info', `Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
+    const dbMetadata = await this.repository.findOne(identifier);
+    if (dbMetadata == undefined) {
+      throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
+    }
+    const metadata = { ...dbMetadata, ...payload, identifier };
     delete metadata.anytextTsvector;
     delete metadata.wkbGeometry;
     const updatedMetadata = await this.repository.save(metadata);

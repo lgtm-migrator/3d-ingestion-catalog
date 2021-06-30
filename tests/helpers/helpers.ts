@@ -1,5 +1,5 @@
 import faker from 'faker';
-import { IMetadata, Metadata, IPayload } from '../../src/metadata/models/metadata';
+import { IMetadata, Metadata, IPayload, IUpdatePayload } from '../../src/metadata/models/metadata';
 
 const LAT = 20.0924758;
 const LON = 72.7341809;
@@ -61,6 +61,16 @@ export const getPayload = (metadata: IMetadata): IPayload => {
   };
   delete payload.anytextTsvector;
   delete payload.wkbGeometry;
+  return payload;
+};
+
+export const getUpdatePayload = (): IUpdatePayload => {
+  const payload = {
+    title: faker.random.word(),
+    description: faker.random.word(),
+    classification: faker.random.word(),
+    sensorType: faker.random.word(),
+  };
   return payload;
 };
 

@@ -3,7 +3,7 @@ import { Application } from 'express';
 import { container } from 'tsyringe';
 import { ServerBuilder } from '../../../../../src/serverBuilder';
 import { Services } from '../../../../../src/common/constants';
-import { IPayload } from '../../../../../src/metadata/models/metadata';
+import { IPayload, IUpdatePayload } from '../../../../../src/metadata/models/metadata';
 
 export function getApp(): Application {
   const builder = container.resolve<ServerBuilder>(ServerBuilder);
@@ -29,6 +29,10 @@ export async function createRecord(app: Application, payload: IPayload): Promise
 
 export async function updateRecord(app: Application, identifier: string, payload: IPayload): Promise<supertest.Response> {
   return supertest.agent(app).put(`/metadata/${identifier}`).set('Content-Type', 'application/json').send(payload);
+}
+
+export async function updatePartialRecord(app: Application, identifier: string, payload: IUpdatePayload): Promise<supertest.Response> {
+  return supertest.agent(app).patch(`/metadata/${identifier}`).set('Content-Type', 'application/json').send(payload);
 }
 
 export async function deleteRecord(app: Application, identifier: string): Promise<supertest.Response> {
