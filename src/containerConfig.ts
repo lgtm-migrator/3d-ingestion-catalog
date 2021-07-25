@@ -40,7 +40,11 @@ async function registerExternalValues(): Promise<void> {
 
   container.register<Probe>(Probe, {
     useFactory: (container) =>
-      new Probe(container.resolve(Services.LOGGER), { liveness: healthCheck(connection), beforeShutdown: beforeShutdown(connection) }),
+      new Probe(container.resolve(Services.LOGGER), {
+        liveness: healthCheck(connection),
+        readiness: healthCheck(connection),
+        beforeShutdown: beforeShutdown(connection),
+      }),
   });
 }
 

@@ -1,23 +1,45 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata:
-  name: {{ .Release.Name }}-deployment
+metadata: {{ $fullname := printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
+  name: {{ $fullname }}
+  labels:
+    app: {{ $fullname }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: "{{ .Release.Name }}"
 spec:
-  replicas: 2
   selector:
     matchLabels:
-      podName: 3d-ingestion-catalog-pod 
+      app: {{ $fullname }}
+  replicas: {{ default 1 .Values.replicaCount | int }}
   template:
     metadata:
       labels:
-        podName: 3d-ingestion-catalog-pod
+        app: {{ $fullname }}
     spec:
       containers:
-      - name: 3d-ingestion-catalog
-        env:
-        - name: SERVER_PORT
-          value: {{ .Values.metadata.port | quote }}
-        image: {{ .Values.metadata.image }}
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image }}"
         imagePullPolicy: IfNotPresent
+        env:
+        - name: DB_HOST
+          value: {{ tpl .Values.postgis.host .| quote }}
+        - name: DB_PORT
+          value: {{ .Values.postgis.port | quote }}
+        - name: DB_USER
+          value: {{ .Values.postgis.authentication.username | quote }}
+        - name: DB_PASSWORD
+          value: {{ .Values.postgis.authentication.password | quote }}
+        - name: DB_NAME
+          value: {{ .Values.postgis.db_name | quote }}
+        - name: SERVER_PORT
+          value: {{ .Values.service.internalPort | quote }}
         ports:
-        - containerPort: {{ .Values.metadata.port }}
+        - containerPort: {{ .Values.service.internalPort | int }}
+        livenessProbe:
+          httpGet:
+            path: /liveness
+            port: {{ .Values.service.internalPort | int }}
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: {{ .Values.service.internalPort | int }}

@@ -18,3 +18,5 @@ build
 reports
 helm
 Dockerfile
+helm
+.versionrc.json
