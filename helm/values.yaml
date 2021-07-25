@@ -1,9 +1,40 @@
-metadata:
-  port: 8080
-  image: mapcolonies/3d-ingestion-catalog:latest
+
+# The port on which the service should listen
+port: 8080
+
+# Name of the image tu pull from registry
+image: mapcolonies/3d-ingestion-catalog:latest
+
+replicaCount: 1
+
+service:
+  internalPort: 8080
+  externalPort: 8080
+
+postgis:
+  host: postgis
+  port: 5432
+  volume:
+    storage: 500Mi
+  db_name: postgres
+  authentication:
+    username: postgres
+    password: postgres
 
 ingress:
   enabled: true
 
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/mergeable-ingress-type: "minion"
+    nginx.org/rewrites: "serviceName={{ printf \"%s-%s\" .Release.Name .Chart.Name | trunc 63 | trimSuffix \"-\" }} rewrite=/"
+
+    path: /3d-ingestion-catalog/
+
+  hosts: ["minikube.local"]
+
 route:
   enabled: false
+
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: "/"

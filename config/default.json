@@ -9,7 +9,7 @@
     "level": "info"
   },
   "server": {
-    "port": "8085",
+    "port": "8080",
     "request": {
       "payload": {
         "limit": "1mb"
