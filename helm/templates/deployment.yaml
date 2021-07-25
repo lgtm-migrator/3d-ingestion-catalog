@@ -22,11 +22,7 @@ spec:
         imagePullPolicy: IfNotPresent
         env:
         - name: DB_HOST
-          {{ if .Values.postgis.enabled }}
-          value: "{{ .Release.Name }}-postgis"
-          {{ else }}
           value: {{ tpl .Values.postgis.host .| quote }}
-          {{ end }}
         - name: DB_PORT
           value: {{ .Values.postgis.port | quote }}
         - name: DB_USER
