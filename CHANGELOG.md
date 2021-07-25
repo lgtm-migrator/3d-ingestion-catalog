@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/MapColonies/3d-ingestion-catalog/compare/v1.1.0...v1.2.0) (2021-07-25)
+
+
+### Features
+
+* **metadata:** patch ([e07980d](https://github.com/MapColonies/3d-ingestion-catalog/commit/e07980d511b61713d4f20cd04a4e67f6ed28a0da))
+
+
+### Bug Fixes
+
+* postgres host injection ([719da75](https://github.com/MapColonies/3d-ingestion-catalog/commit/719da750fbd4073b0d6c0d4fb26bf29d13885de0))
+* prettier ([acd42c1](https://github.com/MapColonies/3d-ingestion-catalog/commit/acd42c103930e7b6d322304bacd2fabd89bd9b85))
+* readiness flag ([40814e4](https://github.com/MapColonies/3d-ingestion-catalog/commit/40814e4ed5d9f7a3278390a549d78e1d1789d780))
+* **metadata:** db ([08d516a](https://github.com/MapColonies/3d-ingestion-catalog/commit/08d516a3afb04bd5e8682fdfce67cfef48a58658))
+* **metadata:** fix indexes ([5dada37](https://github.com/MapColonies/3d-ingestion-catalog/commit/5dada379c902f138b8579266ad54102b7e02278c))
+* **metadata:** links ([13eb40e](https://github.com/MapColonies/3d-ingestion-catalog/commit/13eb40e84cb42f6cc0cac18b53a51081d15fd8b2))
+* **metadata:** unit tests ([a7fdf66](https://github.com/MapColonies/3d-ingestion-catalog/commit/a7fdf66f61a3edaa8516f6d57ef42f72e7c9bc02))
+* **metadata:** use vpn ([3d8efd6](https://github.com/MapColonies/3d-ingestion-catalog/commit/3d8efd69d39a56c082866153b05832b1bba70198))
+
 ## 1.1.0 (2021-04-25)
 
 
