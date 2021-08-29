@@ -14,7 +14,7 @@ interface MetadataParams {
   identifier: string;
 }
 //Changed
-type GetAllRequestHandler = RequestHandler<undefined, IMetadataExternal[]>; 
+type GetAllRequestHandler = RequestHandler<undefined, IMetadataExternal[]>;
 type GetRequestHandler = RequestHandler<MetadataParams, IMetadataExternal>;
 type CreateRequestHandler = RequestHandler<undefined, IMetadataExternal, IMetadataPayload>;
 type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IMetadataExternal>;
@@ -64,11 +64,8 @@ export class MetadataController {
         mdSource: 'undefined',
         xml: 'undefined',
         anytext: this.getAnyTextValue(payload),
-        keywords: '3d'
-      }
-
-
-
+        keywords: '3d',
+      };
 
       const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));
       return res.status(httpStatus.CREATED).json(createdMetadata);
@@ -117,15 +114,10 @@ export class MetadataController {
   };
 
   private getAnyTextValue(payload: IMetadataPayload): string {
-    const filteredKeys = ['creationDate','sourceDateStart','sourceDateEnd','footprint','links', 'boundingBox'];
-    return Object.entries(payload).filter(([key, value]) => 
-      !filteredKeys.includes(key) && 
-      value !== undefined && 
-      typeof(value) === 'string')
-    .map(([, value]) => value as string)
-    .join(' ')
-
-  } 
+    const filteredKeys = ['creationDate', 'sourceDateStart', 'sourceDateEnd', 'footprint', 'links', 'boundingBox'];
+    return Object.entries(payload)
+      .filter(([key, value]) => !filteredKeys.includes(key) && value !== undefined && typeof value === 'string')
+      .map(([, value]) => value as string)
+      .join(' ');
+  }
 }
-
-

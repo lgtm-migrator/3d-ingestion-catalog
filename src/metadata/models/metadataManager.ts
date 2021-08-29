@@ -39,7 +39,7 @@ export class MetadataManager {
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    const newMetadata:Partial<IMetadataEntity> = {...payload, id: identifier};
+    const newMetadata: Partial<IMetadataEntity> = { ...payload, id: identifier };
     const updatedMetadata = await this.repository.save(newMetadata);
     return updatedMetadata;
   }

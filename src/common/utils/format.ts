@@ -9,11 +9,11 @@ export const formatLinks = (links: ILink[] | undefined): string => {
 
 export const deserializeLinks = (linksStr: string | undefined): ILink[] => {
   if (linksStr == undefined) {
-    return []
+    return [];
   }
 
   return linksStr.split('^').map((linkStr) => {
     const [name, description, protocol, url] = linkStr.split(',');
     return { name, description, protocol, url };
-  })
-}
+  });
+};

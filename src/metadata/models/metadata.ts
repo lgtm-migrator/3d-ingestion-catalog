@@ -1,4 +1,4 @@
-import { Geometry } from "geojson";
+import { Geometry } from 'geojson';
 
 export interface IMetadataPayload {
   productName: string;
@@ -38,7 +38,6 @@ export interface IMetadataPayload {
   geographicArea?: string;
   links: ILink[];
   boundingBox: string;
-
 }
 
 export interface IMetadataExternal extends IMetadataPayload {
@@ -47,7 +46,7 @@ export interface IMetadataExternal extends IMetadataPayload {
   insertDate: Date;
 }
 
-export interface IMetadataEntity extends IMetadataExternal{
+export interface IMetadataEntity extends IMetadataExternal {
   type: string;
   typeName: string;
   schema: string;
@@ -66,7 +65,6 @@ export interface ILink {
   protocol: string;
   url: string;
 }
-
 
 export interface IUpdatePayload {
   /**
