@@ -1,22 +1,24 @@
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
+import { v4 as uuidV4 } from 'uuid';
 import { Services } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
 import { ILogger } from '../../common/interfaces';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
-import { IMetadata, IPayload, IUpdatePayload } from '../models/metadata';
+import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
+import { Metadata } from '../models/metadata.entity';
 
 interface MetadataParams {
   identifier: string;
 }
-
-type GetAllRequestHandler = RequestHandler<undefined, IMetadata[]>;
-type GetRequestHandler = RequestHandler<MetadataParams, IMetadata>;
-type CreateRequestHandler = RequestHandler<undefined, IMetadata, IPayload>;
-type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadata, IPayload>;
-type UpdatePartialRequestHandler = RequestHandler<MetadataParams, IMetadata, IUpdatePayload>;
+//Changed
+type GetAllRequestHandler = RequestHandler<undefined, IMetadataExternal[]>; 
+type GetRequestHandler = RequestHandler<MetadataParams, IMetadataExternal>;
+type CreateRequestHandler = RequestHandler<undefined, IMetadataExternal, IMetadataPayload>;
+type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IMetadataExternal>;
+type UpdatePartialRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
@@ -51,8 +53,25 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-      const metadata = await this.manager.createRecord(req.body);
-      return res.status(httpStatus.CREATED).json(metadata);
+      const payload = req.body;
+      const metadata: IMetadataEntity = {
+        ...payload,
+        id: uuidV4(),
+        insertDate: new Date(),
+        type: 'RECORD_3D',
+        typeName: 'unefined',
+        schema: 'undefined',
+        mdSource: 'undefined',
+        xml: 'undefined',
+        anytext: this.getAnyTextValue(payload),
+        keywords: '3d'
+      }
+
+
+
+
+      const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));
+      return res.status(httpStatus.CREATED).json(createdMetadata);
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {
         (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
@@ -96,4 +115,17 @@ export class MetadataController {
       return next(error);
     }
   };
+
+  private getAnyTextValue(payload: IMetadataPayload): string {
+    const filteredKeys = ['creationDate','sourceDateStart','sourceDateEnd','footprint','links', 'boundingBox'];
+    return Object.entries(payload).filter(([key, value]) => 
+      !filteredKeys.includes(key) && 
+      value !== undefined && 
+      typeof(value) === 'string')
+    .map(([, value]) => value as string)
+    .join(' ')
+
+  } 
 }
+
+

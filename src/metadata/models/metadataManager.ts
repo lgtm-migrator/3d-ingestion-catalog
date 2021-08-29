@@ -2,9 +2,9 @@ import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Services } from '../../common/constants';
 import { ILogger } from '../../common/interfaces';
-import { formatLinks } from '../../common/utils/format';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
-import { IMetadata, Metadata, IPayload, IUpdatePayload } from './metadata';
+import { IUpdatePayload, IMetadataEntity } from './metadata';
+import { Metadata } from './metadata.entity';
 
 @injectable()
 export class MetadataManager {
@@ -13,47 +13,44 @@ export class MetadataManager {
     @inject(Services.LOGGER) private readonly logger: ILogger
   ) {}
 
-  public async getAll(): Promise<IMetadata[] | undefined> {
+  public async getAll(): Promise<IMetadataEntity[] | undefined> {
     this.logger.log('info', `Get all models metadata`);
     return this.repository.find();
   }
 
-  public async getRecord(identifier: string): Promise<IMetadata | undefined> {
+  public async getRecord(identifier: string): Promise<IMetadataEntity | undefined> {
     this.logger.log('info', `Get metadata record ${identifier}`);
     return this.repository.findOne(identifier);
   }
 
-  public async createRecord(payload: IPayload): Promise<IMetadata> {
+  public async createRecord(payload: IMetadataEntity): Promise<IMetadataEntity> {
     this.logger.log('info', `Create a new metadata record: ${JSON.stringify(payload)}`);
-    const dbMetadata = await this.repository.findOne({ where: [{ identifier: payload.identifier }] });
+    const dbMetadata = await this.repository.findOne(payload.id);
     if (dbMetadata != undefined) {
-      throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.identifier} already exists`);
+      throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.id} already exists`);
     }
-    const metadata = { ...payload, links: formatLinks(payload.links) };
-    const newMetadata = await this.repository.save(metadata);
+    const newMetadata = await this.repository.save(payload);
     return newMetadata;
   }
 
-  public async updateRecord(identifier: string, payload: IPayload): Promise<IMetadata> {
+  public async updateRecord(identifier: string, payload: Partial<IMetadataEntity>): Promise<IMetadataEntity> {
     this.logger.log('info', `Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
     const dbMetadata = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    const metadata = { ...dbMetadata, ...payload, identifier, links: payload.links === undefined ? dbMetadata.links : formatLinks(payload.links) };
-    delete metadata.anytextTsvector;
-    delete metadata.wkbGeometry;
-    const updatedMetadata = await this.repository.save(metadata);
+    const newMetadata:Partial<IMetadataEntity> = {...payload, id: identifier};
+    const updatedMetadata = await this.repository.save(newMetadata);
     return updatedMetadata;
   }
 
-  public async updatePartialRecord(identifier: string, payload: IUpdatePayload): Promise<IMetadata> {
+  public async updatePartialRecord(identifier: string, payload: IUpdatePayload): Promise<IMetadataEntity> {
     this.logger.log('info', `Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
     const dbMetadata = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    const metadata = { ...dbMetadata, ...payload, identifier };
+    const metadata = { ...dbMetadata, ...payload, id: identifier };
     delete metadata.anytextTsvector;
     delete metadata.wkbGeometry;
     const updatedMetadata = await this.repository.save(metadata);

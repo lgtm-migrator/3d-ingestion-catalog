@@ -6,7 +6,7 @@ import { MCLogger, ILoggerConfig, IServiceConfig } from '@map-colonies/mc-logger
 import { Connection } from 'typeorm';
 import { DB_TIMEOUT, Services } from './common/constants';
 import { promiseTimeout } from './common/utils/promiseTimeout';
-import { Metadata } from './metadata/models/metadata';
+import { Metadata } from './metadata/models/metadata.entity';
 import { initializeConnection } from './common/utils/db';
 
 const healthCheck = (connection: Connection): (() => Promise<void>) => {

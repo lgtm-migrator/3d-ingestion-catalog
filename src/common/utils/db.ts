@@ -1,6 +1,6 @@
 import config from 'config';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
-import { Metadata } from '../../metadata/models/metadata';
+import { Metadata } from '../../metadata/models/metadata.entity';
 
 export const ENTITIES_DIRS = [Metadata, 'src/metadata/models/*.ts'];
 

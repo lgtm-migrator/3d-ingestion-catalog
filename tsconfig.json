@@ -1,4 +1,10 @@
 {
+  "ts-node": {
+    "files": true
+  },
+  "files": [
+    "declarations.d.ts"
+  ],
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
@@ -11,6 +17,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src"],
+  "include": ["declarations.d.ts", "src"],
   "exclude": ["node_modules", "dist", "tests"]
 }
