@@ -8,99 +8,99 @@ import { IMetadataEntity, ILink } from './metadata';
 export class Metadata implements IMetadataEntity {
   @PrimaryColumn()
   public id!: string;
-  @Column({ type: 'timestamp' })
+  @Column({ name:"insert_date", type: 'timestamp' })
   public insertDate!: Date;
-  @Column({ type: 'text' })
+  @Column({ name:"product_name", type: 'text' })
   public productName!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "product_version", type: 'text' })
   public productVersion!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "product_type", type: 'text' })
   public productType!: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: "description", type: 'text', nullable: true })
   public description?: string;
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: "creation_date", type: 'timestamp', nullable: true })
   public creationDate?: string;
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: "source_date_start", type: 'timestamp', nullable: true })
   public sourceDateStart?: string;
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: "source_date_end", type: 'timestamp', nullable: true })
   public sourceDateEnd?: string;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "min_resolution_meter", type: 'numeric', nullable: true })
   public minResolutionMeter?: number;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "max_resolution_meter", type: 'numeric', nullable: true })
   public maxResolutionMeter?: number;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "min_resolution_deg", type: 'numeric', nullable: true })
   public minResolutionDeg?: number;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "max_resolution_deg", type: 'numeric', nullable: true })
   public maxResolutionDeg?: number;
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: "nominal_resolution", type: 'text', nullable: true })
   public nominalResolution?: string;
-  @Column({ type: 'numeric' })
+  @Column({ name: "min_accuracy_CE90", type: 'numeric' })
   public minAccuracyCE90!: number;
-  @Column({ type: 'numeric' })
+  @Column({ name: "max_accuracy_CE90", type: 'numeric' })
   public maxAccuracyCE90!: number;
-  @Column({ type: 'numeric' })
+  @Column({ name: "accuracy_LE90", type: 'numeric' })
   public accuracyLE90!: number;
-  @Column({ type: 'numeric', nullable: true })
-  public accuracysE90?: number;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "accuracy_SE90", type: 'numeric', nullable: true })
+  public accuracySE90?: number;
+  @Column({ name: "relative_accuracy_LE90", type: 'numeric', nullable: true })
   public relativeAccuracyLE90?: number;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "visual_accuracy", type: 'numeric', nullable: true })
   public visualAccuracy?: number;
-  @Column({ type: 'text' })
+  @Column({ name: "sensors", type: 'text' })
   public sensors!: string;
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: "foot_print", type: 'text', nullable: true })
   public footprint?: string;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "height_range_from", type: 'numeric', nullable: true })
   public heightRangeFrom?: number;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "height_range_to", type: 'numeric', nullable: true })
   public heightRangeTo?: number;
-  @Column({ type: 'bigint' })
+  @Column({ name: "srs_id", type: 'bigint' })
   public srsId!: bigint;
-  @Column({ type: 'text' })
+  @Column({ name: "srs_name", type: 'text' })
   public srsName!: string;
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: "srs_origin", type: 'text', nullable: true })
   public srsOrigin?: string; // TODO: create struct representing it as a point
-  @Column({ type: 'text' })
+  @Column({ name: "region", type: 'text' })
   public region!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "classification", type: 'text' })
   public classification!: string;
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: "compartmentalization", type: 'text', nullable: true })
   public compartmentalization?: string;
-  @Column({ type: 'text' })
+  @Column({ name: "production_system", type: 'text' })
   public productionSystem!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "production_system_ver", type: 'text' })
   public productionSystemVer!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "producer_name", type: 'text' })
   public producerName!: string;
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: "production_method", type: 'text', nullable: true })
   public productionMethod?: string;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "min_flight_alt", type: 'numeric', nullable: true })
   public minFlightAlt?: number;
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ name: "max_flight_alt", type: 'numeric', nullable: true })
   public maxFlightAlt?: number;
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: "geographic_area", type: 'text', nullable: true })
   public geographicArea?: string;
-  @Column({ type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
+  @Column({ name: "links", type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
   public links!: ILink[];
-  @Column({ type: 'text' })
+  @Column({ name: "bounding_box", type: 'text' })
   public boundingBox!: string;
 
-  @Column({ type: 'text' })
+  @Column({ name: "type", type: 'text' })
   public type!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "type_name", type: 'text' })
   public typeName!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "schema", type: 'text' })
   public schema!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "md_source", type: 'text' })
   public mdSource!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "xml", type: 'text' })
   public xml!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "anytext", type: 'text' })
   public anytext!: string;
-  @Column({ type: 'text' })
+  @Column({ name: "keywords", type: 'text' })
   public keywords!: string;
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: "record_update_date", type: 'timestamp', nullable: true })
   public recordUpdateDate?: Date;
   @Index('records_fts_gin_idx')
   @Column({
