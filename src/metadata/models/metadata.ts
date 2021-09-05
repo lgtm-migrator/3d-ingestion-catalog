@@ -6,8 +6,8 @@ export interface IMetadataPayload {
   productType: string;
   description?: string;
   creationDate?: string;
-  sourceDateStart?: string;
-  sourceDateEnd?: string;
+  sourceStartDate?: string;
+  sourceEndDate?: string;
   minResolutionMeter?: number;
   maxResolutionMeter?: number;
   minResolutionDeg?: number;
@@ -19,7 +19,7 @@ export interface IMetadataPayload {
   accuracySE90?: number;
   relativeAccuracyLE90?: number;
   visualAccuracy?: number;
-  sensors: string;
+  sensorType: string;
   footprint?: string;
   heightRangeFrom?: number;
   heightRangeTo?: number;

@@ -21,10 +21,10 @@ export class Metadata implements IMetadataEntity {
   public description?: string;
   @Column({ name: "creation_date", type: 'timestamp', nullable: true })
   public creationDate?: string;
-  @Column({ name: "source_date_start", type: 'timestamp', nullable: true })
-  public sourceDateStart?: string;
-  @Column({ name: "source_date_end", type: 'timestamp', nullable: true })
-  public sourceDateEnd?: string;
+  @Column({ name: "source_start_date", type: 'timestamp', nullable: true })
+  public sourceStartDate?: string;
+  @Column({ name: "source_end_date", type: 'timestamp', nullable: true })
+  public sourceEndDate?: string;
   @Column({ name: "min_resolution_meter", type: 'numeric', nullable: true })
   public minResolutionMeter?: number;
   @Column({ name: "max_resolution_meter", type: 'numeric', nullable: true })
@@ -47,9 +47,9 @@ export class Metadata implements IMetadataEntity {
   public relativeAccuracyLE90?: number;
   @Column({ name: "visual_accuracy", type: 'numeric', nullable: true })
   public visualAccuracy?: number;
-  @Column({ name: "sensors", type: 'text' })
-  public sensors!: string;
-  @Column({ name: "foot_print", type: 'text', nullable: true })
+  @Column({ name: "sensor_type", type: 'text' })
+  public sensorType!: string;
+  @Column({ name: "footprint", type: 'text', nullable: true })
   public footprint?: string;
   @Column({ name: "height_range_from", type: 'numeric', nullable: true })
   public heightRangeFrom?: number;

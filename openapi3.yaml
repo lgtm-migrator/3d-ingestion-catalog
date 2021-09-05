@@ -191,10 +191,10 @@ components:
           type: string
           format: date-time
           description: Creation date
-        sourceDateStart:
+        sourceStartDate:
           type: string
           format: date-time
-        sourceDateEnd:
+        sourceEndDate:
           type: string
           format: date-time
         minResolutionMeter:
