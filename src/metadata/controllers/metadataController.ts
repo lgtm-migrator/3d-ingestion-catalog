@@ -2,9 +2,9 @@ import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { v4 as uuidV4 } from 'uuid';
-import { Services } from '../../common/constants';
+import { Logger } from '@map-colonies/js-logger';
+import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
-import { ILogger } from '../../common/interfaces';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
 import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
@@ -23,7 +23,7 @@ type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
 export class MetadataController {
-  public constructor(@inject(Services.LOGGER) private readonly logger: ILogger, private readonly manager: MetadataManager) {}
+  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, private readonly manager: MetadataManager) {}
 
   public getAll: GetAllRequestHandler = async (req, res, next) => {
     try {

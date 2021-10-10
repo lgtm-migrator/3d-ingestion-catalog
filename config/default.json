@@ -5,14 +5,23 @@
     "rawPath": "/api",
     "uiPath": "/api"
   },
-  "logger": {
-    "level": "info"
+  "telemetry": {
+    "logger": {
+      "level": "info",
+      "prettyPrint": true
+    }
   },
   "server": {
     "port": "8080",
     "request": {
       "payload": {
         "limit": "1mb"
+      }
+    },
+    "response": {
+      "compression": {
+        "enabled": true,
+        "options": null
       }
     }
   },
@@ -21,7 +30,13 @@
     "host": "localhost",
     "port": 5432,
     "username": "postgres",
-    "password": "postgres",
-    "database": "postgres"
+    "password": "avi",
+    "database": "postgres",
+    "enableSslAuth": false,
+    "sslPaths": {
+      "ca": "",
+      "key": "",
+      "cert": ""
+    }
   }
 }

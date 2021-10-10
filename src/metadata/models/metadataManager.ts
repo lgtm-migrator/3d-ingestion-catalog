@@ -1,7 +1,7 @@
 import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
-import { Services } from '../../common/constants';
-import { ILogger } from '../../common/interfaces';
+import { Logger } from '@map-colonies/js-logger';
+import { SERVICES } from '../../common/constants';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 import { IUpdatePayload, IMetadataEntity } from './metadata';
 import { Metadata } from './metadata.entity';
@@ -9,22 +9,22 @@ import { Metadata } from './metadata.entity';
 @injectable()
 export class MetadataManager {
   public constructor(
-    @inject(Services.REPOSITORY) private readonly repository: Repository<Metadata>,
-    @inject(Services.LOGGER) private readonly logger: ILogger
+    @inject(SERVICES.METADATA_REPOSITORY) private readonly repository: Repository<Metadata>,
+    @inject(SERVICES.LOGGER) private readonly logger: Logger
   ) {}
 
   public async getAll(): Promise<IMetadataEntity[] | undefined> {
-    this.logger.log('info', `Get all models metadata`);
+    this.logger.info( `Get all models metadata`);
     return this.repository.find();
   }
 
   public async getRecord(identifier: string): Promise<IMetadataEntity | undefined> {
-    this.logger.log('info', `Get metadata record ${identifier}`);
+    this.logger.info(`Get metadata record ${identifier}`);
     return this.repository.findOne(identifier);
   }
 
   public async createRecord(payload: IMetadataEntity): Promise<IMetadataEntity> {
-    this.logger.log('info', `Create a new metadata record: ${JSON.stringify(payload)}`);
+    this.logger.info(`Create a new metadata record: ${JSON.stringify(payload)}`);
     const dbMetadata = await this.repository.findOne(payload.id);
     if (dbMetadata != undefined) {
       throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.id} already exists`);
@@ -34,7 +34,7 @@ export class MetadataManager {
   }
 
   public async updateRecord(identifier: string, payload: Partial<IMetadataEntity>): Promise<IMetadataEntity> {
-    this.logger.log('info', `Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
+    this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
     const dbMetadata = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
@@ -45,7 +45,7 @@ export class MetadataManager {
   }
 
   public async updatePartialRecord(identifier: string, payload: IUpdatePayload): Promise<IMetadataEntity> {
-    this.logger.log('info', `Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
+    this.logger.info(`Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
     const dbMetadata = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
@@ -58,7 +58,7 @@ export class MetadataManager {
   }
 
   public async deleteRecord(identifier: string): Promise<void> {
-    this.logger.log('info', `Delete metadata record ${identifier}`);
+    this.logger.info(`Delete metadata record ${identifier}`);
     await this.repository.delete(identifier);
   }
 }

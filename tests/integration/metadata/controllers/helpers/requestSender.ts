@@ -2,7 +2,7 @@ import * as supertest from 'supertest';
 import { Application } from 'express';
 import { container } from 'tsyringe';
 import { ServerBuilder } from '../../../../../src/serverBuilder';
-import { Services } from '../../../../../src/common/constants';
+import { SERVICES } from '../../../../../src/common/constants';
 import { IPayload, IUpdatePayload } from '../../../../../src/metadata/models/metadata';
 
 export function getApp(): Application {
@@ -11,7 +11,7 @@ export function getApp(): Application {
 }
 
 export function getMockedRepoApp(repo: unknown): Application {
-  container.register(Services.REPOSITORY, { useValue: repo });
+  container.register(SERVICES.METADATA_REPOSITORY, { useValue: repo });
   return getApp();
 }
 

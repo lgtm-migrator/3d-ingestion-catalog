@@ -272,7 +272,7 @@ components:
               type: string
             insertDate:
               type: string
-              format: date-time     
+              format: date-time
     updatePayload:
       type: object
       description: 3d tiles metadata update payload

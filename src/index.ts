@@ -1,15 +1,28 @@
 // this import must be called before the first import of tsyring
 import 'reflect-metadata';
-import { Probe } from '@map-colonies/mc-probe';
+import http from 'http';
 import { container } from 'tsyringe';
-import { get } from 'config';
-import { getApp } from './app';
-import { DEFAULT_SERVER_PORT } from './common/constants';
+import { createTerminus, HealthCheck } from '@godaddy/terminus';
+import config from 'config';
+import { Logger } from '@map-colonies/js-logger';
+import { DEFAULT_SERVER_PORT, SERVICES } from './common/constants';
 import { IServerConfig } from './common/interfaces';
+import { getApp } from './app';
 
-const serverConfig = get<IServerConfig>('server');
+const serverConfig = config.get<IServerConfig>('server');
 const port: number = parseInt(serverConfig.port) || DEFAULT_SERVER_PORT;
-void getApp().then(async (app) => {
-  const probe = container.resolve<Probe>(Probe);
-  await probe.start(app, port);
-});
+
+void getApp()
+  .then((app) => {
+    const logger = container.resolve<Logger>(SERVICES.LOGGER);
+    const healthCheck = container.resolve<HealthCheck>(SERVICES.HEALTHCHECK);
+    const server = createTerminus(http.createServer(app), { healthChecks: { '/liveness': healthCheck, onSignal: container.resolve('onSignal') } });
+
+    server.listen(port, () => {
+      logger.info(`app started on port ${port}`);
+    });
+  })
+  .catch((error: Error) => {
+    console.error('😢 - failed initializing the server');
+    console.error(error.message);
+  });

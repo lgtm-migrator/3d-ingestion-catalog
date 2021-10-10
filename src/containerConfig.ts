@@ -1,13 +1,15 @@
-import { readFileSync } from 'fs';
 import { container } from 'tsyringe';
 import config from 'config';
-import { Probe } from '@map-colonies/mc-probe';
-import { MCLogger, ILoggerConfig, IServiceConfig } from '@map-colonies/mc-logger';
 import { Connection } from 'typeorm';
-import { DB_TIMEOUT, Services } from './common/constants';
+import { trace } from '@opentelemetry/api';
+import { logMethod, Metrics } from '@map-colonies/telemetry';
+import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
+import { DB_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { promiseTimeout } from './common/utils/promiseTimeout';
 import { Metadata } from './metadata/models/metadata.entity';
 import { initializeConnection } from './common/utils/db';
+import { tracing } from './common/tracing';
+import { DbConfig } from './common/interfaces';
 
 const healthCheck = (connection: Connection): (() => Promise<void>) => {
   return async (): Promise<void> => {
@@ -25,26 +27,31 @@ const beforeShutdown = (connection: Connection): (() => Promise<void>) => {
 };
 
 async function registerExternalValues(): Promise<void> {
-  container.register(Services.CONFIG, { useValue: config });
+  container.register(SERVICES.CONFIG, { useValue: config });
 
-  const packageContent = readFileSync('./package.json', 'utf8');
-  const service = JSON.parse(packageContent) as IServiceConfig;
+  const loggerConfig = config.get<LoggerOptions>('telemetry.logger');
+  // @ts-expect-error the signature is wrong
+  const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, hooks: { logMethod } });
+  container.register(SERVICES.LOGGER, { useValue: logger });
 
-  const loggerConfig = config.get<ILoggerConfig>('logger');
-  const logger = new MCLogger(loggerConfig, service);
-  container.register(Services.LOGGER, { useValue: logger });
+  const metrics = new Metrics(SERVICE_NAME);
+  const meter = metrics.start();
+  container.register(SERVICES.METER, { useValue: meter });
 
-  const connection = await initializeConnection();
+  tracing.start();
+  const tracer = trace.getTracer(SERVICE_NAME);
+  container.register(SERVICES.TRACER, { useValue: tracer });
+
+  const connectionOptions = config.get<DbConfig>('db');
+  const connection = await initializeConnection(connectionOptions);
   container.register(Connection, { useValue: connection });
-  container.register(Services.REPOSITORY, { useValue: connection.getRepository(Metadata) });
+  container.register(SERVICES.METADATA_REPOSITORY, { useValue: connection.getRepository(Metadata) });
 
-  container.register<Probe>(Probe, {
-    useFactory: (container) =>
-      new Probe(container.resolve(Services.LOGGER), {
-        liveness: healthCheck(connection),
-        readiness: healthCheck(connection),
-        beforeShutdown: beforeShutdown(connection),
-      }),
+  container.register(SERVICES.HEALTHCHECK, { useValue: healthCheck(connection) });
+  container.register('onSignal', {
+    useValue: async (): Promise<void> => {
+      await Promise.all([tracing.stop(), metrics.stop(), beforeShutdown(connection)]);
+    },
   });
 }
 
