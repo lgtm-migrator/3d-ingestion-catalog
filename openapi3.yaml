@@ -219,8 +219,6 @@ components:
           type: number
         visualAccuracy:
           type: number
-        sensors:
-          type: string
         footprint:
           type: string
         heightRangeFrom:
@@ -260,6 +258,7 @@ components:
           description: Structure of links
         boundingBox:
           type: string
+          example: "POLYGON((-125 38.4,-125 40.9,-121.8 40.9,-121.8 38.4,-125 38.4))"
     metadata:
       allOf:
         - $ref: '#/components/schemas/payload'
