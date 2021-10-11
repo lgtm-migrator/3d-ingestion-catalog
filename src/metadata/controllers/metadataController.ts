@@ -9,6 +9,7 @@ import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
 import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
 import { Metadata } from '../models/metadata.entity';
+import { getAnyTextValue } from '../../common/anytext';
 
 interface MetadataParams {
   identifier: string;
@@ -59,11 +60,11 @@ export class MetadataController {
         id: uuidV4(),
         insertDate: new Date(),
         type: 'RECORD_3D',
-        typeName: 'unefined',
+        typeName: 'undefined',
         schema: 'undefined',
         mdSource: 'undefined',
         xml: 'undefined',
-        anytext: this.getAnyTextValue(payload),
+        anytext: getAnyTextValue(payload),
         keywords: '3d',
       };
 
@@ -112,12 +113,4 @@ export class MetadataController {
       return next(error);
     }
   };
-
-  private getAnyTextValue(payload: IMetadataPayload): string {
-    const filteredKeys = ['creationDate', 'sourceDateStart', 'sourceDateEnd', 'footprint', 'links', 'boundingBox'];
-    return Object.entries(payload)
-      .filter(([key, value]) => !filteredKeys.includes(key) && value !== undefined && typeof value === 'string')
-      .map(([, value]) => value as string)
-      .join(' ');
-  }
 }

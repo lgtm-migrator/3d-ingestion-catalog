@@ -14,7 +14,7 @@ export class MetadataManager {
   ) {}
 
   public async getAll(): Promise<IMetadataEntity[] | undefined> {
-    this.logger.info( `Get all models metadata`);
+    this.logger.info(`Get all models metadata`);
     return this.repository.find();
   }
 

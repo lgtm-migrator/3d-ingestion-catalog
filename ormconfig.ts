@@ -11,5 +11,5 @@ module.exports = {
   migrations: ['db/migration/*.ts'],
   cli: {
     migrationsDir: 'db/migration',
-  }
+  },
 };

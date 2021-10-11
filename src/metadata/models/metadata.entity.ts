@@ -1,106 +1,131 @@
+import { ValueTransformer } from 'typeorm';
 import { Geometry } from 'geojson';
-import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, Index, PrimaryColumn, AfterLoad } from 'typeorm';
 import { deserializeLinks, formatLinks } from '../../common/utils/format';
 import { wktToGeojson } from '../../common/utils/wktSerializer';
 import { IMetadataEntity, ILink } from './metadata';
 
+function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
+  return typeof obj === 'undefined' || obj === null;
+}
+class ColumnNumericTransformer implements ValueTransformer {
+  public to(data?: number | null): number | null {
+    if (!isNullOrUndefined(data)) {
+      return data;
+    }
+    return null;
+  }
+  public from(data?: string | null): number | null {
+    if (!isNullOrUndefined(data)) {
+      const res = parseFloat(data);
+      if (isNaN(res)) {
+        return null;
+      } else {
+        return res;
+      }
+    }
+    return null;
+  }
+}
+
+const numericColumnTransformer = new ColumnNumericTransformer();
 @Entity({ name: 'records' })
 export class Metadata implements IMetadataEntity {
   @PrimaryColumn()
   public id!: string;
-  @Column({ name:"insert_date", type: 'timestamp' })
+  @Column({ name: 'insert_date', type: 'timestamp' })
   public insertDate!: Date;
-  @Column({ name:"product_name", type: 'text' })
+  @Column({ name: 'product_name', type: 'text' })
   public productName!: string;
-  @Column({ name: "product_version", type: 'text' })
+  @Column({ name: 'product_version', type: 'text' })
   public productVersion!: string;
-  @Column({ name: "product_type", type: 'text' })
+  @Column({ name: 'product_type', type: 'text' })
   public productType!: string;
 
-  @Column({ name: "description", type: 'text', nullable: true })
+  @Column({ name: 'description', type: 'text', nullable: true })
   public description?: string;
-  @Column({ name: "creation_date", type: 'timestamp', nullable: true })
+  @Column({ name: 'creation_date', type: 'timestamp', nullable: true })
   public creationDate?: string;
-  @Column({ name: "source_start_date", type: 'timestamp', nullable: true })
+  @Column({ name: 'source_start_date', type: 'timestamp', nullable: true })
   public sourceStartDate?: string;
-  @Column({ name: "source_end_date", type: 'timestamp', nullable: true })
+  @Column({ name: 'source_end_date', type: 'timestamp', nullable: true })
   public sourceEndDate?: string;
-  @Column({ name: "min_resolution_meter", type: 'numeric', nullable: true })
+  @Column({ name: 'min_resolution_meter', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public minResolutionMeter?: number;
-  @Column({ name: "max_resolution_meter", type: 'numeric', nullable: true })
+  @Column({ name: 'max_resolution_meter', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public maxResolutionMeter?: number;
-  @Column({ name: "min_resolution_deg", type: 'numeric', nullable: true })
+  @Column({ name: 'min_resolution_deg', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public minResolutionDeg?: number;
-  @Column({ name: "max_resolution_deg", type: 'numeric', nullable: true })
+  @Column({ name: 'max_resolution_deg', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public maxResolutionDeg?: number;
-  @Column({ name: "nominal_resolution", type: 'text', nullable: true })
+  @Column({ name: 'nominal_resolution', type: 'text', nullable: true })
   public nominalResolution?: string;
-  @Column({ name: "min_accuracy_CE90", type: 'numeric' })
+  @Column({ name: 'min_accuracy_CE90', type: 'numeric', transformer: numericColumnTransformer })
   public minAccuracyCE90!: number;
-  @Column({ name: "max_accuracy_CE90", type: 'numeric' })
+  @Column({ name: 'max_accuracy_CE90', type: 'numeric', transformer: numericColumnTransformer })
   public maxAccuracyCE90!: number;
-  @Column({ name: "accuracy_LE90", type: 'numeric' })
+  @Column({ name: 'accuracy_LE90', type: 'numeric', transformer: numericColumnTransformer })
   public accuracyLE90!: number;
-  @Column({ name: "accuracy_SE90", type: 'numeric', nullable: true })
+  @Column({ name: 'accuracy_SE90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public accuracySE90?: number;
-  @Column({ name: "relative_accuracy_LE90", type: 'numeric', nullable: true })
+  @Column({ name: 'relative_accuracy_LE90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public relativeAccuracyLE90?: number;
-  @Column({ name: "visual_accuracy", type: 'numeric', nullable: true })
+  @Column({ name: 'visual_accuracy', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public visualAccuracy?: number;
-  @Column({ name: "sensor_type", type: 'text' })
+  @Column({ name: 'sensor_type', type: 'text' })
   public sensorType!: string;
-  @Column({ name: "footprint", type: 'text', nullable: true })
+  @Column({ name: 'footprint', type: 'text', nullable: true })
   public footprint?: string;
-  @Column({ name: "height_range_from", type: 'numeric', nullable: true })
+  @Column({ name: 'height_range_from', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public heightRangeFrom?: number;
-  @Column({ name: "height_range_to", type: 'numeric', nullable: true })
+  @Column({ name: 'height_range_to', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public heightRangeTo?: number;
-  @Column({ name: "srs_id", type: 'bigint' })
-  public srsId!: bigint;
-  @Column({ name: "srs_name", type: 'text' })
+  @Column({ name: 'srs_id', type: 'integer' })
+  public srsId!: number;
+  @Column({ name: 'srs_name', type: 'text' })
   public srsName!: string;
-  @Column({ name: "srs_origin", type: 'text', nullable: true })
+  @Column({ name: 'srs_origin', type: 'text', nullable: true })
   public srsOrigin?: string; // TODO: create struct representing it as a point
-  @Column({ name: "region", type: 'text' })
+  @Column({ name: 'region', type: 'text' })
   public region!: string;
-  @Column({ name: "classification", type: 'text' })
+  @Column({ name: 'classification', type: 'text' })
   public classification!: string;
-  @Column({ name: "compartmentalization", type: 'text', nullable: true })
+  @Column({ name: 'compartmentalization', type: 'text', nullable: true })
   public compartmentalization?: string;
-  @Column({ name: "production_system", type: 'text' })
+  @Column({ name: 'production_system', type: 'text' })
   public productionSystem!: string;
-  @Column({ name: "production_system_ver", type: 'text' })
+  @Column({ name: 'production_system_ver', type: 'text' })
   public productionSystemVer!: string;
-  @Column({ name: "producer_name", type: 'text' })
+  @Column({ name: 'producer_name', type: 'text' })
   public producerName!: string;
-  @Column({ name: "production_method", type: 'text', nullable: true })
+  @Column({ name: 'production_method', type: 'text', nullable: true })
   public productionMethod?: string;
-  @Column({ name: "min_flight_alt", type: 'numeric', nullable: true })
+  @Column({ name: 'min_flight_alt', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public minFlightAlt?: number;
-  @Column({ name: "max_flight_alt", type: 'numeric', nullable: true })
+  @Column({ name: 'max_flight_alt', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public maxFlightAlt?: number;
-  @Column({ name: "geographic_area", type: 'text', nullable: true })
+  @Column({ name: 'geographic_area', type: 'text', nullable: true })
   public geographicArea?: string;
-  @Column({ name: "links", type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
+  @Column({ name: 'links', type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
   public links!: ILink[];
-  @Column({ name: "bounding_box", type: 'text' })
+  @Column({ name: 'bounding_box', type: 'text' })
   public boundingBox!: string;
 
-  @Column({ name: "type", type: 'text' })
+  @Column({ name: 'type', type: 'text' })
   public type!: string;
-  @Column({ name: "type_name", type: 'text' })
+  @Column({ name: 'type_name', type: 'text' })
   public typeName!: string;
-  @Column({ name: "schema", type: 'text' })
+  @Column({ name: 'schema', type: 'text' })
   public schema!: string;
-  @Column({ name: "md_source", type: 'text' })
+  @Column({ name: 'md_source', type: 'text' })
   public mdSource!: string;
-  @Column({ name: "xml", type: 'text' })
+  @Column({ name: 'xml', type: 'text' })
   public xml!: string;
-  @Column({ name: "anytext", type: 'text' })
+  @Column({ name: 'anytext', type: 'text' })
   public anytext!: string;
-  @Column({ name: "keywords", type: 'text' })
+  @Column({ name: 'keywords', type: 'text' })
   public keywords!: string;
-  @Column({ name: "record_update_date", type: 'timestamp', nullable: true })
+  @Column({ name: 'record_update_date', type: 'timestamp', nullable: true })
   public recordUpdateDate?: Date;
   @Index('records_fts_gin_idx')
   @Column({
@@ -121,6 +146,7 @@ export class Metadata implements IMetadataEntity {
 
   @BeforeInsert()
   @BeforeUpdate()
+  @AfterLoad()
   private calculatewkbGeometry(): void {
     this.wkbGeometry = wktToGeojson(this.boundingBox);
   }

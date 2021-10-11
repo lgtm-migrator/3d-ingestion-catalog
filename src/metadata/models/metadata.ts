@@ -23,7 +23,7 @@ export interface IMetadataPayload {
   footprint?: string;
   heightRangeFrom?: number;
   heightRangeTo?: number;
-  srsId: bigint;
+  srsId: number;
   srsName: string;
   srsOrigin?: string; // TODO: create struct representing it as a point
   region: string;
@@ -55,7 +55,7 @@ export interface IMetadataEntity extends IMetadataExternal {
   anytext: string;
   keywords: string;
   recordUpdateDate?: Date;
-  anyTextTsVector?: string;
+  anytextTsvector?: string;
   wkbGeometry?: Geometry;
 }
 

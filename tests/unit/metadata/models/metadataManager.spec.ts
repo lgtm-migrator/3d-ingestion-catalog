@@ -1,6 +1,7 @@
+import jsLogger from '@map-colonies/js-logger';
 import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../../../../src/metadata/models/errors';
-import { Metadata } from '../../../../src/metadata/models/metadata';
+import { Metadata } from '../../../../src/metadata/models/metadata.entity';
 import { MetadataManager } from '../../../../src/metadata/models/metadataManager';
 import { createFakeMetadataRecord, getPayload, getUpdatePayload } from '../../../helpers/helpers';
 
@@ -11,7 +12,7 @@ describe('MetadataManager', () => {
     const find = jest.fn();
     beforeEach(() => {
       const repository = ({ find } as unknown) as Repository<Metadata>;
-      metadataManager = new MetadataManager(repository, { log: jest.fn() });
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       find.mockClear();
@@ -47,7 +48,7 @@ describe('MetadataManager', () => {
     const findOne = jest.fn();
     beforeEach(() => {
       const repository = ({ findOne } as unknown) as Repository<Metadata>;
-      metadataManager = new MetadataManager(repository, { log: jest.fn() });
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       findOne.mockClear();
@@ -57,7 +58,7 @@ describe('MetadataManager', () => {
       const metadata = createFakeMetadataRecord();
       findOne.mockResolvedValue(metadata);
 
-      const getPromise = metadataManager.getRecord(metadata.identifier);
+      const getPromise = metadataManager.getRecord(metadata.id);
 
       await expect(getPromise).resolves.toStrictEqual(metadata);
     });
@@ -84,7 +85,7 @@ describe('MetadataManager', () => {
     const findOne = jest.fn();
     beforeEach(() => {
       const repository = ({ save, findOne } as unknown) as Repository<Metadata>;
-      metadataManager = new MetadataManager(repository, { log: jest.fn() });
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       jest.clearAllMocks();
@@ -92,31 +93,31 @@ describe('MetadataManager', () => {
 
     it('resolves without errors if id is not in use', async () => {
       const metadata = createFakeMetadataRecord();
-      const payload = getPayload(metadata);
+      // const payload = getPayload(metadata);
       findOne.mockResolvedValue(undefined);
       save.mockResolvedValue(metadata);
 
-      const createPromise = metadataManager.createRecord(payload);
+      const createPromise = metadataManager.createRecord(metadata);
 
       await expect(createPromise).resolves.toStrictEqual(metadata);
     });
 
     it('rejects on DB error', async () => {
       const metadata = createFakeMetadataRecord();
-      const payload = getPayload(metadata);
+      // const payload = getPayload(metadata);
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const createPromise = metadataManager.createRecord(payload);
+      const createPromise = metadataManager.createRecord(metadata);
 
       await expect(createPromise).rejects.toThrow(QueryFailedError);
     });
 
     it('rejects if record already exists', async () => {
       const metadata = createFakeMetadataRecord();
-      const payload = getPayload(metadata);
+      // const payload = getPayload(metadata);
       findOne.mockResolvedValue(metadata);
 
-      const createPromise = metadataManager.createRecord(payload);
+      const createPromise = metadataManager.createRecord(metadata);
 
       await expect(createPromise).rejects.toThrow(IdAlreadyExistsError);
     });
@@ -127,7 +128,7 @@ describe('MetadataManager', () => {
     const save = jest.fn();
     beforeEach(() => {
       const repository = ({ findOne, save } as unknown) as Repository<Metadata>;
-      metadataManager = new MetadataManager(repository, { log: jest.fn() });
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       jest.clearAllMocks();
@@ -139,7 +140,7 @@ describe('MetadataManager', () => {
       findOne.mockResolvedValue(metadata);
       save.mockResolvedValue(metadata);
 
-      const updatePromise = metadataManager.updateRecord(metadata.identifier, payload);
+      const updatePromise = metadataManager.updateRecord(metadata.id, payload);
 
       await expect(updatePromise).resolves.toStrictEqual(metadata);
     });
@@ -149,7 +150,7 @@ describe('MetadataManager', () => {
       const payload = getPayload(metadata);
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const updatePromise = metadataManager.updateRecord(metadata.identifier, payload);
+      const updatePromise = metadataManager.updateRecord(metadata.id, payload);
 
       await expect(updatePromise).rejects.toThrow(QueryFailedError);
     });
@@ -159,7 +160,7 @@ describe('MetadataManager', () => {
       const payload = getPayload(metadata);
       findOne.mockResolvedValue(undefined);
 
-      const updatePromise = metadataManager.updateRecord(metadata.identifier, payload);
+      const updatePromise = metadataManager.updateRecord(metadata.id, payload);
 
       await expect(updatePromise).rejects.toThrow(EntityNotFoundError);
     });
@@ -170,7 +171,7 @@ describe('MetadataManager', () => {
     const save = jest.fn();
     beforeEach(() => {
       const repository = ({ findOne, save } as unknown) as Repository<Metadata>;
-      metadataManager = new MetadataManager(repository, { log: jest.fn() });
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       jest.clearAllMocks();
@@ -182,7 +183,7 @@ describe('MetadataManager', () => {
       findOne.mockResolvedValue(metadata);
       save.mockResolvedValue(metadata);
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata.identifier, payload);
+      const updatePromise = metadataManager.updatePartialRecord(metadata.id, payload);
 
       await expect(updatePromise).resolves.toStrictEqual(metadata);
     });
@@ -192,7 +193,7 @@ describe('MetadataManager', () => {
       const payload = getUpdatePayload();
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata.identifier, payload);
+      const updatePromise = metadataManager.updatePartialRecord(metadata.id, payload);
 
       await expect(updatePromise).rejects.toThrow(QueryFailedError);
     });
@@ -202,7 +203,7 @@ describe('MetadataManager', () => {
       const payload = getUpdatePayload();
       findOne.mockResolvedValue(undefined);
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata.identifier, payload);
+      const updatePromise = metadataManager.updatePartialRecord(metadata.id, payload);
 
       await expect(updatePromise).rejects.toThrow(EntityNotFoundError);
     });
@@ -212,7 +213,7 @@ describe('MetadataManager', () => {
     const del = jest.fn();
     beforeEach(() => {
       const repository = ({ delete: del } as unknown) as Repository<Metadata>;
-      metadataManager = new MetadataManager(repository, { log: jest.fn() });
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
     });
     afterEach(() => {
       del.mockClear();
@@ -221,7 +222,7 @@ describe('MetadataManager', () => {
     it('resolves without errors if record exists or not', async () => {
       const metadata = createFakeMetadataRecord();
 
-      await metadataManager.deleteRecord(metadata.identifier);
+      await metadataManager.deleteRecord(metadata.id);
 
       expect(del).toHaveBeenCalled();
     });
@@ -230,7 +231,7 @@ describe('MetadataManager', () => {
       del.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
       const metadata = createFakeMetadataRecord();
 
-      const deletePromise = metadataManager.deleteRecord(metadata.identifier);
+      const deletePromise = metadataManager.deleteRecord(metadata.id);
 
       await expect(deletePromise).rejects.toThrow(QueryFailedError);
     });

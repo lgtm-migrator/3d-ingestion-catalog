@@ -1,19 +1,19 @@
 import { container } from 'tsyringe';
 import config from 'config';
+import jsLogger from '@map-colonies/js-logger';
 import { Connection } from 'typeorm';
 import { SERVICES } from '../../src/common/constants';
-import { Metadata } from '../../src/metadata/models/metadata';
-import { ILogger } from '../../src/common/interfaces';
+import { Metadata } from '../../src/metadata/models/metadata.entity';
 import { initializeConnection } from '../../src/common/utils/db';
+import { DbConfig } from '../../src/common/interfaces';
 
 async function registerTestValues(): Promise<void> {
   container.register(SERVICES.CONFIG, { useValue: config });
 
-  const mockLogger: ILogger = { log: jest.fn() };
-  container.register(SERVICES.LOGGER, { useValue: mockLogger });
+  container.register(SERVICES.LOGGER, { useValue: jsLogger({ enabled: false }) });
 
-  const connection = await initializeConnection();
-  // await connection.synchronize();
+  const connection = await initializeConnection(config.get<DbConfig>('db'));
+  await connection.synchronize();
   const repository = connection.getRepository(Metadata);
   container.register(Connection, { useValue: connection });
   container.register(SERVICES.METADATA_REPOSITORY, { useValue: repository });

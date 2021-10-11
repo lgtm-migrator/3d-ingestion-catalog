@@ -1,63 +1,74 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import faker from 'faker';
-import { IMetadata, Metadata, IPayload, IUpdatePayload } from '../../src/metadata/models/metadata';
+import { IMetadataEntity, IUpdatePayload, IMetadataPayload } from '../../src/metadata/models/metadata';
 
-const LAT = 20.0924758;
-const LON = 72.7341809;
+const WKB_GEOMETRY = {
+  type: 'Polygon',
+  coordinates: [
+    [
+      [-125, 38.4],
+      [-125, 40.9],
+      [-121.8, 40.9],
+      [-121.8, 38.4],
+      [-125, 38.4],
+    ],
+  ],
+};
 
-interface IntegrationMetadata extends Omit<Metadata, 'insertDate' | 'creationDate' | 'validationDate' | 'timeBegin' | 'timeEnd' | 'wkbGeometry'> {
+interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'creationDate' | 'sourceStartDate' | 'sourceEndDate' | 'wkbGeometry'> {
   insertDate: string;
   creationDate: string;
-  validationDate: string;
-  timeBegin: string;
-  timeEnd: string;
+  sourceStartDate: string;
+  sourceEndDate: string;
   wkbGeometry: Record<string, unknown>;
 }
 
-export const createFakeMetadataRecord = (): IMetadata => {
-  return {
-    identifier: faker.random.uuid(),
-    typename: faker.random.word(),
-    schema: faker.random.word(),
-    mdSource: faker.random.word(),
-    xml: faker.random.word(),
-    anytext: 'test',
+export const createFakeMetadataRecord = (): IMetadataEntity => {
+  const record: IMetadataEntity = {
+    id: faker.random.uuid(),
+    typeName: 'undefined',
+    schema: 'undefined',
+    mdSource: 'undefined',
+    xml: 'undefined',
+    keywords: '3d',
+    boundingBox: 'POLYGON((-125 38.4,-125 40.9,-121.8 40.9,-121.8 38.4,-125 38.4))',
+    maxAccuracyCE90: faker.random.number(),
+    minAccuracyCE90: faker.random.number(),
+    productType: faker.random.word(),
+    productionSystem: faker.random.word(),
+    productionSystemVer: faker.random.word(),
     insertDate: faker.date.past(),
-    creationDate: faker.date.past(),
-    validationDate: faker.date.past(),
-    wktGeometry: `POINT(${LAT} ${LON})`,
-    title: faker.random.word(),
-    producerName: 'IDFMU',
+    creationDate: faker.date.past().toISOString(),
+    producerName: 'Meow',
     description: faker.random.word(),
-    type: faker.random.word(),
+    type: 'RECORD_3D',
     classification: faker.random.word(),
-    srs: faker.random.word(),
-    projectName: faker.random.word(),
-    version: faker.random.word(),
-    centroid: faker.random.word(),
+    srsId: faker.random.number(),
+    srsName: faker.random.word(),
+    srsOrigin: faker.random.word(),
+    productName: faker.random.word(),
+    productVersion: faker.random.word(),
     footprint: faker.random.word(),
-    timeBegin: faker.date.past(),
-    timeEnd: faker.date.past(),
+    sourceStartDate: faker.date.past().toISOString(),
+    sourceEndDate: faker.date.past().toISOString(),
     sensorType: faker.random.word(),
     region: faker.random.word(),
     nominalResolution: faker.random.word(),
-    accuracyLE90: faker.random.word(),
-    horizontalAccuracyCE90: faker.random.word(),
-    relativeAccuracyLE90: faker.random.word(),
-    estimatedPrecision: faker.random.word(),
-    measuredPrecision: faker.random.word(),
-    links: ',,3DTILES,dragon_high.b3dm^,,3DTILES,city/tileset.json',
-    anytextTsvector: "'test':1",
-    wkbGeometry: "{ coordinates: [LAT, LON], type: 'Point' }",
+    accuracyLE90: faker.random.number(),
+    relativeAccuracyLE90: faker.random.number(),
+    anytext: 'test',
+    anytextTsvector: 'test:1',
+    links: [
+      { url: faker.random.word(), protocol: faker.random.word() },
+      { url: faker.random.word(), protocol: faker.random.word() },
+    ],
   };
+  return record;
 };
 
-export const getPayload = (metadata: IMetadata): IPayload => {
+export const getPayload = (metadata: IMetadataEntity): IMetadataPayload => {
   const payload = {
     ...metadata,
-    links: [
-      { protocol: '3DTILES', url: 'dragon_high.b3dm' },
-      { protocol: '3DTILES', url: 'city/tileset.json' },
-    ],
   };
   delete payload.anytextTsvector;
   delete payload.wkbGeometry;
@@ -74,16 +85,15 @@ export const getUpdatePayload = (): IUpdatePayload => {
   return payload;
 };
 
-export const convertObjectToResponse = (metadata: IMetadata): IntegrationMetadata => {
-  const { insertDate, creationDate, validationDate, timeBegin, timeEnd, ...rest } = metadata;
+export const convertObjectToResponse = (metadata: IMetadataEntity): IntegrationMetadata => {
+  const { insertDate, creationDate, sourceStartDate, sourceEndDate, ...rest } = metadata;
   return {
     ...rest,
     insertDate: insertDate.toISOString(),
-    creationDate: creationDate ? creationDate.toISOString() : '',
-    validationDate: validationDate ? validationDate.toISOString() : '',
-    timeBegin: timeBegin ? timeBegin.toISOString() : '',
-    timeEnd: timeEnd ? timeEnd.toISOString() : '',
-    anytextTsvector: "'test':1",
-    wkbGeometry: { coordinates: [LAT, LON], type: 'Point' },
+    creationDate: creationDate ?? '',
+    sourceStartDate: sourceStartDate ?? '',
+    sourceEndDate: sourceEndDate ?? '',
+    anytextTsvector: 'test:1',
+    wkbGeometry: WKB_GEOMETRY,
   };
 };
