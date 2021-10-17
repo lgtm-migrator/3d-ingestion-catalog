@@ -33,47 +33,43 @@ const numericColumnTransformer = new ColumnNumericTransformer();
 export class Metadata implements IMetadataEntity {
   @PrimaryColumn()
   public id!: string;
+
+  // Check this
   @Column({ name: 'insert_date', type: 'timestamp' })
   public insertDate!: Date;
+
   @Column({ name: 'product_name', type: 'text' })
   public productName!: string;
   @Column({ name: 'product_version', type: 'text' })
   public productVersion!: string;
   @Column({ name: 'product_type', type: 'text' })
   public productType!: string;
-
   @Column({ name: 'description', type: 'text', nullable: true })
   public description?: string;
   @Column({ name: 'creation_date', type: 'timestamp', nullable: true })
   public creationDate?: string;
-  @Column({ name: 'source_start_date', type: 'timestamp', nullable: true })
-  public sourceStartDate?: string;
-  @Column({ name: 'source_end_date', type: 'timestamp', nullable: true })
-  public sourceEndDate?: string;
+  @Column({ name: 'source_date_start', type: 'timestamp', nullable: true })
+  public sourceDateStart!: string;
+  @Column({ name: 'source_date_end', type: 'timestamp', nullable: true })
+  public sourceDateEnd!: string;
   @Column({ name: 'min_resolution_meter', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public minResolutionMeter?: number;
   @Column({ name: 'max_resolution_meter', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public maxResolutionMeter?: number;
-  @Column({ name: 'min_resolution_deg', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
-  public minResolutionDeg?: number;
-  @Column({ name: 'max_resolution_deg', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
-  public maxResolutionDeg?: number;
-  @Column({ name: 'nominal_resolution', type: 'text', nullable: true })
-  public nominalResolution?: string;
-  @Column({ name: 'min_accuracy_CE90', type: 'numeric', transformer: numericColumnTransformer })
-  public minAccuracyCE90!: number;
+  @Column({ name: 'nominal_resolution', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
+  public nominalResolution?: number;
   @Column({ name: 'max_accuracy_CE90', type: 'numeric', transformer: numericColumnTransformer })
   public maxAccuracyCE90!: number;
-  @Column({ name: 'accuracy_LE90', type: 'numeric', transformer: numericColumnTransformer })
-  public accuracyLE90!: number;
+  @Column({ name: 'absolut_accuracy_LEP90', type: 'numeric', transformer: numericColumnTransformer })
+  public absolutAccuracyLEP90!: number;
   @Column({ name: 'accuracy_SE90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public accuracySE90?: number;
-  @Column({ name: 'relative_accuracy_LE90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
-  public relativeAccuracyLE90?: number;
+  @Column({ name: 'relative_accuracy_LEP90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
+  public relativeAccuracyLEP90?: number;
   @Column({ name: 'visual_accuracy', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public visualAccuracy?: number;
-  @Column({ name: 'sensor_type', type: 'text' })
-  public sensorType!: string;
+  @Column({ name: 'sensors', type: 'text' })
+  public sensors!: string;
   @Column({ name: 'footprint', type: 'text', nullable: true })
   public footprint?: string;
   @Column({ name: 'height_range_from', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
@@ -106,6 +102,8 @@ export class Metadata implements IMetadataEntity {
   public maxFlightAlt?: number;
   @Column({ name: 'geographic_area', type: 'text', nullable: true })
   public geographicArea?: string;
+  @Column({ name: 'product_bounding_box', type: 'text' })
+  public productBoundingBox!: string;
   @Column({ name: 'links', type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
   public links!: ILink[];
   @Column({ name: 'bounding_box', type: 'text' })

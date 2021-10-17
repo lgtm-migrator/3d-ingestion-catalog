@@ -6,26 +6,23 @@ export interface IMetadataPayload {
   productType: string;
   description?: string;
   creationDate?: string;
-  sourceStartDate?: string;
-  sourceEndDate?: string;
+  sourceDateStart: string;
+  sourceDateEnd: string;
   minResolutionMeter?: number;
   maxResolutionMeter?: number;
-  minResolutionDeg?: number;
-  maxResolutionDeg?: number;
-  nominalResolution?: string;
-  minAccuracyCE90: number;
+  nominalResolution?: number;
   maxAccuracyCE90: number;
-  accuracyLE90: number;
+  absolutAccuracyLEP90: number;
   accuracySE90?: number;
-  relativeAccuracyLE90?: number;
+  relativeAccuracyLEP90?: number;
   visualAccuracy?: number;
-  sensorType: string;
+  sensors: string;
   footprint?: string;
   heightRangeFrom?: number;
   heightRangeTo?: number;
   srsId: number;
   srsName: string;
-  srsOrigin?: string; // TODO: create struct representing it as a point
+  srsOrigin?: string;
   region: string;
   classification: string;
   compartmentalization?: string;
@@ -36,6 +33,7 @@ export interface IMetadataPayload {
   minFlightAlt?: number;
   maxFlightAlt?: number;
   geographicArea?: string;
+  productBoundingBox: string;
   links: ILink[];
   boundingBox: string;
 }

@@ -178,79 +178,159 @@ components:
     payload:
       type: object
       description: 3d tiles metadata payload
+      required:
+        - productName
+        - productVersion
+        - productType
+        - sourceDateStart
+        - sourceDateEnd
+        - maxAccuracyCE90
+        - absolutAccuracyLEP90
+        - sensors
+        - srsId
+        - srsName
+        - region
+        - classification
+        - productionSystem
+        - productionSystemVer
+        - producerName
+        - productBoundingBox
       properties:
         productName:
           type: string
+          maxLength: 50
+          description: Name of product
         productVersion:
           type: string
+          maxLength: 10
+          description: Number of version
         productType:
           type: string
+          description: Type of product (3DPhotoRealistic)
         description:
           type: string
-        creationDate:
+          maxLength: 250
+          description: description and comments
+        creationDate: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
           type: string
           format: date-time
           description: Creation date
-        sourceStartDate:
+        sourceDateStart: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
           type: string
           format: date-time
-        sourceEndDate:
+          description: Oldest date of taken photo
+        sourceDateEnd: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
           type: string
           format: date-time
+          description: Newest date of taken photo
         minResolutionMeter:
           type: number
-        maxResolutionMeter:
+          format: double
+          minimum: 0.01
+          maximum: 8000
+          description: Minimum resolution in meters
+        maxResolutionMeter: 
           type: number
-        minResolutionDeg:
-          type: number
-        maxResolutionDeg:
-          type: number
+          format: double
+          minimum: 0.01
+          maximum: 8000
+          description: Maximum resolution in meters
         nominalResolution:
-          type: string
-        minAccuracyCE90:
           type: number
+          format: double
+          minimum: 0
+          description: Number of points in one size unit
         maxAccuracyCE90:
           type: number
-        accuracyLE90:
+          format: double
+          minimum: 0
+          description: Maximum absolute horizontal accuracy
+        absolutAccuracyLEP90:
           type: number
+          format: double
+          minimum: 0
+          maximum: 999
+          description: Absolute vertical accuracy
         accuracySE90:
           type: number
-        relativeAccuracyLE90:
+          format: double
+          minimum: 0
+          maximum: 250
+          description: Absolute spherical accuracy
+        relativeAccuracyLEP90:
           type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: Relative vertical accuracy
         visualAccuracy:
           type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: Measure of visual quality
+        sensors:
+          type: string
+          description: All sensors that took part as a source to the product
         footprint:
           type: string
-        heightRangeFrom:
+          description: Geographic demarkatetion of the product
+        heightRangeFrom: 
           type: number
-        heightRangeTo:
+          format: double
+          description: Minimum height range of ground
+        heightRangeTo: 
           type: number
-        srsId:
-          type: number
+          format: double
+          description: Maximum height range of ground
+        srsId: 
+          type: integer 
+          description: ID of srs
         srsName:
           type: string
+          description: Name of the srsID
         srsOrigin:
           type: string
+          pattern: '^\(([-+]?(0|[1-9]\d*)(\.\d+)?;){2}[-+]?(0|[1-9]\d*)(\.\d+)?\)$'
+          description: First of axes
         region:
           type: string
+          description: States
         classification:
           type: string
-        compartmentalization:
+          pattern: '^[0-9]$'
+          description: Classification of the product
+        compartmentalization: 
           type: string
-        productionSystem:
+          description: compartmentalization of the product
+        productionSystem: 
           type: string
-        productionSystemVer:
+          description: Production system
+        productionSystemVer: 
           type: string
-        producerName:
+          maxLength: 20
+          description: Version production system
+        producerName: 
           type: string
-        productionMethod:
+          description: The name of the producer (product owner)
+        productionMethod: 
           type: string
-        minFlightAlt:
+          description: Method of the production
+        minFlightAlt: 
           type: number
-        maxFlightAlt:
+          format: double
+          description: Minimum height of the flight
+        maxFlightAlt: 
           type: number
+          format: double
+          description: Maximum height of the flight
         geographicArea:
           type: string
+          description: Area inside the region
+        productBoundingBox:
+          type: string
+          pattern: '^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$'
+          description: The bounding box of the product
         links:
           type: array
           items:

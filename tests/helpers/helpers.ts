@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import RandExp from 'randexp';
 import faker from 'faker';
 import { IMetadataEntity, IUpdatePayload, IMetadataPayload } from '../../src/metadata/models/metadata';
 
@@ -15,53 +16,71 @@ const WKB_GEOMETRY = {
   ],
 };
 
-interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'creationDate' | 'sourceStartDate' | 'sourceEndDate' | 'wkbGeometry'> {
+const srsOriginHelper = new RandExp('^\\(([-+]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-+]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
+const classificationHelper = new RandExp('^[0-9]$').gen();
+const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
+const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
+
+interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'creationDate' | 'sourceDateStart' | 'sourceDateEnd' | 'wkbGeometry'> {
   insertDate: string;
   creationDate: string;
-  sourceStartDate: string;
-  sourceEndDate: string;
+  sourceDateStart: string;
+  sourceDateEnd: string;
   wkbGeometry: Record<string, unknown>;
 }
 
 export const createFakeMetadataRecord = (): IMetadataEntity => {
   const record: IMetadataEntity = {
     id: faker.random.uuid(),
+    insertDate: faker.date.past(),
+
+    type: 'RECORD_3D',
     typeName: 'undefined',
     schema: 'undefined',
     mdSource: 'undefined',
     xml: 'undefined',
+    anytext: 'test',
     keywords: '3d',
-    boundingBox: 'POLYGON((-125 38.4,-125 40.9,-121.8 40.9,-121.8 38.4,-125 38.4))',
-    maxAccuracyCE90: faker.random.number(),
-    minAccuracyCE90: faker.random.number(),
+    anytextTsvector: 'test:1',
+
+    productName: Math.floor(Math.random() * listOfRandomWords.length).toString(),
+    productVersion: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     productType: faker.random.word(),
-    productionSystem: faker.random.word(),
-    productionSystemVer: faker.random.word(),
-    insertDate: faker.date.past(),
+    description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past().toISOString(),
-    producerName: 'Meow',
-    description: faker.random.word(),
-    type: 'RECORD_3D',
-    classification: faker.random.word(),
+    sourceDateStart: faker.date.past().toISOString(),
+    sourceDateEnd: faker.date.past().toISOString(),
+    minResolutionMeter: faker.random.number(8000),
+    maxResolutionMeter: faker.random.number(8000),
+    nominalResolution: faker.random.number(),
+    maxAccuracyCE90: faker.random.number(),
+    absolutAccuracyLEP90: faker.random.number(999),
+    accuracySE90: faker.random.number(250),
+    relativeAccuracyLEP90: faker.random.number(100),
+    visualAccuracy: faker.random.number(100),
+    sensors: faker.random.word(),
+    footprint: faker.random.word(),
+    heightRangeFrom: faker.random.number(),
+    heightRangeTo: faker.random.number(),
     srsId: faker.random.number(),
     srsName: faker.random.word(),
-    srsOrigin: faker.random.word(),
-    productName: faker.random.word(),
-    productVersion: faker.random.word(),
-    footprint: faker.random.word(),
-    sourceStartDate: faker.date.past().toISOString(),
-    sourceEndDate: faker.date.past().toISOString(),
-    sensorType: faker.random.word(),
+    srsOrigin: srsOriginHelper,
     region: faker.random.word(),
-    nominalResolution: faker.random.word(),
-    accuracyLE90: faker.random.number(),
-    relativeAccuracyLE90: faker.random.number(),
-    anytext: 'test',
-    anytextTsvector: 'test:1',
+    classification: classificationHelper,
+    compartmentalization: faker.random.word(),
+    productionSystem: faker.random.word(),
+    productionSystemVer: Math.floor(Math.random() * listOfRandomWords.length).toString(),
+    producerName: faker.random.word(),
+    productionMethod: faker.random.word(),
+    minFlightAlt: faker.random.number(),
+    maxFlightAlt: faker.random.number(),
+    geographicArea: faker.random.word(),
+    productBoundingBox: productBoundingBoxHelper,
     links: [
       { url: faker.random.word(), protocol: faker.random.word() },
       { url: faker.random.word(), protocol: faker.random.word() },
     ],
+    boundingBox: 'POLYGON((-125 38.4,-125 40.9,-121.8 40.9,-121.8 38.4,-125 38.4))',
   };
   return record;
 };
@@ -86,13 +105,13 @@ export const getUpdatePayload = (): IUpdatePayload => {
 };
 
 export const convertObjectToResponse = (metadata: IMetadataEntity): IntegrationMetadata => {
-  const { insertDate, creationDate, sourceStartDate, sourceEndDate, ...rest } = metadata;
+  const { insertDate, creationDate, sourceDateStart, sourceDateEnd, ...rest } = metadata;
   return {
     ...rest,
     insertDate: insertDate.toISOString(),
     creationDate: creationDate ?? '',
-    sourceStartDate: sourceStartDate ?? '',
-    sourceEndDate: sourceEndDate ?? '',
+    sourceDateStart: sourceDateStart ?? '',
+    sourceDateEnd: sourceDateEnd ?? '',
     anytextTsvector: 'test:1',
     wkbGeometry: WKB_GEOMETRY,
   };

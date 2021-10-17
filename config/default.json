@@ -31,7 +31,7 @@
     "port": 5432,
     "username": "postgres",
     "password": "avi",
-    "database": "postgres",
+    "database": "profile-3d",
     "enableSslAuth": false,
     "sslPaths": {
       "ca": "",
