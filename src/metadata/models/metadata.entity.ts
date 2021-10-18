@@ -60,8 +60,8 @@ export class Metadata implements IMetadataEntity {
   public nominalResolution?: number;
   @Column({ name: 'max_accuracy_CE90', type: 'numeric', transformer: numericColumnTransformer })
   public maxAccuracyCE90!: number;
-  @Column({ name: 'absolut_accuracy_LEP90', type: 'numeric', transformer: numericColumnTransformer })
-  public absolutAccuracyLEP90!: number;
+  @Column({ name: 'absolute_accuracy_LEP90', type: 'numeric', transformer: numericColumnTransformer })
+  public absoluteAccuracyLEP90!: number;
   @Column({ name: 'accuracy_SE90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public accuracySE90?: number;
   @Column({ name: 'relative_accuracy_LEP90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })

@@ -54,7 +54,7 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     maxResolutionMeter: faker.random.number(8000),
     nominalResolution: faker.random.number(),
     maxAccuracyCE90: faker.random.number(),
-    absolutAccuracyLEP90: faker.random.number(999),
+    absoluteAccuracyLEP90: faker.random.number(999),
     accuracySE90: faker.random.number(250),
     relativeAccuracyLEP90: faker.random.number(100),
     visualAccuracy: faker.random.number(100),

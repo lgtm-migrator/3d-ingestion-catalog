@@ -185,7 +185,7 @@ components:
         - sourceDateStart
         - sourceDateEnd
         - maxAccuracyCE90
-        - absolutAccuracyLEP90
+        - absoluteAccuracyLEP90
         - sensors
         - srsId
         - srsName
@@ -226,18 +226,21 @@ components:
         minResolutionMeter:
           type: number
           format: double
+          example: 1.1
           minimum: 0.01
           maximum: 8000
           description: Minimum resolution in meters
-        maxResolutionMeter: 
+        maxResolutionMeter:
           type: number
           format: double
+          example: 1.5
           minimum: 0.01
           maximum: 8000
           description: Maximum resolution in meters
         nominalResolution:
           type: number
           format: double
+          example: 5
           minimum: 0
           description: Number of points in one size unit
         maxAccuracyCE90:
@@ -245,7 +248,7 @@ components:
           format: double
           minimum: 0
           description: Maximum absolute horizontal accuracy
-        absolutAccuracyLEP90:
+        absoluteAccuracyLEP90:
           type: number
           format: double
           minimum: 0
@@ -275,22 +278,24 @@ components:
         footprint:
           type: string
           description: Geographic demarkatetion of the product
-        heightRangeFrom: 
+        heightRangeFrom:
           type: number
           format: double
           description: Minimum height range of ground
-        heightRangeTo: 
+        heightRangeTo:
           type: number
           format: double
           description: Maximum height range of ground
-        srsId: 
-          type: integer 
+        srsId:
+          type: integer
+          example: 4326
           description: ID of srs
         srsName:
           type: string
           description: Name of the srsID
         srsOrigin:
           type: string
+          example: (30;40;50)
           pattern: '^\(([-+]?(0|[1-9]\d*)(\.\d+)?;){2}[-+]?(0|[1-9]\d*)(\.\d+)?\)$'
           description: First of axes
         region:
@@ -298,29 +303,30 @@ components:
           description: States
         classification:
           type: string
+          example: "5"
           pattern: '^[0-9]$'
           description: Classification of the product
-        compartmentalization: 
+        compartmentalization:
           type: string
           description: compartmentalization of the product
-        productionSystem: 
+        productionSystem:
           type: string
           description: Production system
-        productionSystemVer: 
+        productionSystemVer:
           type: string
           maxLength: 20
           description: Version production system
-        producerName: 
+        producerName:
           type: string
           description: The name of the producer (product owner)
-        productionMethod: 
+        productionMethod:
           type: string
           description: Method of the production
-        minFlightAlt: 
+        minFlightAlt:
           type: number
           format: double
           description: Minimum height of the flight
-        maxFlightAlt: 
+        maxFlightAlt:
           type: number
           format: double
           description: Maximum height of the flight
@@ -329,6 +335,7 @@ components:
           description: Area inside the region
         productBoundingBox:
           type: string
+          example: 0,0,50,50
           pattern: '^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$'
           description: The bounding box of the product
         links:

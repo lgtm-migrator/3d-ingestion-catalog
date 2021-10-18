@@ -12,7 +12,7 @@ export interface IMetadataPayload {
   maxResolutionMeter?: number;
   nominalResolution?: number;
   maxAccuracyCE90: number;
-  absolutAccuracyLEP90: number;
+  absoluteAccuracyLEP90: number;
   accuracySE90?: number;
   relativeAccuracyLEP90?: number;
   visualAccuracy?: number;
