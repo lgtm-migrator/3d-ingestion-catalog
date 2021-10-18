@@ -296,7 +296,7 @@ components:
         srsOrigin:
           type: string
           example: (30;40;50)
-          pattern: '^\(([-+]?(0|[1-9]\d*)(\.\d+)?;){2}[-+]?(0|[1-9]\d*)(\.\d+)?\)$'
+          pattern: '^\(([-]?(0|[1-9]\d*)(\.\d+)?;){2}[-]?(0|[1-9]\d*)(\.\d+)?\)$'
           description: First of axes
         region:
           type: string
