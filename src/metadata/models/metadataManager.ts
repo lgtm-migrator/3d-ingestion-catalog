@@ -61,4 +61,10 @@ export class MetadataManager {
     this.logger.info(`Delete metadata record ${identifier}`);
     await this.repository.delete(identifier);
   }
+
+  public async findLastVersion(identifier: string): Promise<number> {
+    this.logger.info(`Get last product version record ${identifier}`);
+    const metadata = await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } });
+    return metadata?.productVersion ?? 1;
+  }
 }

@@ -1,8 +1,9 @@
 import { Geometry } from 'geojson';
 
 export interface IMetadataPayload {
+  productId: string;
   productName: string;
-  productVersion: string;
+  productVersion: number;
   productType: string;
   description?: string;
   creationDate?: string;
@@ -17,10 +18,10 @@ export interface IMetadataPayload {
   relativeAccuracyLEP90?: number;
   visualAccuracy?: number;
   sensors: string;
-  footprint?: string;
+  footprint: GeoJSON.Geometry;
   heightRangeFrom?: number;
   heightRangeTo?: number;
-  srsId: number;
+  srsId?: number;
   srsName: string;
   srsOrigin?: string;
   region: string;

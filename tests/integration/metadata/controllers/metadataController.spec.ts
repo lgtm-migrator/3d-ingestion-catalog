@@ -179,9 +179,9 @@ describe('MetadataController', function () {
       it('should return 200 status code and the updated metadata record', async function () {
         const metadata = createFakeMetadataRecord();
         const payload = getPayload(metadata);
-        payload.productVersion = '2';
+        payload.productVersion = 2;
         const findMock = jest.fn().mockResolvedValue(metadata);
-        metadata.productVersion = '2';
+        metadata.productVersion = 2;
         const saveMock = jest.fn().mockResolvedValue(metadata);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
 

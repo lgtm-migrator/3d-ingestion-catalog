@@ -33,16 +33,15 @@ const numericColumnTransformer = new ColumnNumericTransformer();
 export class Metadata implements IMetadataEntity {
   @PrimaryColumn()
   public id!: string;
-
-  // Check this
   @Column({ name: 'insert_date', type: 'timestamp' })
   public insertDate!: Date;
-
+  @Column({ name: 'product_id', type: 'text' })
+  public productId!: string;
   @Column({ name: 'product_name', type: 'text' })
   public productName!: string;
-  @Column({ name: 'product_version', type: 'text' })
-  public productVersion!: string;
-  @Column({ name: 'product_type', type: 'text' })
+  @Column({ name: 'product_version', type: 'integer' })
+  public productVersion!: number;
+  @Column({ name: 'product_type', type: 'numeric' })
   public productType!: string;
   @Column({ name: 'description', type: 'text', nullable: true })
   public description?: string;
@@ -70,8 +69,8 @@ export class Metadata implements IMetadataEntity {
   public visualAccuracy?: number;
   @Column({ name: 'sensors', type: 'text' })
   public sensors!: string;
-  @Column({ name: 'footprint', type: 'text', nullable: true })
-  public footprint?: string;
+  @Column({ name: 'footprint', type: 'geometry' })
+  public footprint!: GeoJSON.Geometry;
   @Column({ name: 'height_range_from', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public heightRangeFrom?: number;
   @Column({ name: 'height_range_to', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
@@ -104,6 +103,7 @@ export class Metadata implements IMetadataEntity {
   public geographicArea?: string;
   @Column({ name: 'product_bounding_box', type: 'text' })
   public productBoundingBox!: string;
+
   @Column({ name: 'links', type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
   public links!: ILink[];
   @Column({ name: 'bounding_box', type: 'text' })
@@ -123,8 +123,6 @@ export class Metadata implements IMetadataEntity {
   public anytext!: string;
   @Column({ name: 'keywords', type: 'text' })
   public keywords!: string;
-  @Column({ name: 'record_update_date', type: 'timestamp', nullable: true })
-  public recordUpdateDate?: Date;
   @Index('records_fts_gin_idx')
   @Column({
     name: 'anytext_tsvector',

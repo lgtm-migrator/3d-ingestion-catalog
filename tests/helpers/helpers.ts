@@ -2,6 +2,7 @@
 import RandExp from 'randexp';
 import faker from 'faker';
 import { IMetadataEntity, IUpdatePayload, IMetadataPayload } from '../../src/metadata/models/metadata';
+// import { getRecord } from '../integration/metadata/controllers/helpers/requestSender';
 
 const WKB_GEOMETRY = {
   type: 'Polygon',
@@ -20,6 +21,22 @@ const srsOriginHelper = new RandExp('^\\(([-+]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-+]?
 const classificationHelper = new RandExp('^[0-9]$').gen();
 const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
 const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
+const minX = 1;
+const minY = 2;
+const maxX = 3;
+const maxY = 4;
+const exampleGeometry = {
+  type: 'Polygon',
+  coordinates: [
+    [
+      [minX, minY],
+      [maxX, minY],
+      [maxX, maxY],
+      [minX, maxY],
+      [minX, minY],
+    ],
+  ],
+} as GeoJSON.Geometry;
 
 interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'creationDate' | 'sourceDateStart' | 'sourceDateEnd' | 'wkbGeometry'> {
   insertDate: string;
@@ -43,8 +60,9 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     keywords: '3d',
     anytextTsvector: 'test:1',
 
+    productId: faker.random.uuid(),
     productName: Math.floor(Math.random() * listOfRandomWords.length).toString(),
-    productVersion: Math.floor(Math.random() * listOfRandomWords.length).toString(),
+    productVersion: faker.random.number(8000),
     productType: faker.random.word(),
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past().toISOString(),
@@ -59,7 +77,7 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     relativeAccuracyLEP90: faker.random.number(100),
     visualAccuracy: faker.random.number(100),
     sensors: faker.random.word(),
-    footprint: faker.random.word(),
+    footprint: exampleGeometry,
     heightRangeFrom: faker.random.number(),
     heightRangeTo: faker.random.number(),
     srsId: faker.random.number(),
@@ -110,8 +128,8 @@ export const convertObjectToResponse = (metadata: IMetadataEntity): IntegrationM
     ...rest,
     insertDate: insertDate.toISOString(),
     creationDate: creationDate ?? '',
-    sourceDateStart: sourceDateStart ?? '',
-    sourceDateEnd: sourceDateEnd ?? '',
+    sourceDateStart: sourceDateStart,
+    sourceDateEnd: sourceDateEnd,
     anytextTsvector: 'test:1',
     wkbGeometry: WKB_GEOMETRY,
   };

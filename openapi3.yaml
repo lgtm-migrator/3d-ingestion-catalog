@@ -152,6 +152,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
+
   schemas:
     error:
       type: object
@@ -160,6 +161,7 @@ components:
       properties:
         message:
           type: string
+
     link:
       type: object
       description: Structure of link
@@ -173,14 +175,17 @@ components:
           type: string
         protocol:
           type: string
+          example: "3DTiles"
         url:
           type: string
+          example: "http://10.8.1.13:9000/3d-dev/3fa85f64-5717-4562-b3fc-2c963f66afa6/tileset.json"
+
     payload:
       type: object
       description: 3d tiles metadata payload
       required:
         - productName
-        - productVersion
+        # - productVersion
         - productType
         - sourceDateStart
         - sourceDateEnd
@@ -194,19 +199,27 @@ components:
         - productionSystem
         - productionSystemVer
         - producerName
-        - productBoundingBox
+        - links
+        # - productBoundingBox
       properties:
+        productId:
+          type: string
+          nullable: true
+          default: null
+          description: ID of product
         productName:
           type: string
           maxLength: 50
           description: Name of product
         productVersion:
-          type: string
-          maxLength: 10
+          type: integer
+          readOnly: true
+          example: 1
           description: Number of version
         productType:
           type: string
           description: Type of product (3DPhotoRealistic)
+          enum: [3DPhotoRealistic, PointCloud]
         description:
           type: string
           maxLength: 250
@@ -276,7 +289,7 @@ components:
           type: string
           description: All sensors that took part as a source to the product
         footprint:
-          type: string
+          $ref: '#/components/schemas/GeojsonGeometryPolygon'
           description: Geographic demarkatetion of the product
         heightRangeFrom:
           type: number
@@ -303,7 +316,7 @@ components:
           description: States
         classification:
           type: string
-          example: "5"
+          example: '"5"'
           pattern: '^[0-9]$'
           description: Classification of the product
         compartmentalization:
@@ -335,17 +348,21 @@ components:
           description: Area inside the region
         productBoundingBox:
           type: string
+          readOnly: true
           example: 0,0,50,50
           pattern: '^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$'
           description: The bounding box of the product
         links:
           type: array
+          # readOnly: true
           items:
             $ref: '#/components/schemas/link'
           description: Structure of links
         boundingBox:
           type: string
-          example: "POLYGON((-125 38.4,-125 40.9,-121.8 40.9,-121.8 38.4,-125 38.4))"
+          readOnly: true
+          example: "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))"
+
     metadata:
       allOf:
         - $ref: '#/components/schemas/payload'
@@ -359,6 +376,7 @@ components:
             insertDate:
               type: string
               format: date-time
+  
     updatePayload:
       type: object
       description: 3d tiles metadata update payload
@@ -375,3 +393,25 @@ components:
         sensorType:
           type: string
           description: The sensor used as the source of the product
+
+    GeojsonGeometryPolygon:
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - Polygon
+          coordinates:
+            type: array
+            items:
+              type: array
+              minItems: 5
+              items:
+                type: array
+                minItems: 2
+                items:
+                  type: number
+        example: '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}'

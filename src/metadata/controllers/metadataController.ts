@@ -1,3 +1,5 @@
+import * as turf from '@turf/turf';
+import wkt from 'terraformer-wkt-parser';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
@@ -66,7 +68,16 @@ export class MetadataController {
         xml: 'undefined',
         anytext: getAnyTextValue(payload),
         keywords: '3d',
+        productBoundingBox: turf.bbox(payload.footprint).toString(),
+        boundingBox: wkt.convert(payload.footprint),
       };
+
+      if (metadata.productId) {
+        metadata.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
+      } else {
+        metadata.productId = metadata.id;
+        metadata.productVersion = 1;
+      }
 
       const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));
       return res.status(httpStatus.CREATED).json(createdMetadata);
