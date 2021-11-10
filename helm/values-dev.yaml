@@ -6,7 +6,7 @@ global:
 
 image:
   repository: 3d-ingestion-catalog
-  tag: v1-rc-profile
+  tag: v1.0.2-rc-profile
 
 enabled: true
 environment: development
