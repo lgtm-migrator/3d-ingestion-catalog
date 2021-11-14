@@ -27,11 +27,11 @@
   },
   "db": {
     "type": "postgres",
-    "host": "localhost",
+    "host": "10.8.1.15",
     "port": 5432,
     "username": "postgres",
-    "password": "avi",
-    "database": "profile-3d",
+    "password": "postgres",
+    "database": "pycsw-3d-dev",
     "enableSslAuth": false,
     "sslPaths": {
       "ca": "",

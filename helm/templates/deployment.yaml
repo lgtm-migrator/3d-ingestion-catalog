@@ -41,6 +41,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ $releaseName }}-{{ $chartName }}-configmap
+            - secretRef:
+                name: {{ $releaseName }}-{{ $chartName }}-secret
+
           ports:
             - name: http
               containerPort: {{ .Values.env.targetPort }}
