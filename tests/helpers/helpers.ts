@@ -48,7 +48,7 @@ interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'crea
 
 export const createFakeMetadataRecord = (): IMetadataEntity => {
   const record: IMetadataEntity = {
-    id: faker.random.uuid(),
+    identifier: faker.random.uuid(),
     insertDate: faker.date.past(),
 
     type: 'RECORD_3D',
