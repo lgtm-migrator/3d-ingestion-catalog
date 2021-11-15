@@ -32,7 +32,7 @@ const numericColumnTransformer = new ColumnNumericTransformer();
 @Entity({ name: 'records' })
 export class Metadata implements IMetadataEntity {
   @PrimaryColumn()
-  public id!: string;
+  public identifier!: string;
   @Column({ name: 'insert_date', type: 'timestamp' })
   public insertDate!: Date;
   @Column({ name: 'product_id', type: 'text' })
@@ -47,27 +47,27 @@ export class Metadata implements IMetadataEntity {
   public description?: string;
   @Column({ name: 'creation_date', type: 'timestamp', nullable: true })
   public creationDate?: string;
-  @Column({ name: 'source_date_start', type: 'timestamp', nullable: true })
+  @Column({ name: 'source_start_date', type: 'timestamp', nullable: true })
   public sourceDateStart!: string;
-  @Column({ name: 'source_date_end', type: 'timestamp', nullable: true })
+  @Column({ name: 'source_end_date', type: 'timestamp', nullable: true })
   public sourceDateEnd!: string;
-  @Column({ name: 'min_resolution_meter', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
+  @Column({ name: 'min_resolution', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public minResolutionMeter?: number;
-  @Column({ name: 'max_resolution_meter', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
+  @Column({ name: 'max_resolution', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public maxResolutionMeter?: number;
   @Column({ name: 'nominal_resolution', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public nominalResolution?: number;
-  @Column({ name: 'max_accuracy_CE90', type: 'numeric', transformer: numericColumnTransformer })
+  @Column({ name: 'horizontal_accuracy_ce_90', type: 'numeric', transformer: numericColumnTransformer })
   public maxAccuracyCE90!: number;
-  @Column({ name: 'absolute_accuracy_LEP90', type: 'numeric', transformer: numericColumnTransformer })
+  @Column({ name: 'accuracy_le_90', type: 'numeric', transformer: numericColumnTransformer })
   public absoluteAccuracyLEP90!: number;
-  @Column({ name: 'accuracy_SE90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
+  @Column({ name: 'accuracy_se_90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public accuracySE90?: number;
-  @Column({ name: 'relative_accuracy_LEP90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
+  @Column({ name: 'relative_accuracy_le_90', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public relativeAccuracyLEP90?: number;
   @Column({ name: 'visual_accuracy', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public visualAccuracy?: number;
-  @Column({ name: 'sensors', type: 'text' })
+  @Column({ name: 'sensor_type', type: 'text' })
   public sensors!: string;
   @Column({ name: 'footprint', type: 'geometry' })
   public footprint!: GeoJSON.Geometry;
@@ -75,7 +75,7 @@ export class Metadata implements IMetadataEntity {
   public heightRangeFrom?: number;
   @Column({ name: 'height_range_to', type: 'numeric', nullable: true, transformer: numericColumnTransformer })
   public heightRangeTo?: number;
-  @Column({ name: 'srs_id', type: 'integer' })
+  @Column({ name: 'srs', type: 'integer' })
   public srsId!: number;
   @Column({ name: 'srs_name', type: 'text' })
   public srsName!: string;
@@ -89,7 +89,7 @@ export class Metadata implements IMetadataEntity {
   public compartmentalization?: string;
   @Column({ name: 'production_system', type: 'text' })
   public productionSystem!: string;
-  @Column({ name: 'production_system_ver', type: 'text' })
+  @Column({ name: 'production_system_version', type: 'text' })
   public productionSystemVer!: string;
   @Column({ name: 'producer_name', type: 'text' })
   public producerName!: string;
@@ -101,21 +101,21 @@ export class Metadata implements IMetadataEntity {
   public maxFlightAlt?: number;
   @Column({ name: 'geographic_area', type: 'text', nullable: true })
   public geographicArea?: string;
-  @Column({ name: 'product_bounding_box', type: 'text' })
+  @Column({ name: 'product_bbox', type: 'text' })
   public productBoundingBox!: string;
 
   @Column({ name: 'links', type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
   public links!: ILink[];
-  @Column({ name: 'bounding_box', type: 'text' })
+  @Column({ name: 'wkt_geometry', type: 'text' })
   public boundingBox!: string;
 
   @Column({ name: 'type', type: 'text' })
   public type!: string;
-  @Column({ name: 'type_name', type: 'text' })
+  @Column({ name: 'typename', type: 'text' })
   public typeName!: string;
   @Column({ name: 'schema', type: 'text' })
   public schema!: string;
-  @Column({ name: 'md_source', type: 'text' })
+  @Column({ name: 'mdsource', type: 'text' })
   public mdSource!: string;
   @Column({ name: 'xml', type: 'text' })
   public xml!: string;

@@ -59,7 +59,7 @@ export class MetadataController {
       const payload = req.body;
       const metadata: IMetadataEntity = {
         ...payload,
-        id: uuidV4(),
+        identifier: uuidV4(),
         insertDate: new Date(),
         type: 'RECORD_3D',
         typeName: 'undefined',
@@ -75,7 +75,7 @@ export class MetadataController {
       if (metadata.productId) {
         metadata.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
       } else {
-        metadata.productId = metadata.id;
+        metadata.productId = metadata.identifier;
         metadata.productVersion = 1;
       }
 

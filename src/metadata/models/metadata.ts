@@ -41,7 +41,7 @@ export interface IMetadataPayload {
 
 export interface IMetadataExternal extends IMetadataPayload {
   // External - auto
-  id: string;
+  identifier: string;
   insertDate: Date;
 }
 

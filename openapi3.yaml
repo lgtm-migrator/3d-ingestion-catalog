@@ -368,10 +368,10 @@ components:
         - $ref: '#/components/schemas/payload'
         - type: object
           required:
-            - id
+            - identifier
             - insertDate
           properties:
-            id:
+            identifier:
               type: string
             insertDate:
               type: string

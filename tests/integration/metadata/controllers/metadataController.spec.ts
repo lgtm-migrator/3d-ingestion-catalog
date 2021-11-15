@@ -78,7 +78,7 @@ describe('MetadataController', function () {
         expect(createResponse.status).toBe(httpStatusCodes.CREATED);
         expect(createResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
-        const id = ((createResponse.body as unknown) as IMetadataEntity).id;
+        const id = ((createResponse.body as unknown) as IMetadataEntity).identifier;
         const response = await requestSender.getRecord(app, id);
 
         expect(response.status).toBe(httpStatusCodes.OK);
@@ -126,7 +126,7 @@ describe('MetadataController', function () {
 
         const body = (response.body as unknown) as IMetadataEntity;
 
-        const getResponse = await requestSender.getRecord(app, body.id);
+        const getResponse = await requestSender.getRecord(app, body.identifier);
         const { anytextTsvector, wkbGeometry, ...createdResponseBody } = body;
 
         expect(getResponse.body).toMatchObject(createdResponseBody);
@@ -157,7 +157,7 @@ describe('MetadataController', function () {
         const response = await requestSender.createRecord(mockedApp, payload);
 
         expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} already exists`);
+        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} already exists`);
       });
 
       it('should return 500 status code if a db exception happens', async function () {
@@ -185,7 +185,7 @@ describe('MetadataController', function () {
         const saveMock = jest.fn().mockResolvedValue(metadata);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
 
-        const response = await requestSender.updateRecord(mockedApp, metadata.id, payload);
+        const response = await requestSender.updateRecord(mockedApp, metadata.identifier, payload);
 
         const { wkbGeometry, ...updated } = convertObjectToResponse(metadata);
 
@@ -206,10 +206,10 @@ describe('MetadataController', function () {
         const findMock = jest.fn().mockResolvedValue(undefined);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.updateRecord(mockedApp, metadata.id, payload);
+        const response = await requestSender.updateRecord(mockedApp, metadata.identifier, payload);
 
         expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
+        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} does not exist`);
       });
 
       it('should return 500 status code if a db exception happens', async function () {
@@ -218,7 +218,7 @@ describe('MetadataController', function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.updateRecord(mockedApp, metadata.id, payload);
+        const response = await requestSender.updateRecord(mockedApp, metadata.identifier, payload);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
@@ -236,7 +236,7 @@ describe('MetadataController', function () {
         const saveMock = jest.fn().mockResolvedValue(metadata);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
 
-        const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+        const response = await requestSender.updatePartialRecord(mockedApp, metadata.identifier, payload);
 
         const { wkbGeometry, ...updated } = convertObjectToResponse(metadata);
 
@@ -257,10 +257,10 @@ describe('MetadataController', function () {
         const findMock = jest.fn().mockResolvedValue(undefined);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+        const response = await requestSender.updatePartialRecord(mockedApp, metadata.identifier, payload);
 
         expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
+        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} does not exist`);
       });
 
       it('should return 500 status code if a db exception happens', async function () {
@@ -269,7 +269,7 @@ describe('MetadataController', function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+        const response = await requestSender.updatePartialRecord(mockedApp, metadata.identifier, payload);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
@@ -288,7 +288,7 @@ describe('MetadataController', function () {
       it('should return 204 status code if metadata record was found and deleted successfully', async function () {
         const metadata = await createDbMetadataRecord();
 
-        const response = await requestSender.deleteRecord(app, metadata.id);
+        const response = await requestSender.deleteRecord(app, metadata.identifier);
 
         expect(response.status).toBe(httpStatusCodes.NO_CONTENT);
       });
