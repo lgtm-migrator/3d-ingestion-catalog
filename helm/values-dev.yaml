@@ -45,10 +45,10 @@ resources:
 
 # external
 dbConfig:
-  host: 10.8.1.15
+  host: 10.8.1.4
   username: postgres
   password: postgres
-  database: pycsw-3d-dev
+  database: 3d-catalog-manager-dev
   sslAuth:
     enabled: false
     secretName: secret-name
