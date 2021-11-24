@@ -5,8 +5,11 @@
     "rawPath": "/api",
     "uiPath": "/api"
   },
-  "logger": {
-    "level": "info"
+  "telemetry": {
+    "logger": {
+      "level": "info",
+      "prettyPrint": true
+    }
   },
   "server": {
     "port": "8080",
@@ -14,14 +17,26 @@
       "payload": {
         "limit": "1mb"
       }
+    },
+    "response": {
+      "compression": {
+        "enabled": true,
+        "options": null
+      }
     }
   },
   "db": {
     "type": "postgres",
-    "host": "localhost",
+    "host": "10.8.1.15",
     "port": 5432,
     "username": "postgres",
     "password": "postgres",
-    "database": "catalog"
+    "database": "pycsw-3d-dev",
+    "enableSslAuth": false,
+    "sslPaths": {
+      "ca": "",
+      "key": "",
+      "cert": ""
+    }
   }
 }

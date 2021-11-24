@@ -23,6 +23,6 @@ spec:
           service:
             name: {{ $fullname }}
             port:
-              number: {{ $.Values.service.externalPort }}
+              number: {{ .Values.env.targetPort }}
   {{- end -}}
 {{- end -}}

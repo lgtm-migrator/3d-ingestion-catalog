@@ -12,7 +12,7 @@ jobs:
       # Label used to access the service container
       db:
         # Docker Hub image
-        image: postgis/postgis:10-2.5
+        image: postgres:12
         # Provide the user and password for postgres
         env:
           POSTGRES_USER: postgres
@@ -27,10 +27,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     env:
       DB_HOST: db
-    
+      DB_NAME: catalog
+
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2

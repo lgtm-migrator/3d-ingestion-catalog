@@ -6,8 +6,6 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-servers:
-  - url: http://localhost:8085
 paths:
   /metadata:
     get:
@@ -123,19 +121,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/record'
+            $ref: '#/components/schemas/metadata'
     list:
       description: OK
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/records'
+            $ref: '#/components/schemas/metadata'
     created:
       description: Created
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/record'
+            $ref: '#/components/schemas/metadata'
     badRequest:
       description: Bad Request
       content:
@@ -154,6 +152,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
+
   schemas:
     error:
       type: object
@@ -162,6 +161,7 @@ components:
       properties:
         message:
           type: string
+
     link:
       type: object
       description: Structure of link
@@ -175,123 +175,208 @@ components:
           type: string
         protocol:
           type: string
+          example: "3DTiles"
         url:
           type: string
+          example: "http://10.8.1.13:9000/3d-dev/3fa85f64-5717-4562-b3fc-2c963f66afa6/tileset.json"
+
     payload:
       type: object
       description: 3d tiles metadata payload
       required:
-        - identifier
-        - typename
-        - schema
-        - mdSource
-        - xml
-        - anytext
-        - insertDate
+        - productName
+        # - productVersion
+        - productType
+        - sourceDateStart
+        - sourceDateEnd
+        - maxAccuracyCE90
+        - absoluteAccuracyLEP90
+        - sensors
+        - srsId
+        - srsName
+        - region
+        - classification
+        - productionSystem
+        - productionSystemVer
+        - producerName
+        - links
+        # - productBoundingBox
       properties:
-        identifier:
+        productId:
           type: string
-          description: Unique identifier
-        typename:
+          nullable: true
+          default: null
+          description: ID of product
+        productName:
           type: string
-          description: Typename for the metadata; typically the value of the root element tag (e.g. csw:Record, gmd:MD_Metadata)
-        schema:
+          maxLength: 50
+          description: Name of product
+        productVersion:
+          type: integer
+          readOnly: true
+          example: 1
+          description: Number of version
+        productType:
           type: string
-          description: Schema for the metadata; typically the target namespace (e.g. http://www.opengis.net/cat/csw/2.0.2, http://www.isotc211.org/2005/gmd)
-        mdSource:
+          description: Type of product (3DPhotoRealistic)
+          enum: [3DPhotoRealistic, PointCloud]
+        description:
           type: string
-          description: MD source
-        xml:
-          type: string
-          description: Full XML representation
-        anytext:
-          type: string
-          description: Bag of XML element text values, used for full text search
-        insertDate:
-          type: string
-          format: date-time
-          description: Date of insertion
-        creationDate:
+          maxLength: 250
+          description: description and comments
+        creationDate: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
           type: string
           format: date-time
           description: Creation date
-        validationDate:
+        sourceDateStart: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
           type: string
           format: date-time
-          description: Validation date
-        wktGeometry:
+          description: Oldest date of taken photo
+        sourceDateEnd: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
           type: string
-          description: Well-Known-Text markup language for representing vector geometry objects
-        title:
+          format: date-time
+          description: Newest date of taken photo
+        minResolutionMeter:
+          type: number
+          format: double
+          example: 1.1
+          minimum: 0.01
+          maximum: 8000
+          description: Minimum resolution in meters
+        maxResolutionMeter:
+          type: number
+          format: double
+          example: 1.5
+          minimum: 0.01
+          maximum: 8000
+          description: Maximum resolution in meters
+        nominalResolution:
+          type: number
+          format: double
+          example: 5
+          minimum: 0
+          description: Number of points in one size unit
+        maxAccuracyCE90:
+          type: number
+          format: double
+          minimum: 0
+          description: Maximum absolute horizontal accuracy
+        absoluteAccuracyLEP90:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 999
+          description: Absolute vertical accuracy
+        accuracySE90:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 250
+          description: Absolute spherical accuracy
+        relativeAccuracyLEP90:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: Relative vertical accuracy
+        visualAccuracy:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          description: Measure of visual quality
+        sensors:
           type: string
-          description: Title
-        producerName:
-          type: string
-          description: The organization that produced/supplied the product
-          enum:
-            - IDFMU
-          default: IDFMU
-        description:
-          type: string
-          description: Description
-        type:
-          type: string
-          description: Type
-        classification:
-          type: string
-          description: Product classification
-        srs:
-          type: string
-          description: The product reference system, including a vertical data
-        projectName:
-          type: string
-          description: Project name
-        version:
-          type: string
-          description: Version
-        centroid:
-          type: string
-          description: Centroid
+          description: All sensors that took part as a source to the product
         footprint:
+          $ref: '#/components/schemas/GeojsonGeometryPolygon'
+          description: Geographic demarkatetion of the product
+        heightRangeFrom:
+          type: number
+          format: double
+          description: Minimum height range of ground
+        heightRangeTo:
+          type: number
+          format: double
+          description: Maximum height range of ground
+        srsId:
+          type: integer
+          example: 4326
+          description: ID of srs
+        srsName:
           type: string
-          description: Footprint
-        timeBegin:
+          description: Name of the srsID
+        srsOrigin:
           type: string
-          format: date-time
-          description: Begining time
-        timeEnd:
-          type: string
-          format: date-time
-          description: Ending time
-        sensorType:
-          type: string
-          description: The sensor used as the source of the product
+          example: (30;40;50)
+          pattern: '^\(([-]?(0|[1-9]\d*)(\.\d+)?;){2}[-]?(0|[1-9]\d*)(\.\d+)?\)$'
+          description: First of axes
         region:
           type: string
-          description: Region
-        nominalResolution:
+          description: States
+        classification:
           type: string
-          description: Nominal resolution
-        accuracyLE90:
+          example: '"5"'
+          pattern: '^[0-9]$'
+          description: Classification of the product
+        compartmentalization:
           type: string
-          description: LE90 of the height values
-        horizontalAccuracyCE90:
+          description: compartmentalization of the product
+        productionSystem:
           type: string
-          description: CE90 of location of elevation points
-        relativeAccuracyLE90:
+          description: Production system
+        productionSystemVer:
           type: string
-          description: LE90 of distance measurement
-        estimatedPrecision:
+          maxLength: 20
+          description: Version production system
+        producerName:
           type: string
-          description: Estimated precision
-        measuredPrecision:
+          description: The name of the producer (product owner)
+        productionMethod:
           type: string
-          description: Measured precision
+          description: Method of the production
+        minFlightAlt:
+          type: number
+          format: double
+          description: Minimum height of the flight
+        maxFlightAlt:
+          type: number
+          format: double
+          description: Maximum height of the flight
+        geographicArea:
+          type: string
+          description: Area inside the region
+        productBoundingBox:
+          type: string
+          readOnly: true
+          example: 0,0,50,50
+          pattern: '^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$'
+          description: The bounding box of the product
         links:
           type: array
+          # readOnly: true
           items:
             $ref: '#/components/schemas/link'
           description: Structure of links
+        boundingBox:
+          type: string
+          readOnly: true
+          example: "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))"
+
+    metadata:
+      allOf:
+        - $ref: '#/components/schemas/payload'
+        - type: object
+          required:
+            - identifier
+            - insertDate
+          properties:
+            identifier:
+              type: string
+            insertDate:
+              type: string
+              format: date-time
+  
     updatePayload:
       type: object
       description: 3d tiles metadata update payload
@@ -308,127 +393,25 @@ components:
         sensorType:
           type: string
           description: The sensor used as the source of the product
-    records:
-      type: array
-      items:
-        $ref: '#/components/schemas/record'
-      description: A list of 3d tiles metadata records
-    record:
-      type: object
-      description: 3d tiles metadata record
-      required:
-        - identifier
-        - typename
-        - schema
-        - mdSource
-        - xml
-        - anytext
-        - insertDate
-      properties:
-        identifier:
-          type: string
-          description: Unique identifier
-        typename:
-          type: string
-          description: Typename for the metadata; typically the value of the root element tag (e.g. csw:Record, gmd:MD_Metadata)
-        schema:
-          type: string
-          description: Schema for the metadata; typically the target namespace (e.g. http://www.opengis.net/cat/csw/2.0.2, http://www.isotc211.org/2005/gmd)
-        mdSource:
-          type: string
-          description: MD source
-        xml:
-          type: string
-          description: Full XML representation
-        anytext:
-          type: string
-          description: Bag of XML element text values, used for full text search
-        insertDate:
-          type: string
-          format: date-time
-          description: Date of insertion
-        creationDate:
-          type: string
-          format: date-time
-          description: Creation date
-        validationDate:
-          type: string
-          format: date-time
-          description: Validation date
-        wktGeometry:
-          type: string
-          description: Well-Known-Text markup language for representing vector geometry objects
-        title:
-          type: string
-          description: Title
-        producerName:
-          type: string
-          description: The organization that produced/supplied the product
-          enum:
-            - IDFMU
-          default: IDFMU
-        description:
-          type: string
-          description: Description
-        type:
-          type: string
-          description: Type
-        classification:
-          type: string
-          description: Product classification
-        srs:
-          type: string
-          description: The product reference system, including a vertical data
-        projectName:
-          type: string
-          description: Project name
-        version:
-          type: string
-          description: Version
-        centroid:
-          type: string
-          description: Centroid
-        footprint:
-          type: string
-          description: Footprint
-        timeBegin:
-          type: string
-          format: date-time
-          description: Begining time
-        timeEnd:
-          type: string
-          format: date-time
-          description: Ending time
-        sensorType:
-          type: string
-          description: The sensor used as the source of the product
-        region:
-          type: string
-          description: Region
-        nominalResolution:
-          type: string
-          description: Nominal resolution
-        accuracyLE90:
-          type: string
-          description: LE90 of the height values
-        horizontalAccuracyCE90:
-          type: string
-          description: CE90 of location of elevation points
-        relativeAccuracyLE90:
-          type: string
-          description: LE90 of distance measurement
-        estimatedPrecision:
-          type: string
-          description: Estimated precision
-        measuredPrecision:
-          type: string
-          description: Measured precision
-        links:
-          type: string
-          description: Structure of links in the format “name,description,protocol,url[^,,,[^,,,]]”
-        anytextTsvector:
-          type: string
-          description: Anytext tsvector
-        wkbGeometry:
-          type: string
-          description: Well-Known-Binary used to transfer and store the WKT information in a more compact form convenient for computer processing but that is not human-readable
+
+    GeojsonGeometryPolygon:
+        type: object
+        required:
+          - type
+          - coordinates
+        properties:
+          type:
+            type: string
+            enum:
+              - Polygon
+          coordinates:
+            type: array
+            items:
+              type: array
+              minItems: 5
+              items:
+                type: array
+                minItems: 2
+                items:
+                  type: number
+        example: '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}'

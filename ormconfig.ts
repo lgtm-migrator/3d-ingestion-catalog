@@ -1,10 +1,11 @@
 import config from 'config';
-import { ConnectionOptions } from 'typeorm';
+import { createConnectionOptions } from './src/common/utils/db';
+import { DbConfig } from './src/common/interfaces';
 
-const connectionOptions = config.get<ConnectionOptions>('db');
+const connectionOptions = config.get<DbConfig>('db');
 
 module.exports = {
-  ...connectionOptions,
+  ...createConnectionOptions(connectionOptions),
   entities: ['src/metadata/models/*.ts'],
   migrationsTableName: 'metadata_migration_table',
   migrations: ['db/migration/*.ts'],

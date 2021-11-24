@@ -1,27 +1,32 @@
+import * as turf from '@turf/turf';
+import wkt from 'terraformer-wkt-parser';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
-import { Services } from '../../common/constants';
+import { v4 as uuidV4 } from 'uuid';
+import { Logger } from '@map-colonies/js-logger';
+import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
-import { ILogger } from '../../common/interfaces';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
-import { IMetadata, IPayload, IUpdatePayload } from '../models/metadata';
+import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
+import { Metadata } from '../models/metadata.entity';
+import { getAnyTextValue } from '../../common/anytext';
 
 interface MetadataParams {
   identifier: string;
 }
-
-type GetAllRequestHandler = RequestHandler<undefined, IMetadata[]>;
-type GetRequestHandler = RequestHandler<MetadataParams, IMetadata>;
-type CreateRequestHandler = RequestHandler<undefined, IMetadata, IPayload>;
-type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadata, IPayload>;
-type UpdatePartialRequestHandler = RequestHandler<MetadataParams, IMetadata, IUpdatePayload>;
+//Changed
+type GetAllRequestHandler = RequestHandler<undefined, IMetadataExternal[]>;
+type GetRequestHandler = RequestHandler<MetadataParams, IMetadataExternal>;
+type CreateRequestHandler = RequestHandler<undefined, IMetadataExternal, IMetadataPayload>;
+type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IMetadataExternal>;
+type UpdatePartialRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
 export class MetadataController {
-  public constructor(@inject(Services.LOGGER) private readonly logger: ILogger, private readonly manager: MetadataManager) {}
+  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger, private readonly manager: MetadataManager) {}
 
   public getAll: GetAllRequestHandler = async (req, res, next) => {
     try {
@@ -51,8 +56,31 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-      const metadata = await this.manager.createRecord(req.body);
-      return res.status(httpStatus.CREATED).json(metadata);
+      const payload = req.body;
+      const metadata: IMetadataEntity = {
+        ...payload,
+        identifier: uuidV4(),
+        insertDate: new Date(),
+        type: 'RECORD_3D',
+        typeName: 'undefined',
+        schema: 'undefined',
+        mdSource: 'undefined',
+        xml: 'undefined',
+        anytext: getAnyTextValue(payload),
+        keywords: '3d',
+        productBoundingBox: turf.bbox(payload.footprint).toString(),
+        boundingBox: wkt.convert(payload.footprint),
+      };
+
+      if (metadata.productId) {
+        metadata.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
+      } else {
+        metadata.productId = metadata.identifier;
+        metadata.productVersion = 1;
+      }
+
+      const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));
+      return res.status(httpStatus.CREATED).json(createdMetadata);
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {
         (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
