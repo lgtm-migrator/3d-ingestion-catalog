@@ -35,7 +35,7 @@ stages:
                 - name: 3d-ingestion-catalog
                   path: '$(Build.SourcesDirectory)/Dockerfile'
                 - name: 3d-ingestion-catalog-migrations
-                  path: '$(Build.SourcesDirectory)/migration.Dockerfile'
+                  path: '$(Build.SourcesDirectory)/migrations.Dockerfile'
               # the service connection name for the docker registry Default is ACR
               # dockerRegistryServiceConnection:
               # the path to the docker file Default is [root Folder]/DockerFile
