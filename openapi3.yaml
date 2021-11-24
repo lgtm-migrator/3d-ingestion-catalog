@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: 3d ingestion catalog
   description: Service to create 3d ingestion catalog
-  version: 1.0.0
+  version: 2.0.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -14,11 +14,11 @@ paths:
       tags:
         - metadata
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/list'
-        204:
+        '204':
           description: No Content
-        '5XX':
+        5XX:
           $ref: '#/components/responses/unexpectedError'
     post:
       operationId: createRecord
@@ -31,11 +31,11 @@ paths:
             schema:
               $ref: '#/components/schemas/payload'
       responses:
-        201:
+        '201':
           $ref: '#/components/responses/created'
-        400:
+        '400':
           $ref: '#/components/responses/badRequest'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/unexpectedError'
   /metadata/{identifier}:
     get:
@@ -46,11 +46,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/identifier'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/success'
-        404:
+        '404':
           $ref: '#/components/responses/notFound'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/unexpectedError'
     put:
       operationId: updateRecord
@@ -65,13 +65,13 @@ paths:
             schema:
               $ref: '#/components/schemas/payload'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/success'
-        400:
+        '400':
           $ref: '#/components/responses/badRequest'
-        404:
+        '404':
           $ref: '#/components/responses/notFound'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/unexpectedError'
     patch:
       operationId: updatePartialRecord
@@ -86,13 +86,13 @@ paths:
             schema:
               $ref: '#/components/schemas/updatePayload'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/success'
-        400:
+        '400':
           $ref: '#/components/responses/badRequest'
-        404:
+        '404':
           $ref: '#/components/responses/notFound'
-        '5XX':
+        5XX:
           $ref: '#/components/responses/unexpectedError'
     delete:
       operationId: deleteRecord
@@ -102,9 +102,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/identifier'
       responses:
-        204:
+        '204':
           description: No Content
-        '5XX':
+        5XX:
           $ref: '#/components/responses/unexpectedError'
 components:
   parameters:
@@ -152,7 +152,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/error'
-
   schemas:
     error:
       type: object
@@ -161,7 +160,6 @@ components:
       properties:
         message:
           type: string
-
     link:
       type: object
       description: Structure of link
@@ -175,17 +173,16 @@ components:
           type: string
         protocol:
           type: string
-          example: "3DTiles"
+          example: 3DTiles
         url:
           type: string
-          example: "http://10.8.1.13:9000/3d-dev/3fa85f64-5717-4562-b3fc-2c963f66afa6/tileset.json"
-
+          example: >-
+            http://10.8.1.13:9000/3d-dev/3fa85f64-5717-4562-b3fc-2c963f66afa6/tileset.json
     payload:
       type: object
       description: 3d tiles metadata payload
       required:
         - productName
-        # - productVersion
         - productType
         - sourceDateStart
         - sourceDateEnd
@@ -223,16 +220,16 @@ components:
           maxLength: 250
           nullable: true
           description: description and comments
-        creationDate: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
+        creationDate:
           type: string
           format: date-time
           nullable: true
           description: Creation date
-        sourceDateStart: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
+        sourceDateStart:
           type: string
           format: date-time
           description: Oldest date of taken photo
-        sourceDateEnd: # What should I do? date-time: yyyy-mm-dd and required: dd-mm-yyyy
+        sourceDateEnd:
           type: string
           format: date-time
           description: Newest date of taken photo
@@ -319,7 +316,7 @@ components:
           type: string
           nullable: true
           example: (30;40;50)
-          pattern: '^\(([-]?(0|[1-9]\d*)(\.\d+)?;){2}[-]?(0|[1-9]\d*)(\.\d+)?\)$'
+          pattern: ^\(([-]?(0|[1-9]\d*)(\.\d+)?;){2}[-]?(0|[1-9]\d*)(\.\d+)?\)$
           description: First of axes
         region:
           type: string
@@ -327,7 +324,7 @@ components:
         classification:
           type: string
           example: '"5"'
-          pattern: '^[0-9]$'
+          pattern: ^[0-9]$
           description: Classification of the product
         compartmentalization:
           type: string
@@ -363,9 +360,8 @@ components:
         productBoundingBox:
           type: string
           readOnly: true
-          pattern: '^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$'
+          pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
           description: The bounding box of the product
-
     metadata:
       allOf:
         - $ref: '#/components/schemas/payload'
@@ -379,7 +375,6 @@ components:
             insertDate:
               type: string
               format: date-time
-  
     updatePayload:
       type: object
       description: 3d tiles metadata update payload
@@ -396,25 +391,24 @@ components:
         sensorType:
           type: string
           description: The sensor used as the source of the product
-
     GeojsonGeometryPolygon:
-        type: object
-        required:
-          - type
-          - coordinates
-        properties:
-          type:
-            type: string
-            enum:
-              - Polygon
-          coordinates:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum:
+            - Polygon
+        coordinates:
+          type: array
+          items:
             type: array
+            minItems: 5
             items:
               type: array
-              minItems: 5
+              minItems: 2
               items:
-                type: array
-                minItems: 2
-                items:
-                  type: number
-        example: '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}'
+                type: number
+      example: '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}'
