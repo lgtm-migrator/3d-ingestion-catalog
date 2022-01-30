@@ -236,4 +236,40 @@ describe('MetadataManager', () => {
       await expect(deletePromise).rejects.toThrow(QueryFailedError);
     });
   });
+
+  describe('#findLastVersion', () => {
+    const findOne = jest.fn();
+    beforeEach(() => {
+      const repository = ({ findOne } as unknown) as Repository<Metadata>;
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
+    });
+    afterEach(() => {
+      findOne.mockClear();
+    });
+
+    it('returns version if id exists', async () => {
+      const metadata = createFakeMetadataRecord();
+      // const payload = getUpdatePayload();
+      findOne.mockResolvedValue(metadata);
+      // const metadata = createFakeMetadataRecord();
+
+      // await metadataManager.deleteRecord(metadata.identifier);
+
+      const findPromise = metadataManager.findLastVersion(metadata.identifier);
+
+      await expect(findPromise).resolves.toBe(BigInt);
+
+      // expect(del).toHaveBeenCalled();
+    });
+
+    it('returns 1 if id does not exists', async () => {
+      const metadata = createFakeMetadataRecord();
+      // const payload = getUpdatePayload();
+      findOne.mockResolvedValue(undefined);
+
+      const findPromise = metadataManager.findLastVersion(metadata.identifier);
+
+      await expect(findPromise).resolves.toBe(1);
+    });
+  });
 });
