@@ -257,7 +257,7 @@ describe('MetadataManager', () => {
 
       const findPromise = metadataManager.findLastVersion(metadata.identifier);
 
-      await expect(findPromise).resolves.toBe(BigInt);
+      await expect(findPromise).resolves.toBe(metadata.productVersion);
 
       // expect(del).toHaveBeenCalled();
     });
