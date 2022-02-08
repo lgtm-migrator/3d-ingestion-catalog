@@ -72,11 +72,11 @@ export class MetadataController {
         boundingBox: wkt.convert(payload.footprint),
       };
 
-      if (metadata.productId) {
-        metadata.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
-      } else {
+      if (metadata.productId === undefined || !metadata.productId) {
         metadata.productId = metadata.identifier;
         metadata.productVersion = 1;
+      } else {
+        metadata.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
       }
 
       const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));

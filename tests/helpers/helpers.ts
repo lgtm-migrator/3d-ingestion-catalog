@@ -17,7 +17,7 @@ const WKB_GEOMETRY = {
   ],
 };
 
-const srsOriginHelper = new RandExp('^\\(([-+]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-+]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
+const srsOriginHelper = new RandExp('^\\(([-]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
 const classificationHelper = new RandExp('^[0-9]$').gen();
 const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
 const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
@@ -60,10 +60,10 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     keywords: '3d',
     anytextTsvector: 'test:1',
 
-    productId: faker.random.uuid(),
+    // productId: faker.random.uuid(),
     productName: Math.floor(Math.random() * listOfRandomWords.length).toString(),
-    productVersion: faker.random.number(8000),
-    productType: faker.random.word(),
+    // productVersion: 1,
+    productType: '3DPhotoRealistic',
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past().toISOString(),
     sourceDateStart: faker.date.past().toISOString(),
@@ -93,7 +93,7 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     minFlightAlt: faker.random.number(),
     maxFlightAlt: faker.random.number(),
     geographicArea: faker.random.word(),
-    productBoundingBox: productBoundingBoxHelper,
+    // productBoundingBox: productBoundingBoxHelper,
     links: [
       { url: faker.random.word(), protocol: faker.random.word() },
       { url: faker.random.word(), protocol: faker.random.word() },
