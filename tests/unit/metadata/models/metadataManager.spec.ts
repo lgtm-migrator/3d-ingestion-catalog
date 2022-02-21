@@ -262,14 +262,5 @@ describe('MetadataManager', () => {
       // expect(del).toHaveBeenCalled();
     });
 
-    it('returns 1 if id does not exists', async () => {
-      const metadata = createFakeMetadataRecord();
-      // const payload = getUpdatePayload();
-      findOne.mockResolvedValue(undefined);
-
-      const findPromise = metadataManager.findLastVersion(metadata.identifier);
-
-      await expect(findPromise).resolves.toBe(1);
-    });
   });
 });
