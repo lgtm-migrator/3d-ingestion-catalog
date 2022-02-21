@@ -93,7 +93,6 @@ describe('MetadataManager', () => {
 
     it('resolves without errors if id is not in use', async () => {
       const metadata = createFakeMetadataRecord();
-      // const payload = getPayload(metadata);
       findOne.mockResolvedValue(undefined);
       save.mockResolvedValue(metadata);
 
@@ -104,7 +103,6 @@ describe('MetadataManager', () => {
 
     it('rejects on DB error', async () => {
       const metadata = createFakeMetadataRecord();
-      // const payload = getPayload(metadata);
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
       const createPromise = metadataManager.createRecord(metadata);
@@ -114,7 +112,6 @@ describe('MetadataManager', () => {
 
     it('rejects if record already exists', async () => {
       const metadata = createFakeMetadataRecord();
-      // const payload = getPayload(metadata);
       findOne.mockResolvedValue(metadata);
 
       const createPromise = metadataManager.createRecord(metadata);
@@ -249,18 +246,11 @@ describe('MetadataManager', () => {
 
     it('returns version if id exists', async () => {
       const metadata = createFakeMetadataRecord();
-      // const payload = getUpdatePayload();
       findOne.mockResolvedValue(metadata);
-      // const metadata = createFakeMetadataRecord();
-
-      // await metadataManager.deleteRecord(metadata.identifier);
 
       const findPromise = metadataManager.findLastVersion(metadata.identifier);
 
       await expect(findPromise).resolves.toBe(metadata.productVersion);
-
-      // expect(del).toHaveBeenCalled();
     });
-
   });
 });

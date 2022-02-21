@@ -6,7 +6,7 @@ import { Metadata } from '../../../../src/metadata/models/metadata.entity';
 import { IMetadataEntity } from '../../../../src/metadata/models/metadata';
 import { convertObjectToResponse, createFakeMetadataRecord, getPayload, getUpdatePayload } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
-import { createDbMetadataRecord, getRepositoryFromContainer } from './helpers/db';
+import { getRepositoryFromContainer } from './helpers/db';
 import * as requestSender from './helpers/requestSender';
 
 describe('MetadataController', function () {
@@ -157,20 +157,6 @@ describe('MetadataController', function () {
         //   expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
         //   expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} already exists`);
       });
-    });
-
-    describe('Bad Path 😡', function () {
-      // The code doesn't cover required fields in spec.
-      // it.only('should return 400 status code and error message if mandatory fields are missing', async function () {
-      //   const metadata = createFakeMetadataRecord();
-      //   const { producerName, accuracyLE90, ...payload } = getPayload(metadata);
-      //   const response = await requestSender.createRecord(app, payload as IMetadataPayload);
-      //   expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      //   expect(response.body).toHaveProperty(
-      //     'message',
-      //     "request.body should have required property 'producerName', request.body should have required property 'accuracyLE90'"
-      //   );
-      // });
     });
 
     describe('Sad Path 😥', function () {
