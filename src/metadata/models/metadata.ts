@@ -1,9 +1,9 @@
 import { Geometry } from 'geojson';
 
 export interface IMetadataPayload {
-  productId: string;
+  productId?: string;
   productName: string;
-  productVersion: number;
+  productVersion?: number;
   productType: string;
   description?: string;
   creationDate?: string;
@@ -34,7 +34,7 @@ export interface IMetadataPayload {
   minFlightAlt?: number;
   maxFlightAlt?: number;
   geographicArea?: string;
-  productBoundingBox: string;
+  productBoundingBox?: string;
   links: ILink[];
   boundingBox: string;
 }
