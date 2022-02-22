@@ -39,9 +39,6 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: Create table
-        run: npm run migration:run
-
       - name: Run tests
         run: npm run test
 
