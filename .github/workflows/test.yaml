@@ -17,10 +17,10 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: catalog
+          POSTGRES_DB: 3d-catalog-manager-dev
         # Provide the port for postgres
         ports:
-          - 5432:5432
+          - 6432:6432
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -29,8 +29,8 @@ jobs:
           --health-retries 5
 
     env:
-      DB_HOST: db
-      DB_NAME: catalog
+      DB_HOST: 10.8.1.20
+      DB_NAME: 3d-catalog-manager-dev
 
     steps:
       - name: Check out Git repository
@@ -38,9 +38,6 @@ jobs:
 
       - name: Install Node.js dependencies
         run: npm ci
-
-    #  - name: Create table
-    #    run: npm run migration:run
 
       - name: Run tests
         run: npm run test
