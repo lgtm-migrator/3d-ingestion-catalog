@@ -38,3 +38,7 @@ export async function updatePartialRecord(app: Application, identifier: string, 
 export async function deleteRecord(app: Application, identifier: string): Promise<supertest.Response> {
   return supertest.agent(app).delete(`/metadata/${identifier}`).set('Content-Type', 'application/json');
 }
+
+export async function findLastVersion(app: Application, identifier: string): Promise<supertest.Response> {
+  return supertest.agent(app).get(`/metadata/${identifier}`).set('Content-Type', 'application/json');
+}

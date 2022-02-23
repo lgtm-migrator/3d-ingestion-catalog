@@ -64,7 +64,7 @@ export class MetadataManager {
 
   public async findLastVersion(identifier: string): Promise<number> {
     this.logger.info(`Get last product version record ${identifier}`);
-    const metadata = await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } });
-    return metadata?.productVersion ?? 1;
+    const metadata = (await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } })) as Metadata;
+    return metadata.productVersion;
   }
 }

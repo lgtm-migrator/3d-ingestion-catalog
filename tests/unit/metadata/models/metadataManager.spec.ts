@@ -93,7 +93,6 @@ describe('MetadataManager', () => {
 
     it('resolves without errors if id is not in use', async () => {
       const metadata = createFakeMetadataRecord();
-      // const payload = getPayload(metadata);
       findOne.mockResolvedValue(undefined);
       save.mockResolvedValue(metadata);
 
@@ -104,7 +103,6 @@ describe('MetadataManager', () => {
 
     it('rejects on DB error', async () => {
       const metadata = createFakeMetadataRecord();
-      // const payload = getPayload(metadata);
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
       const createPromise = metadataManager.createRecord(metadata);
@@ -114,7 +112,6 @@ describe('MetadataManager', () => {
 
     it('rejects if record already exists', async () => {
       const metadata = createFakeMetadataRecord();
-      // const payload = getPayload(metadata);
       findOne.mockResolvedValue(metadata);
 
       const createPromise = metadataManager.createRecord(metadata);
@@ -234,6 +231,26 @@ describe('MetadataManager', () => {
       const deletePromise = metadataManager.deleteRecord(metadata.identifier);
 
       await expect(deletePromise).rejects.toThrow(QueryFailedError);
+    });
+  });
+
+  describe('#findLastVersion', () => {
+    const findOne = jest.fn();
+    beforeEach(() => {
+      const repository = ({ findOne } as unknown) as Repository<Metadata>;
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
+    });
+    afterEach(() => {
+      findOne.mockClear();
+    });
+
+    it('returns version if id exists', async () => {
+      const metadata = createFakeMetadataRecord();
+      findOne.mockResolvedValue(metadata);
+
+      const findPromise = metadataManager.findLastVersion(metadata.identifier);
+
+      await expect(findPromise).resolves.toBe(metadata.productVersion);
     });
   });
 });

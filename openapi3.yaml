@@ -160,24 +160,6 @@ components:
       properties:
         message:
           type: string
-    link:
-      type: object
-      description: Structure of link
-      required:
-        - protocol
-        - url
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        protocol:
-          type: string
-          example: 3DTiles
-        url:
-          type: string
-          example: >-
-            http://10.8.1.13:9000/3d-dev/3fa85f64-5717-4562-b3fc-2c963f66afa6/tileset.json
     payload:
       type: object
       description: 3d tiles metadata payload

@@ -41,7 +41,7 @@ export class Metadata implements IMetadataEntity {
   public productName!: string;
   @Column({ name: 'product_version', type: 'integer' })
   public productVersion!: number;
-  @Column({ name: 'product_type', type: 'numeric' })
+  @Column({ name: 'product_type', type: 'text' })
   public productType!: string;
   @Column({ name: 'description', type: 'text', nullable: true })
   public description?: string;

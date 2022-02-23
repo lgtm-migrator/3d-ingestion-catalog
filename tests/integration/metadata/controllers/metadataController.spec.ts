@@ -6,7 +6,7 @@ import { Metadata } from '../../../../src/metadata/models/metadata.entity';
 import { IMetadataEntity } from '../../../../src/metadata/models/metadata';
 import { convertObjectToResponse, createFakeMetadataRecord, getPayload, getUpdatePayload } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
-import { createDbMetadataRecord, getRepositoryFromContainer } from './helpers/db';
+import { getRepositoryFromContainer } from './helpers/db';
 import * as requestSender from './helpers/requestSender';
 
 describe('MetadataController', function () {
@@ -39,7 +39,6 @@ describe('MetadataController', function () {
         const createResponse = await requestSender.createRecord(app, payload);
         expect(createResponse.status).toBe(httpStatusCodes.CREATED);
         expect(createResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-
         const response = await requestSender.getAll(app);
 
         expect(response.status).toBe(httpStatusCodes.OK);
@@ -47,6 +46,7 @@ describe('MetadataController', function () {
         expect(response.body).toHaveLength(1);
 
         const { anytextTsvector, ...createResponseWithoutTsVector } = (createResponse.body as unknown) as IMetadataEntity;
+
         expect(response.body).toMatchObject([createResponseWithoutTsVector]);
       });
     });
@@ -115,36 +115,48 @@ describe('MetadataController', function () {
 
   describe('POST /metadata', function () {
     describe('Happy Path 🙂', function () {
-      it('should return 201 status code and the added metadata record', async function () {
+      it('if productId not exists, should return 201 status code and the added metadata record when productVersion = 1', async function () {
         // const metadata = createFakeMetadataRecord();
         const metadata = createFakeMetadataRecord();
         const payload = getPayload(metadata);
-
         const response = await requestSender.createRecord(app, payload);
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
         const body = (response.body as unknown) as IMetadataEntity;
+        const getResponse = await requestSender.getRecord(app, body.identifier);
+        const { anytextTsvector, wkbGeometry, ...createdResponseBody } = body;
+
+        expect(getResponse.body).toMatchObject(createdResponseBody);
+        expect(createdResponseBody.productVersion).toBe(1);
+      });
+
+      it('if productId exists, should return 201 status code and the added metadata record when productVersion is + 1', async function () {
+        // const metadata = createFakeMetadataRecord();
+        const metadata = createFakeMetadataRecord();
+        const payload = getPayload(metadata);
+        const response = await requestSender.createRecord(app, payload);
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const oldBody = (response.body as unknown) as IMetadataEntity;
+        payload.productId = oldBody.productId;
+        const newResponse = await requestSender.createRecord(app, payload);
+        expect(newResponse.status).toBe(httpStatusCodes.CREATED);
+        expect(newResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const body = (newResponse.body as unknown) as IMetadataEntity;
 
         const getResponse = await requestSender.getRecord(app, body.identifier);
         const { anytextTsvector, wkbGeometry, ...createdResponseBody } = body;
 
         expect(getResponse.body).toMatchObject(createdResponseBody);
-      });
-    });
+        expect(createdResponseBody.productId).toBe(oldBody.productId);
+        expect(createdResponseBody.productVersion).toBe(Number(oldBody.productVersion) + 1);
 
-    describe('Bad Path 😡', function () {
-      // The code doesn't cover required fields in spec.
-      // it.only('should return 400 status code and error message if mandatory fields are missing', async function () {
-      //   const metadata = createFakeMetadataRecord();
-      //   const { producerName, accuracyLE90, ...payload } = getPayload(metadata);
-      //   const response = await requestSender.createRecord(app, payload as IMetadataPayload);
-      //   expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-      //   expect(response.body).toHaveProperty(
-      //     'message',
-      //     "request.body should have required property 'producerName', request.body should have required property 'accuracyLE90'"
-      //   );
-      // });
+        //   const response = await requestSender.createRecord(mockedApp, payload);
+
+        //   expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
+        //   expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} already exists`);
+      });
     });
 
     describe('Sad Path 😥', function () {
@@ -179,9 +191,9 @@ describe('MetadataController', function () {
       it('should return 200 status code and the updated metadata record', async function () {
         const metadata = createFakeMetadataRecord();
         const payload = getPayload(metadata);
-        payload.productVersion = 2;
+        // payload.productVersion = 2;
         const findMock = jest.fn().mockResolvedValue(metadata);
-        metadata.productVersion = 2;
+        metadata.classification = '4';
         const saveMock = jest.fn().mockResolvedValue(metadata);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
 
@@ -286,7 +298,9 @@ describe('MetadataController', function () {
       });
 
       it('should return 204 status code if metadata record was found and deleted successfully', async function () {
-        const metadata = await createDbMetadataRecord();
+        const metadata = createFakeMetadataRecord();
+        const payload = getPayload(metadata);
+        await requestSender.createRecord(app, payload);
 
         const response = await requestSender.deleteRecord(app, metadata.identifier);
 

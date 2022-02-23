@@ -1,31 +1,18 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import RandExp from 'randexp';
 import faker from 'faker';
+import wkt from 'terraformer-wkt-parser';
 import { IMetadataEntity, IUpdatePayload, IMetadataPayload } from '../../src/metadata/models/metadata';
-// import { getRecord } from '../integration/metadata/controllers/helpers/requestSender';
 
-const WKB_GEOMETRY = {
-  type: 'Polygon',
-  coordinates: [
-    [
-      [-125, 38.4],
-      [-125, 40.9],
-      [-121.8, 40.9],
-      [-121.8, 38.4],
-      [-125, 38.4],
-    ],
-  ],
-};
-
-const srsOriginHelper = new RandExp('^\\(([-+]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-+]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
+const srsOriginHelper = new RandExp('^\\(([-]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
 const classificationHelper = new RandExp('^[0-9]$').gen();
-const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
+// const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
 const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
-const minX = 1;
-const minY = 2;
-const maxX = 3;
-const maxY = 4;
-const exampleGeometry = {
+
+const minX = faker.random.number();
+const minY = faker.random.number();
+const maxX = faker.random.number({ min: minX });
+const maxY = faker.random.number({ min: minY });
+const WKB_GEOMETRY = {
   type: 'Polygon',
   coordinates: [
     [
@@ -36,7 +23,12 @@ const exampleGeometry = {
       [minX, minY],
     ],
   ],
-} as GeoJSON.Geometry;
+};
+
+const maxResolutionMeter = 8000;
+const noDataAccuracy = 999;
+const maxSE90 = 250;
+const maxAccuracy = 100;
 
 interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'creationDate' | 'sourceDateStart' | 'sourceDateEnd' | 'wkbGeometry'> {
   insertDate: string;
@@ -60,24 +52,24 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     keywords: '3d',
     anytextTsvector: 'test:1',
 
-    productId: faker.random.uuid(),
-    productName: Math.floor(Math.random() * listOfRandomWords.length).toString(),
-    productVersion: faker.random.number(8000),
-    productType: faker.random.word(),
+    // productId: faker.random.uuid(),
+    productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
+    // productVersion: 1,
+    productType: '3DPhotoRealistic',
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past().toISOString(),
     sourceDateStart: faker.date.past().toISOString(),
     sourceDateEnd: faker.date.past().toISOString(),
-    minResolutionMeter: faker.random.number(8000),
-    maxResolutionMeter: faker.random.number(8000),
+    minResolutionMeter: faker.random.number(maxResolutionMeter),
+    maxResolutionMeter: faker.random.number(maxResolutionMeter),
     nominalResolution: faker.random.number(),
     maxAccuracyCE90: faker.random.number(),
-    absoluteAccuracyLEP90: faker.random.number(999),
-    accuracySE90: faker.random.number(250),
-    relativeAccuracyLEP90: faker.random.number(100),
-    visualAccuracy: faker.random.number(100),
+    absoluteAccuracyLEP90: faker.random.number(noDataAccuracy),
+    accuracySE90: faker.random.number(maxSE90),
+    relativeAccuracyLEP90: faker.random.number(maxAccuracy),
+    visualAccuracy: faker.random.number(maxAccuracy),
     sensors: faker.random.word(),
-    footprint: exampleGeometry,
+    footprint: WKB_GEOMETRY as GeoJSON.Geometry,
     heightRangeFrom: faker.random.number(),
     heightRangeTo: faker.random.number(),
     srsId: faker.random.number(),
@@ -93,12 +85,12 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     minFlightAlt: faker.random.number(),
     maxFlightAlt: faker.random.number(),
     geographicArea: faker.random.word(),
-    productBoundingBox: productBoundingBoxHelper,
+    // productBoundingBox: productBoundingBoxHelper,
     links: [
       { url: faker.random.word(), protocol: faker.random.word() },
       { url: faker.random.word(), protocol: faker.random.word() },
     ],
-    boundingBox: 'POLYGON((-125 38.4,-125 40.9,-121.8 40.9,-121.8 38.4,-125 38.4))',
+    boundingBox: wkt.convert(WKB_GEOMETRY as GeoJSON.Geometry),
   };
   return record;
 };
