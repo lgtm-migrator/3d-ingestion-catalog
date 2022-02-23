@@ -12,15 +12,15 @@ jobs:
       # Label used to access the service container
       db:
         # Docker Hub image
-        image: postgres:13
+        image: postgres:12
         # Provide the user and password for postgres
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: 3d-catalog-manager-dev
+          POSTGRES_DB: catalog
         # Provide the port for postgres
         ports:
-          - 6432:6432
+          - 5432:5432
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -29,8 +29,8 @@ jobs:
           --health-retries 5
 
     env:
-      DB_HOST: 10.8.1.20
-      DB_NAME: 3d-catalog-manager-dev
+      DB_HOST: db
+      DB_NAME: catalog
 
     steps:
       - name: Check out Git repository
@@ -39,11 +39,11 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: Create table
-        run: npm run migration:run
+      # - name: Create table
+      #   run: npm run migration:run
 
       - name: Run tests
-        run: npm run test
+        run: npm run test:unit
 
       - uses: actions/upload-artifact@v2
         with:
