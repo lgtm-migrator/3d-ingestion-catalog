@@ -13,8 +13,8 @@ spec:
   to:
     kind: Service
     name: {{ $releaseName }}-{{ $chartName }}
-    port:
-      targetPort: http
+  port:
+    targetPort: http
   tls:
     termination: edge
 {{- end -}}
