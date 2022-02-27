@@ -12,7 +12,7 @@ spec:
   path:  {{ .Values.route.path | default "/" }}
   to:
     kind: Service
-    name: {{ $releaseName }}-{{ $chartName }}
+    name: catlog-{{ $releaseName }}-{{ $chartName }}
   tls:
     termination: edge
 {{- end -}}
