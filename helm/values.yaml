@@ -3,21 +3,18 @@ global:
   tracing: {}
   metrics: {}
   environment: {}
-
 image:
   repository: 3d-ingestion-catalog
   tag: v2.0.0
-
+  Tag: v2.0.1
 enabled: true
 environment: development
 initialDelaySeconds: 60
 nodePort: 30030
 replicaCount: 1
-
 cloudProvider:
   dockerRegistryUrl: ''
   flavor: openshift
-
 env:
   port: 8080
   targetPort: 8080
@@ -28,11 +25,10 @@ env:
   requestPayloadLimit: 1mb
   tracing:
     enabled: false
-    url: http://localhost:55681/v1/trace
+    url: 'http://localhost:55681/v1/trace'
   metrics:
     enabled: false
-    url: http://localhost:55681/v1/metrics
-
+    url: 'http://localhost:55681/v1/metrics'
 resources:
   enabled: true
   value:
@@ -42,8 +38,6 @@ resources:
     requests:
       cpu: 100m
       memory: 128Mi
-
-# external
 dbConfig:
   host: ''
   port: 6432
@@ -56,16 +50,14 @@ dbConfig:
     certFileName: postgresql.crt
     keyFileName: postgresql.key
     caFileName: root.crt
-
 ingress:
   enabled: false
-
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/rewrites: "serviceName={{ printf \"%s-%s\" .Release.Name .Chart.Name | trunc 63 | trimSuffix \"-\" }} rewrite=/"
-
+    kubernetes.io/ingress.class: nginx
+    nginx.org/mergeable-ingress-type: minion
+    nginx.org/rewrites: >-
+      serviceName={{ printf "%s-%s" .Release.Name .Chart.Name | trunc 63 |
+      trimSuffix "-" }} rewrite=/
     path: /3d-ingestion-catalog/
-
 route:
   enabled: true
