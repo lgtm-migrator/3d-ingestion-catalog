@@ -15,6 +15,6 @@ spec:
     name: {{ $releaseName }}-{{ $chartName }}
   port:
     targetPort: http
-  tls:
-    termination: edge
+#   tls:
+#     termination: edge
 {{- end -}}
