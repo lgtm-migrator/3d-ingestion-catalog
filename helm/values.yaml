@@ -6,7 +6,7 @@ global:
 
 image:
   repository: 3d-ingestion-catalog
-  tag: v2.0.0
+  tag: v2.0.1
 
 enabled: true
 environment: development

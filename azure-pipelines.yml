@@ -43,4 +43,6 @@ stages:
               # helmFolderPath:
               # the name of the app. the name of the image and the name of the chart will be the same.
               #appName: mapproxinator
+              teamName: '3D'
               appName: '3d-ingestion-catalog'
+              bumpPipeline: 91
