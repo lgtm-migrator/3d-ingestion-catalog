@@ -6,7 +6,7 @@ global:
 
 image:
   repository: 3d-ingestion-catalog
-  #tag: latest
+  tag: v2.0.0
 
 enabled: true
 environment: development
@@ -15,7 +15,7 @@ nodePort: 30030
 replicaCount: 1
 
 cloudProvider:
-  dockerRegistryUrl: ''
+  dockerRegistryUrl: 'acrarolibotnonprod.azurecr.io'
   flavor: openshift
 
 env:
@@ -45,10 +45,11 @@ resources:
 
 # external
 dbConfig:
-  host: postgres-postgresql
+  host: 10.8.1.20
+  port: 6432
   username: postgres
-  password: avi
-  database: postgres
+  password: postgres
+  database: 3d-catalog-manager-dev
   sslAuth:
     enabled: false
     secretName: secret-name
@@ -67,4 +68,4 @@ ingress:
     path: /3d-ingestion-catalog/
 
 route:
-  enabled: false
+  enabled: true
