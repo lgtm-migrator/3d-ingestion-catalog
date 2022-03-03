@@ -20,14 +20,14 @@ export const deserializeLinks = (linksStr: string | undefined): ILink[] => {
   });
 };
 
-export const formatStrings = (payload: IMetadataPayload) : IMetadataPayload => {
-  const keyValuePairs = Object.entries(payload)
-  const entries: [string, unknown][] = keyValuePairs.map(([k,v]) => {
-    if(v && typeof(v)==='string' &&v.includes("'")){
-      return [k, v.replace("'","`")]
+export const formatStrings = (payload: IMetadataPayload): IMetadataPayload => {
+  const keyValuePairs = Object.entries(payload);
+  const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
+    if (v && typeof v === 'string' && v.includes("'")) {
+      return [k, v.replace("'", '`')];
     }
-    return [k,v];
+    return [k, v];
   });
 
-  return Object.fromEntries(entries) as unknown as IMetadataPayload
+  return (Object.fromEntries(entries) as unknown) as IMetadataPayload;
 };

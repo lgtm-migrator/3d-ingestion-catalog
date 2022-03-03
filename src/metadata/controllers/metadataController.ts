@@ -12,7 +12,7 @@ import { MetadataManager } from '../models/metadataManager';
 import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
 import { Metadata } from '../models/metadata.entity';
 import { getAnyTextValue } from '../../common/anytext';
-import { formatStrings } from '../../common/utils/format'
+import { formatStrings } from '../../common/utils/format';
 
 interface MetadataParams {
   identifier: string;
