@@ -12,6 +12,7 @@ import { MetadataManager } from '../models/metadataManager';
 import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
 import { Metadata } from '../models/metadata.entity';
 import { getAnyTextValue } from '../../common/anytext';
+import { formatStrings } from '../../common/utils/format';
 
 interface MetadataParams {
   identifier: string;
@@ -56,10 +57,7 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-      const payload = req.body;
-      for (const item in payload) {
-        item.replace("'", `'`);
-      }
+      const payload = formatStrings(req.body);
       const metadata: IMetadataEntity = {
         ...payload,
         identifier: uuidV4(),
