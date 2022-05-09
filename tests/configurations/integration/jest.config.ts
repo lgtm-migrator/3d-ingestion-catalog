@@ -14,11 +14,13 @@ const config: Config.InitialOptions = {
       { multipleReportsUnitePath: './reports', pageTitle: 'integration', publicPath: './reports', filename: 'integration.html' },
     ],
   ],
+
   preset: 'ts-jest',
   testEnvironment: 'node',
   collectCoverage: true,
   coverageReporters: ['text', 'html', 'json'],
   moduleDirectories: ['node_modules', 'src'],
+  moduleFileExtensions: ['ts', 'js'],
   collectCoverageFrom: ['<rootDir>/src/metadata/**/*.ts', '!<rootDir>/src/metadata/models/metadata.entity.ts'],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
@@ -30,6 +32,8 @@ const config: Config.InitialOptions = {
     },
   },
   verbose: true,
+  globalSetup: '<rootDir>/tests/global-setup.js',
+  globalTeardown: '<rootDir>/tests/global-teardown.js',
 };
 
 export default config;

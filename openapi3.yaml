@@ -177,7 +177,7 @@ components:
         url:
           type: string
           example: >-
-            http://10.8.1.13:9000/3d-dev/3fa85f64-5717-4562-b3fc-2c963f66afa6/tileset.json
+            ,,3DTiles,http://URI-TO-S3/BUCKET/MODEL/tileset.json
     payload:
       type: object
       description: 3d tiles metadata payload
@@ -196,6 +196,7 @@ components:
         - productionSystem
         - productionSystemVer
         - producerName
+        - links
       properties:
         productId:
           type: string
@@ -206,11 +207,11 @@ components:
           type: string
           maxLength: 50
           description: Name of product
-        productVersion:
-          type: integer
-          example: 1
-          description: Number of version
-          readOnly: true
+        # productVersion:
+        #   type: integer
+        #   example: 1
+        #   description: Number of version
+        #   readOnly: true
         productType:
           type: string
           description: Type of product (3DPhotoRealistic)
@@ -357,11 +358,17 @@ components:
           type: string
           nullable: true
           description: Area inside the region
-        productBoundingBox:
-          type: string
-          readOnly: true
-          pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
-          description: The bounding box of the product
+        # productBoundingBox:
+        #   type: string
+        #   readOnly: true
+        #   pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
+        #   description: The bounding box of the product
+        links:
+          type: array
+          items: {
+            $ref: '#/components/schemas/link'
+          }
+          
     metadata:
       allOf:
         - $ref: '#/components/schemas/payload'
@@ -375,6 +382,11 @@ components:
             insertDate:
               type: string
               format: date-time
+            productVersion:
+              type: number
+            productBoundingBox:
+              type: string
+              pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
     updatePayload:
       type: object
       description: 3d tiles metadata update payload

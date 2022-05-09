@@ -12,11 +12,12 @@ import { MetadataManager } from '../models/metadataManager';
 import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
 import { Metadata } from '../models/metadata.entity';
 import { getAnyTextValue } from '../../common/anytext';
+import { checkValidationValues } from './check';
+import { BadValues, IdNotExists } from './errors';
 
 interface MetadataParams {
   identifier: string;
 }
-//Changed
 type GetAllRequestHandler = RequestHandler<undefined, IMetadataExternal[]>;
 type GetRequestHandler = RequestHandler<MetadataParams, IMetadataExternal>;
 type CreateRequestHandler = RequestHandler<undefined, IMetadataExternal, IMetadataPayload>;
@@ -57,9 +58,20 @@ export class MetadataController {
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
       const payload = req.body;
+      const identifier = uuidV4();
+      if (await this.manager.getRecord(identifier)) {
+        throw new IdAlreadyExistsError('identifier already exists');
+      }
+      if (payload.productId != undefined) {
+        if (!(await this.manager.getRecord(payload.productId))) {
+          throw new IdNotExists("productId doesn't exist");
+        }
+      } else {
+        payload.productId = identifier;
+      }
       const metadata: IMetadataEntity = {
         ...payload,
-        identifier: uuidV4(),
+        identifier: identifier,
         insertDate: new Date(),
         type: 'RECORD_3D',
         typeName: 'undefined',
@@ -70,20 +82,16 @@ export class MetadataController {
         keywords: '3d',
         productBoundingBox: turf.bbox(payload.footprint).toString(),
         boundingBox: wkt.convert(payload.footprint),
+        productVersion: (await this.manager.findLastVersion(payload.productId)) + 1,
       };
 
-      if (metadata.productId === undefined || !metadata.productId) {
-        metadata.productId = metadata.identifier;
-        metadata.productVersion = 1;
-      } else {
-        metadata.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
-      }
-
+      checkValidationValues(metadata);
       const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));
       return res.status(httpStatus.CREATED).json(createdMetadata);
     } catch (error) {
-      if (error instanceof IdAlreadyExistsError) {
-        (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
+      if (error instanceof BadValues || error instanceof IdNotExists) {
+        (error as HttpError).status = httpStatus.BAD_REQUEST;
+        return error;
       }
       return next(error);
     }
@@ -102,18 +110,18 @@ export class MetadataController {
     }
   };
 
-  public patch: UpdatePartialRequestHandler = async (req, res, next) => {
-    try {
-      const { identifier } = req.params;
-      const metadata = await this.manager.updatePartialRecord(identifier, req.body);
-      return res.status(httpStatus.OK).json(metadata);
-    } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
-      }
-      return next(error);
-    }
-  };
+  // public patch: UpdatePartialRequestHandler = async (req, res, next) => {
+  //   try {
+  //     const { identifier } = req.params;
+  //     const metadata = await this.manager.updatePartialRecord(identifier, req.body);
+  //     return res.status(httpStatus.OK).json(metadata);
+  //   } catch (error) {
+  //     if (error instanceof EntityNotFoundError) {
+  //       (error as HttpError).status = httpStatus.NOT_FOUND;
+  //     }
+  //     return next(error);
+  //   }
+  // };
 
   public delete: DeleteRequestHandler = async (req, res, next) => {
     try {

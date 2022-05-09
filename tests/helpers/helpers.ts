@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import RandExp from 'randexp';
 import faker from 'faker';
+import wkt from 'terraformer-wkt-parser';
+import { Geometry } from 'geojson';
 import { IMetadataEntity, IUpdatePayload, IMetadataPayload } from '../../src/metadata/models/metadata';
-// import { getRecord } from '../integration/metadata/controllers/helpers/requestSender';
 
 const WKB_GEOMETRY = {
   type: 'Polygon',
@@ -21,6 +22,7 @@ const srsOriginHelper = new RandExp('^\\(([-]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-]?(0
 const classificationHelper = new RandExp('^[0-9]$').gen();
 const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
 const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
+const minResolutionMeter = faker.random.number(8000);
 const minX = 1;
 const minY = 2;
 const maxX = 3;
@@ -36,40 +38,18 @@ const exampleGeometry = {
       [minX, minY],
     ],
   ],
-} as GeoJSON.Geometry;
+} as Geometry;
 
-interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'creationDate' | 'sourceDateStart' | 'sourceDateEnd' | 'wkbGeometry'> {
-  insertDate: string;
-  creationDate: string;
-  sourceDateStart: string;
-  sourceDateEnd: string;
-  wkbGeometry: Record<string, unknown>;
-}
-
-export const createFakeMetadataRecord = (): IMetadataEntity => {
-  const record: IMetadataEntity = {
-    identifier: faker.random.uuid(),
-    insertDate: faker.date.past(),
-
-    type: 'RECORD_3D',
-    typeName: 'undefined',
-    schema: 'undefined',
-    mdSource: 'undefined',
-    xml: 'undefined',
-    anytext: 'test',
-    keywords: '3d',
-    anytextTsvector: 'test:1',
-
-    // productId: faker.random.uuid(),
+export const createFakeMetadataRecord = (): IMetadataPayload => {
+  const record: IMetadataPayload = {
     productName: Math.floor(Math.random() * listOfRandomWords.length).toString(),
-    // productVersion: 1,
     productType: '3DPhotoRealistic',
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past().toISOString(),
     sourceDateStart: faker.date.past().toISOString(),
-    sourceDateEnd: faker.date.past().toISOString(),
-    minResolutionMeter: faker.random.number(8000),
-    maxResolutionMeter: faker.random.number(8000),
+    sourceDateEnd: faker.date.future().toISOString(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.random.number({ min: minResolutionMeter, max: 8000 }),
     nominalResolution: faker.random.number(),
     maxAccuracyCE90: faker.random.number(),
     absoluteAccuracyLEP90: faker.random.number(999),
@@ -93,44 +73,45 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     minFlightAlt: faker.random.number(),
     maxFlightAlt: faker.random.number(),
     geographicArea: faker.random.word(),
-    // productBoundingBox: productBoundingBoxHelper,
     links: [
       { url: faker.random.word(), protocol: faker.random.word() },
       { url: faker.random.word(), protocol: faker.random.word() },
     ],
-    boundingBox: 'POLYGON((-125 38.4,-125 40.9,-121.8 40.9,-121.8 38.4,-125 38.4))',
   };
   return record;
 };
 
-export const getPayload = (metadata: IMetadataEntity): IMetadataPayload => {
-  const payload = {
-    ...metadata,
+export const createFakeMetadataEntity = (): IMetadataEntity => {
+  const payload: IMetadataPayload = {
+    ...createFakeMetadataRecord(),
   };
-  delete payload.anytextTsvector;
-  delete payload.wkbGeometry;
-  return payload;
+  const record: IMetadataEntity = {
+    ...payload,
+    productVersion: 1,
+    productBoundingBox: productBoundingBoxHelper,
+    boundingBox: wkt.convert(WKB_GEOMETRY as Geometry),
+
+    identifier: faker.random.uuid(),
+    insertDate: faker.date.past(),
+
+    type: 'RECORD_3D',
+    typeName: 'undefined',
+    schema: 'undefined',
+    mdSource: 'undefined',
+    xml: 'undefined',
+    anytext: 'test',
+    keywords: '3d',
+    anytextTsvector: 'test:1',
+  };
+  return record;
 };
 
 export const getUpdatePayload = (): IUpdatePayload => {
   const payload = {
-    title: faker.random.word(),
+    productName: faker.random.word(),
     description: faker.random.word(),
-    classification: faker.random.word(),
-    sensorType: faker.random.word(),
+    classification: classificationHelper,
+    sensors: faker.random.word(),
   };
   return payload;
-};
-
-export const convertObjectToResponse = (metadata: IMetadataEntity): IntegrationMetadata => {
-  const { insertDate, creationDate, sourceDateStart, sourceDateEnd, ...rest } = metadata;
-  return {
-    ...rest,
-    insertDate: insertDate.toISOString(),
-    creationDate: creationDate ?? '',
-    sourceDateStart: sourceDateStart,
-    sourceDateEnd: sourceDateEnd,
-    anytextTsvector: 'test:1',
-    wkbGeometry: WKB_GEOMETRY,
-  };
 };

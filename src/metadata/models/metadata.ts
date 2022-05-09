@@ -3,7 +3,6 @@ import { Geometry } from 'geojson';
 export interface IMetadataPayload {
   productId?: string;
   productName: string;
-  productVersion?: number;
   productType: string;
   description?: string;
   creationDate?: string;
@@ -34,15 +33,16 @@ export interface IMetadataPayload {
   minFlightAlt?: number;
   maxFlightAlt?: number;
   geographicArea?: string;
-  productBoundingBox?: string;
   links: ILink[];
-  boundingBox: string;
 }
 
 export interface IMetadataExternal extends IMetadataPayload {
   // External - auto
   identifier: string;
   insertDate: Date;
+  productVersion: number;
+  productBoundingBox: string;
+  boundingBox: string;
 }
 
 export interface IMetadataEntity extends IMetadataExternal {
@@ -69,7 +69,7 @@ export interface IUpdatePayload {
   /**
    * Title
    */
-  title?: string;
+  productName?: string;
   /**
    * Description
    */
@@ -81,5 +81,5 @@ export interface IUpdatePayload {
   /**
    * The sensor used as the source of the product
    */
-  sensorType?: string;
+  sensors?: string;
 }
