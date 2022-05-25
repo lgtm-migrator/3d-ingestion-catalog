@@ -1,4 +1,4 @@
-import { Geometry } from 'geojson';
+import { Layer3DMetadata } from '@map-colonies/mc-model-types';
 
 export interface IMetadataPayload {
   productId?: string;
@@ -17,7 +17,7 @@ export interface IMetadataPayload {
   accuracySE90?: number;
   relativeAccuracyLEP90?: number;
   visualAccuracy?: number;
-  sensors: string;
+  sensors?: string;
   footprint: GeoJSON.Geometry;
   heightRangeFrom?: number;
   heightRangeTo?: number;
@@ -36,7 +36,7 @@ export interface IMetadataPayload {
   geographicArea?: string;
   productBoundingBox?: string;
   links: ILink[];
-  boundingBox: string;
+  wktGeometry: string;
 }
 
 export interface IMetadataExternal extends IMetadataPayload {
@@ -53,7 +53,7 @@ export interface IMetadataEntity extends IMetadataExternal {
   xml: string;
   anytext: string;
   keywords: string;
-  recordUpdateDate?: Date;
+  updateDate: Date;
   anytextTsvector?: string;
   wkbGeometry?: Geometry;
 }

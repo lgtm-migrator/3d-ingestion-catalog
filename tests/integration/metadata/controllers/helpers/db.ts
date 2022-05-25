@@ -2,7 +2,7 @@ import { container } from 'tsyringe';
 import { Connection, EntityTarget, Repository } from 'typeorm';
 import { createFakeMetadataRecord } from '../../../../helpers/helpers';
 import { IMetadataEntity } from '../../../../../src/metadata/models/metadata';
-import { Metadata } from '../../../../../src/metadata/models/metadata.entity';
+import { Metadata } from '../../../../../src/metadata/models/generated';
 
 export const getRepositoryFromContainer = <T>(target: EntityTarget<T>): Repository<T> => {
   const connection = container.resolve(Connection);

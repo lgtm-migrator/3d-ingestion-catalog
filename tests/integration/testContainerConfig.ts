@@ -3,7 +3,7 @@ import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { Connection } from 'typeorm';
 import { SERVICES } from '../../src/common/constants';
-import { Metadata } from '../../src/metadata/models/metadata.entity';
+import { Metadata } from '../../src/metadata/models/generated';
 import { initializeConnection } from '../../src/common/utils/db';
 import { DbConfig } from '../../src/common/interfaces';
 

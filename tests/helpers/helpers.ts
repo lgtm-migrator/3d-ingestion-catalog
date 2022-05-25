@@ -12,7 +12,7 @@ const minX = faker.random.number();
 const minY = faker.random.number();
 const maxX = faker.random.number({ min: minX });
 const maxY = faker.random.number({ min: minY });
-const WKB_GEOMETRY = {
+const WKT_GEOMETRY = {
   type: 'Polygon',
   coordinates: [
     [
@@ -69,7 +69,7 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
     relativeAccuracyLEP90: faker.random.number(maxAccuracy),
     visualAccuracy: faker.random.number(maxAccuracy),
     sensors: faker.random.word(),
-    footprint: WKB_GEOMETRY as GeoJSON.Geometry,
+    footprint: WKT_GEOMETRY as GeoJSON.Geometry,
     heightRangeFrom: faker.random.number(),
     heightRangeTo: faker.random.number(),
     srsId: faker.random.number(),
@@ -90,7 +90,7 @@ export const createFakeMetadataRecord = (): IMetadataEntity => {
       { url: faker.random.word(), protocol: faker.random.word() },
       { url: faker.random.word(), protocol: faker.random.word() },
     ],
-    boundingBox: wkt.convert(WKB_GEOMETRY as GeoJSON.Geometry),
+    wktGeometry: wkt.convert(WKT_GEOMETRY as GeoJSON.Geometry),
   };
   return record;
 };

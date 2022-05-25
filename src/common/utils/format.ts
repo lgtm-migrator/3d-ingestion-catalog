@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import { ILink, IMetadataPayload } from '../../metadata/models/metadata';
+import { Layer3DMetadata, Link, Pycsw3DCatalogRecord } from '@map-colonies/mc-model-types';
+// import { ILink, IMetadataPayload } from '../../metadata/models/metadata';
 
-export const formatLinks = (links: ILink[] | undefined): string => {
+export const formatLinks = (links: Link[] | undefined): string => {
   if (links == undefined) {
     return '';
   }
-  return links.map((link) => `${link.name ?? ''},${link.description ?? ''},${link.protocol},${link.url}`).join('^');
+  return links.map((link) => `${link.name ?? ''},${link.description ?? ''},${link.protocol ?? ''},${link.url ?? ''}`).join('^');
 };
 
-export const deserializeLinks = (linksStr: string | undefined): ILink[] => {
+export const deserializeLinks = (linksStr: string | undefined): Link[] => {
   if (linksStr == undefined) {
     return [];
   }
@@ -20,14 +21,14 @@ export const deserializeLinks = (linksStr: string | undefined): ILink[] => {
   });
 };
 
-export const formatStrings = (payload: IMetadataPayload): IMetadataPayload => {
-  const keyValuePairs = Object.entries(payload);
-  const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
-    if (v && typeof v === 'string' && v.includes("'")) {
-      return [k, v.replace("'", '`')];
-    }
-    return [k, v];
-  });
+// export const formatStrings = (payload: Layer3DMetadata): Layer3DMetadata => {
+//   const keyValuePairs = Object.entries(payload);
+//   const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
+//     if (v && typeof v === 'string' && v.includes("'")) {
+//       return [k, v.replace("'", '`')];
+//     }
+//     return [k, v];
+//   });
 
-  return (Object.fromEntries(entries) as unknown) as IMetadataPayload;
-};
+//   return (Object.fromEntries(entries) as unknown) as Layer3DMetadata;
+// };

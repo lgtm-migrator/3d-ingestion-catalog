@@ -1,7 +1,7 @@
 import jsLogger from '@map-colonies/js-logger';
 import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../../../../src/metadata/models/errors';
-import { Metadata } from '../../../../src/metadata/models/metadata.entity';
+import { Metadata } from '../../../../src/metadata/models/generated';
 import { MetadataManager } from '../../../../src/metadata/models/metadataManager';
 import { createFakeMetadataRecord, getPayload, getUpdatePayload } from '../../../helpers/helpers';
 

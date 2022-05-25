@@ -35,6 +35,8 @@ export class Metadata implements IMetadataEntity {
   public identifier!: string;
   @Column({ name: 'insert_date', type: 'timestamp' })
   public insertDate!: Date;
+  @Column({ name: 'update_date', type: 'timestamp' })
+  public updateDate!: Date;
   @Column({ name: 'product_id', type: 'text' })
   public productId!: string;
   @Column({ name: 'product_name', type: 'text' })
@@ -107,7 +109,7 @@ export class Metadata implements IMetadataEntity {
   @Column({ name: 'links', type: 'text', transformer: { from: deserializeLinks, to: formatLinks } })
   public links!: ILink[];
   @Column({ name: 'wkt_geometry', type: 'text' })
-  public boundingBox!: string;
+  public wktGeometry!: string;
 
   @Column({ name: 'type', type: 'text' })
   public type!: string;
@@ -139,17 +141,4 @@ export class Metadata implements IMetadataEntity {
   @Index('records_wkb_geometry_idx', { spatial: true })
   @Column({ name: 'wkb_geometry', type: 'geometry', spatialFeatureType: 'Geometry', srid: 4326, nullable: true })
   public wkbGeometry?: Geometry;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  @AfterLoad()
-  private calculatewkbGeometry(): void {
-    this.wkbGeometry = wktToGeojson(this.boundingBox);
-  }
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  private calculateTsVector(): void {
-    this.anytextTsvector = this.anytext;
-  }
 }

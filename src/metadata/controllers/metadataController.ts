@@ -1,28 +1,34 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as turf from '@turf/turf';
 import wkt from 'terraformer-wkt-parser';
+import { GeoJSONGeometry, stringify as geoJsonToWkt, stringify } from 'wellknown';
 import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { v4 as uuidV4 } from 'uuid';
 import { Logger } from '@map-colonies/js-logger';
+import { Link, Pycsw3DCatalogRecord, RecordType, I3DCatalogUpsertRequestBody } from '@map-colonies/mc-model-types';
+import { wktToGeojson } from '../../common/utils/wktSerializer';
 import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
-import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
-import { Metadata } from '../models/metadata.entity';
+// import { IUpdatePayload, IMetadataEntity, IMetadataExternal, IMetadataPayload } from '../models/metadata';
+// import { Metadata } from '../models/metadata.entity';
 import { getAnyTextValue } from '../../common/anytext';
-import { formatStrings } from '../../common/utils/format';
+// import { formatStrings } from '../../common/utils/format';
+import { Metadata } from '../models/generated';
+
 
 interface MetadataParams {
   identifier: string;
 }
 //Changed
-type GetAllRequestHandler = RequestHandler<undefined, IMetadataExternal[]>;
-type GetRequestHandler = RequestHandler<MetadataParams, IMetadataExternal>;
-type CreateRequestHandler = RequestHandler<undefined, IMetadataExternal, IMetadataPayload>;
-type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IMetadataExternal>;
-type UpdatePartialRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IUpdatePayload>;
+type GetAllRequestHandler = RequestHandler<undefined, Metadata[], I3DCatalogUpsertRequestBody>;
+type GetRequestHandler = RequestHandler<MetadataParams, Metadata, I3DCatalogUpsertRequestBody>;
+type CreateRequestHandler = RequestHandler<undefined, Metadata, I3DCatalogUpsertRequestBody>;
+type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, I3DCatalogUpsertRequestBody>;
+type UpdatePartialRequestHandler = RequestHandler<MetadataParams, I3DCatalogUpsertRequestBody, I3DCatalogUpsertRequestBody>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
@@ -57,30 +63,10 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-      const payload = formatStrings(req.body);
-      const metadata: IMetadataEntity = {
-        ...payload,
-        identifier: uuidV4(),
-        insertDate: new Date(),
-        type: 'RECORD_3D',
-        typeName: 'undefined',
-        schema: 'undefined',
-        mdSource: 'undefined',
-        xml: 'undefined',
-        anytext: getAnyTextValue(payload),
-        keywords: '3d',
-        productBoundingBox: turf.bbox(payload.footprint).toString(),
-        boundingBox: wkt.convert(payload.footprint),
-      };
+      const payload: I3DCatalogUpsertRequestBody = req.body;
+      const metadata = this.metadataToEntity(payload);
 
-      if (metadata.productId === undefined || !metadata.productId) {
-        metadata.productId = metadata.identifier;
-        metadata.productVersion = 1;
-      } else {
-        metadata.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
-      }
-
-      const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));
+      const createdMetadata = await this.manager.createRecord(await metadata);
       return res.status(httpStatus.CREATED).json(createdMetadata);
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {
@@ -90,31 +76,31 @@ export class MetadataController {
     }
   };
 
-  public put: UpdateRequestHandler = async (req, res, next) => {
-    try {
-      const { identifier } = req.params;
-      const metadata = await this.manager.updateRecord(identifier, req.body);
-      return res.status(httpStatus.OK).json(metadata);
-    } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
-      }
-      return next(error);
-    }
-  };
+  // public put: UpdateRequestHandler = async (req, res, next) => {
+  //   try {
+  //     const { identifier } = req.params;
+  //     const metadata = await this.manager.updateRecord(identifier, req.body);
+  //     return res.status(httpStatus.OK).json(metadata);
+  //   } catch (error) {
+  //     if (error instanceof EntityNotFoundError) {
+  //       (error as HttpError).status = httpStatus.NOT_FOUND;
+  //     }
+  //     return next(error);
+  //   }
+  // };
 
-  public patch: UpdatePartialRequestHandler = async (req, res, next) => {
-    try {
-      const { identifier } = req.params;
-      const metadata = await this.manager.updatePartialRecord(identifier, req.body);
-      return res.status(httpStatus.OK).json(metadata);
-    } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
-      }
-      return next(error);
-    }
-  };
+  // public patch: UpdatePartialRequestHandler = async (req, res, next) => {
+  //   try {
+  //     const { identifier } = req.params;
+  //     const metadata = await this.manager.updatePartialRecord(identifier, req.body);
+  //     return res.status(httpStatus.OK).json(metadata);
+  //   } catch (error) {
+  //     if (error instanceof EntityNotFoundError) {
+  //       (error as HttpError).status = httpStatus.NOT_FOUND;
+  //     }
+  //     return next(error);
+  //   }
+  // };
 
   public delete: DeleteRequestHandler = async (req, res, next) => {
     try {
@@ -125,4 +111,37 @@ export class MetadataController {
       return next(error);
     }
   };
+
+  private async metadataToEntity(metadata: I3DCatalogUpsertRequestBody): Promise<Metadata> {
+    const entity = new Metadata();
+    Object.assign(entity, metadata);
+
+    entity.id = uuidV4();
+    if (metadata.productId !== undefined) {
+      entity.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
+    } else {
+      entity.productId = entity.id;
+      entity.productVersion = 1;
+    }
+
+    if (metadata.footprint !== undefined) {
+      entity.wktGeometry = wkt.convert(metadata.footprint as GeoJSON.Geometry);
+      entity.wkbGeometry = JSON.stringify(metadata.footprint);
+      entity.productBoundingBox = turf.bbox(metadata.footprint).toString();
+    }
+
+    entity.sensors = metadata.sensors ? metadata.sensors.join(', ') : '';
+    entity.region = metadata.region?.join(', ');
+    entity.links = this.linksToString(metadata.links);
+
+    entity.anyText = getAnyTextValue(metadata);
+
+    return entity;
+  }
+
+  private linksToString(links: Link[]): string {
+    const stringLinks = links.map((link) => `${link.name ?? ''}, ${link.description ?? ''}, ${link.protocol ?? ''}, ${link.url ?? ''}`);
+    return stringLinks.join('^');
+  }
+
 }
