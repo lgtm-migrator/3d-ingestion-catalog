@@ -19,7 +19,7 @@ const config: Config.InitialOptions = {
   collectCoverage: true,
   coverageReporters: ['text', 'html', 'json'],
   moduleDirectories: ['node_modules', 'src'],
-  collectCoverageFrom: ['<rootDir>/src/metadata/**/*.ts', '!<rootDir>/src/metadata/models/metadata.entity.ts'],
+  collectCoverageFrom: ['<rootDir>/src/metadata/**/*.ts', '!<rootDir>/src/metadata/models/generated.ts'],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
     global: {

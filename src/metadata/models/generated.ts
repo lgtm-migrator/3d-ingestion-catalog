@@ -3,7 +3,7 @@
 import { Column, Entity } from "typeorm";
 import { RecordType, ProductType } from "@map-colonies/mc-model-types";
 
-@Entity({name: 'records'})
+@Entity({name: 'records_test'})
 export class Metadata {
     @Column({name: 'type',type: 'text',nullable: true})
     public type?: RecordType = 'RECORD_3D' as RecordType;
@@ -49,8 +49,8 @@ export class Metadata {
     public heightRangeFrom?: number;
     @Column({name: 'height_range_to',type: 'real',nullable: true})
     public heightRangeTo?: number;
-    @Column({name: 'srs',type: 'real',nullable: false,default: '4326'})
-    public srsId!: number;
+    @Column({name: 'srs',type: 'text',nullable: false,default: '4326'})
+    public srsId!: string;
     @Column({name: 'srs_name',type: 'text',nullable: false,default: 'WGS84GEO'})
     public srsName!: string;
     @Column({name: 'srs_origin',type: 'text',nullable: true})
@@ -75,7 +75,7 @@ export class Metadata {
     public geographicArea?: string;
     @Column({name: 'product_bbox',type: 'text',nullable: true})
     public productBoundingBox?: string;
-    @Column({name: 'identifier',type: 'text',nullable: false})
+    @Column({name: 'identifier',type: 'text',nullable: false,primary: true})
     public id: string = 'UNKNOWN';
     @Column({name: 'typename',type: 'text',nullable: true})
     public typeName?: string;

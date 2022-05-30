@@ -5,8 +5,8 @@ export class updatedProfile1630235214035 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "records" (
-        "identifier" character varying NOT NULL,
+      `CREATE TABLE "records_test" (
+       "identifier" character varying NOT NULL,
        "product_id" text NOT NULL, 
        "product_name" text NOT NULL, 
        "product_version" integer NOT NULL, 
@@ -24,10 +24,10 @@ export class updatedProfile1630235214035 implements MigrationInterface {
        "relative_accuracy_le_90" numeric, 
        "visual_accuracy" numeric, 
        "sensor_type" text NOT NULL, 
-       "footprint" geometry NOT NULL, 
+       "footprint" text NOT NULL, 
        "height_range_from" numeric, 
        "height_range_to" numeric, 
-       "srs" integer, 
+       "srs" text, 
        "srs_name" text NOT NULL, 
        "srs_origin" text, 
        "region" text NOT NULL, 
@@ -55,13 +55,13 @@ export class updatedProfile1630235214035 implements MigrationInterface {
        "anytext_tsvector" tsvector, 
        CONSTRAINT "PK_188149422ee2454660abf1d5ee5" PRIMARY KEY ("identifier"))`
     );
-    await queryRunner.query(`CREATE INDEX "records_fts_gin_idx" ON "records" ("anytext_tsvector") `);
-    await queryRunner.query(`CREATE INDEX "records_wkb_geometry_idx" ON "records" USING GiST ("wkb_geometry") `);
+    await queryRunner.query(`CREATE INDEX "records_fts_gin_idx" ON "records_test" ("anytext_tsvector") `);
+    await queryRunner.query(`CREATE INDEX "records_wkb_geometry_idx" ON "records_test" USING GiST ("wkb_geometry") `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP INDEX "records_wkb_geometry_idx"`);
     await queryRunner.query(`DROP INDEX "records_fts_gin_idx"`);
-    await queryRunner.query(`DROP TABLE "records"`);
+    await queryRunner.query(`DROP TABLE "records_test"`);
   }
 }

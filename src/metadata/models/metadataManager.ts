@@ -31,7 +31,7 @@ export class MetadataManager {
     return newMetadata;
   }
 
-  public async updateRecord(identifier: string, payload: Partial<Metadata>): Promise<Metadata> {
+  public async updateRecord(identifier: string, payload: Metadata): Promise<Metadata> {
     this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
     const ifExists = await this.repository.findOne(identifier);
     if (ifExists == undefined) {
@@ -42,18 +42,18 @@ export class MetadataManager {
     return updatedMetadata;
   }
 
-  // public async updatePartialRecord(identifier: string, payload: IUpdatePayload): Promise<IMetadataEntity> {
-  //   this.logger.info(`Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
-  //   const dbMetadata = await this.repository.findOne(identifier);
-  //   if (dbMetadata == undefined) {
-  //     throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
-  //   }
-  //   const metadata = { ...dbMetadata, ...payload, id: identifier };
-  //   delete metadata.anytextTsvector;
-  //   delete metadata.wkbGeometry;
-  //   const updatedMetadata = await this.repository.save(metadata);
-  //   return updatedMetadata;
-  // }
+  public async updatePartialRecord(identifier: string, payload: Partial<Metadata>): Promise<Metadata> {
+    this.logger.info(`Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
+    const dbMetadata = await this.repository.findOne(identifier);
+    if (dbMetadata == undefined) {
+      throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
+    }
+    const metadata = { ...dbMetadata, ...payload, id: identifier };
+    delete metadata.anyTextTsvector;
+    delete metadata.wkbGeometry;
+    const updatedMetadata = await this.repository.save(metadata);
+    return updatedMetadata;
+  }
 
   public async deleteRecord(identifier: string): Promise<void> {
     this.logger.info(`Delete metadata record ${identifier}`);

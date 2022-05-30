@@ -8,14 +8,14 @@
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.ts",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "prelint:fix": "npm run format:fix",
-    "prelint": "npm run format",
+    "prelint:fix": "npm run format:fix && npm run generate-record-entity",
+    "prelint": "npm run format && npm run generate-record-entity",
     "lint:openapi": "openapi lint ./openapi3.yaml",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "release": "standard-version",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
-    "migration:create": "npm run typeorm migration:generate -- -n ",
+    "migration:create": "npm run typeorm migration:generate -- -n nati",
     "migration:run": "npm run typeorm migration:run",
     "migration:revert": "npm run typeorm migration:revert",
     "schema:sync": "npm run typeorm schema:sync",
@@ -24,10 +24,14 @@
     "build": "tsc --project tsconfig.build.json && npm run assets:copy",
     "start": "npm run build && cd dist && node ./index.js",
     "start:ts": "ts-node ./src/index.ts",
-    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
+    "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./bundledApi.yaml ./dist/ && copyfiles ./package.json dist",
     "clean": "rimraf dist",
     "install": "npx husky install",
-    "generate-record-entity": "code-generator -p 3d -gt orm -tf src/metadata/models/generated.ts"
+    "copySchema": "copyfiles -u 5 \"./node_modules/@map-colonies/mc-model-types/Schema/yaml/**/*\" ./Schema",
+    "generate-record-entity": "code-generator -p 3d -gt orm -tf src/metadata/models/generated.ts",
+    "prebundleOpenApi": "npm run copySchema",
+    "bundleOpenApi": "openapi bundle --output ./bundledApi.yaml --ext yaml ./openapi3.yaml",
+    "postbundleOpenApi": "rimraf Schema"
   },
   "directories": {
     "test": "tests"
@@ -47,11 +51,11 @@
   },
   "dependencies": {
     "@godaddy/terminus": "^4.9.0",
-    "@map-colonies/code-generator": "file:../code-generator/map-colonies-code-generator-1.4.0.tgz",
+    "@map-colonies/code-generator": "file:../code-generator/map-colonies-code-generator-1.5.0.tgz",
+    "@map-colonies/mc-model-types": "file:../mc-models/map-colonies-mc-model-types-11.2.0.tgz",
     "@map-colonies/error-express-handler": "^2.0.0",
     "@map-colonies/express-access-log-middleware": "0.0.3",
     "@map-colonies/js-logger": "0.0.3",
-    "@map-colonies/mc-model-types": "file:../mc-models/map-colonies-mc-model-types-11.0.1.tgz",
     "@map-colonies/openapi-express-viewer": "^2.0.1",
     "@map-colonies/read-pkg": "0.0.1",
     "@map-colonies/telemetry": "^3.1.0",
@@ -114,7 +118,7 @@
     "standard-version": "^9.3.1",
     "supertest": "^6.0.1",
     "ts-jest": "^26.3.0",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.8.0",
     "typescript": "^4.4.3"
   }
 }
