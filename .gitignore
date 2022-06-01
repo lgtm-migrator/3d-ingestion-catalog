@@ -113,5 +113,5 @@ values.*.yaml
 
 #generated files
 bundledApi.yaml
-src/DAL/entity/generated.ts
+src/metadata/models/generated.ts
 Schema
