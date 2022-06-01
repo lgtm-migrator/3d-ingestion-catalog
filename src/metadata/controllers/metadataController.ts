@@ -134,7 +134,9 @@ export class MetadataController {
 
     entity.anyText = getAnyTextValue(metadata);
 
-    // entity.updateDate = undefined;
+    entity.updateDate = new Date();
+    // entity.insertDate = new Date();
+
 
     return entity;
   }
