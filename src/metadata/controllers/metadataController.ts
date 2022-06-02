@@ -133,10 +133,9 @@ export class MetadataController {
     entity.links = this.linksToString(metadata.links);
 
     entity.anyText = getAnyTextValue(metadata);
-
+    
     entity.updateDate = new Date();
-    // entity.insertDate = new Date();
-
+    entity.insertDate = new Date();
 
     return entity;
   }
