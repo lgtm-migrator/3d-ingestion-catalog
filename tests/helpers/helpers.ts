@@ -1,17 +1,19 @@
 import RandExp from 'randexp';
 import faker from 'faker';
-import wkt from 'terraformer-wkt-parser';
-import { IMetadataEntity, IUpdatePayload, IMetadataPayload } from '../../src/metadata/models/metadata';
+import { RecordType, ProductType } from '@map-colonies/mc-model-types';
+import { Metadata } from '../../src/metadata/models/generated';
+import { IPayload, IUpdatePayload } from '../../src/common/dataModels/records';
+import { linksToString } from '../../src/common/utils/format';
 
 const srsOriginHelper = new RandExp('^\\(([-]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
 const classificationHelper = new RandExp('^[0-9]$').gen();
-// const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
+const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
 const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
 
-const minX = faker.random.number();
-const minY = faker.random.number();
-const maxX = faker.random.number({ min: minX });
-const maxY = faker.random.number({ min: minY });
+const minX = faker.datatype.number();
+const minY = faker.datatype.number();
+const maxX = faker.datatype.number({ min: minX });
+const maxY = faker.datatype.number({ min: minY });
 const WKT_GEOMETRY = {
   type: 'Polygon',
   coordinates: [
@@ -30,99 +32,109 @@ const noDataAccuracy = 999;
 const maxSE90 = 250;
 const maxAccuracy = 100;
 
-interface IntegrationMetadata extends Omit<IMetadataEntity, 'insertDate' | 'creationDate' | 'sourceDateStart' | 'sourceDateEnd' | 'wkbGeometry'> {
-  insertDate: string;
-  creationDate: string;
-  sourceDateStart: string;
-  sourceDateEnd: string;
-  wkbGeometry: Record<string, unknown>;
-}
-
-export const createFakeMetadataRecord = (): IMetadataEntity => {
-  const record: IMetadataEntity = {
-    identifier: faker.random.uuid(),
-    insertDate: faker.date.past(),
-
-    type: 'RECORD_3D',
-    typeName: 'undefined',
-    schema: 'undefined',
-    mdSource: 'undefined',
-    xml: 'undefined',
-    anytext: 'test',
-    keywords: '3d',
-    anytextTsvector: 'test:1',
-
-    // productId: faker.random.uuid(),
+export const createFakePayload = (): IPayload => {
+  const record: IPayload = {
+    productId: undefined,
+    type: RecordType.RECORD_3D,
     productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
-    // productVersion: 1,
-    productType: '3DPhotoRealistic',
+    productType: ProductType.PHOTO_REALISTIC_3D,
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
-    creationDate: faker.date.past().toISOString(),
-    sourceDateStart: faker.date.past().toISOString(),
-    sourceDateEnd: faker.date.past().toISOString(),
-    minResolutionMeter: faker.random.number(maxResolutionMeter),
-    maxResolutionMeter: faker.random.number(maxResolutionMeter),
-    nominalResolution: faker.random.number(),
-    maxAccuracyCE90: faker.random.number(),
-    absoluteAccuracyLEP90: faker.random.number(noDataAccuracy),
-    accuracySE90: faker.random.number(maxSE90),
-    relativeAccuracyLEP90: faker.random.number(maxAccuracy),
-    visualAccuracy: faker.random.number(maxAccuracy),
-    sensors: faker.random.word(),
+    creationDate: faker.date.past(),
+    sourceDateStart: faker.date.past(),
+    sourceDateEnd: faker.date.past(),
+    minResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    maxResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    nominalResolution: faker.datatype.number(),
+    maxAccuracyCE90: faker.datatype.number(),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    sensors: [faker.random.word()],
     footprint: WKT_GEOMETRY as GeoJSON.Geometry,
-    heightRangeFrom: faker.random.number(),
-    heightRangeTo: faker.random.number(),
-    srsId: faker.random.number(),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    srsId: faker.random.word(),
     srsName: faker.random.word(),
     srsOrigin: srsOriginHelper,
-    region: faker.random.word(),
+    region: [faker.random.word()],
     classification: classificationHelper,
-    compartmentalization: faker.random.word(),
     productionSystem: faker.random.word(),
     productionSystemVer: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     producerName: faker.random.word(),
     productionMethod: faker.random.word(),
-    minFlightAlt: faker.random.number(),
-    maxFlightAlt: faker.random.number(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
     geographicArea: faker.random.word(),
-    // productBoundingBox: productBoundingBoxHelper,
     links: [
       { url: faker.random.word(), protocol: faker.random.word() },
       { url: faker.random.word(), protocol: faker.random.word() },
     ],
-    wktGeometry: wkt.convert(WKT_GEOMETRY as GeoJSON.Geometry),
   };
   return record;
 };
 
-export const getPayload = (metadata: IMetadataEntity): IMetadataPayload => {
-  const payload = {
-    ...metadata,
-  };
-  delete payload.anytextTsvector;
-  delete payload.wkbGeometry;
-  return payload;
-};
-
 export const getUpdatePayload = (): IUpdatePayload => {
-  const payload = {
-    title: faker.random.word(),
+  const payload: IUpdatePayload = {
+    productName: faker.random.word(),
     description: faker.random.word(),
     classification: faker.random.word(),
-    sensorType: faker.random.word(),
+    sensors: faker.random.word(),
   };
   return payload;
 };
 
-export const convertObjectToResponse = (metadata: IMetadataEntity): IntegrationMetadata => {
-  const { insertDate, creationDate, sourceDateStart, sourceDateEnd, ...rest } = metadata;
-  return {
-    ...rest,
-    insertDate: insertDate.toISOString(),
-    creationDate: creationDate ?? '',
-    sourceDateStart: sourceDateStart,
-    sourceDateEnd: sourceDateEnd,
-    anytextTsvector: 'test:1',
-    wkbGeometry: WKB_GEOMETRY,
+export const createFakeEntity = (): Metadata => {
+  const id = faker.datatype.uuid();
+  const links = [
+    { url: faker.random.word(), protocol: faker.random.word() },
+    { url: faker.random.word(), protocol: faker.random.word() },
+  ];
+  const metadata: Metadata = {
+    type: RecordType.RECORD_3D,
+    productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
+    productType: ProductType.PHOTO_REALISTIC_3D,
+    description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
+    creationDate: faker.date.past(),
+    sourceDateStart: faker.date.past(),
+    sourceDateEnd: faker.date.past(),
+    minResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    maxResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    nominalResolution: faker.datatype.number(),
+    maxAccuracyCE90: faker.datatype.number(),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    footprint: WKT_GEOMETRY as GeoJSON.Geometry,
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    srsId: faker.random.word(),
+    srsName: faker.random.word(),
+    srsOrigin: srsOriginHelper,
+    classification: classificationHelper,
+    productionSystem: faker.random.word(),
+    productionSystemVer: Math.floor(Math.random() * listOfRandomWords.length).toString(),
+    producerName: faker.random.word(),
+    productionMethod: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
+    geographicArea: faker.random.word(),
+    id: id,
+    productVersion: 1,
+    productId: id,
+    insertDate: faker.date.past(),
+    typeName: 'mc_MC3DRecord',
+    mdSource: '',
+    productBoundingBox: productBoundingBoxHelper,
+    schema: 'md_3d',
+    xml: '',
+    anyText: 'test',
+    keywords: 'test',
+    updateDate: faker.date.past(),
+    sensors: [faker.random.word()].join(', '),
+    region: [faker.random.word()].join(', '),
+    links: linksToString(links),
   };
+  return metadata;
 };

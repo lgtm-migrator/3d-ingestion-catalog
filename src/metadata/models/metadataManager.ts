@@ -1,12 +1,9 @@
 import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
-import { Layer3DMetadata, Link, Pycsw3DCatalogRecord, I3DCatalogUpsertRequestBody } from '@map-colonies/mc-model-types';
 import { SERVICES } from '../../common/constants';
 import { EntityNotFoundError } from './errors';
-// import { IUpdatePayload, IMetadataEntity, IMetadataPayload } from './metadata';
 import { Metadata } from './generated';
-
 
 @injectable()
 export class MetadataManager {

@@ -1,7 +1,7 @@
 import { container } from 'tsyringe';
 import { Connection, EntityTarget, Repository } from 'typeorm';
-import { createFakeMetadataRecord } from '../../../../helpers/helpers';
-import { IMetadataEntity } from '../../../../../src/metadata/models/metadata';
+import { createFakeEntity } from '../../../../helpers/helpers';
+// import { IMetadataEntity } from '../../../../../src/metadata/models/metadata';
 import { Metadata } from '../../../../../src/metadata/models/generated';
 
 export const getRepositoryFromContainer = <T>(target: EntityTarget<T>): Repository<T> => {
@@ -9,9 +9,9 @@ export const getRepositoryFromContainer = <T>(target: EntityTarget<T>): Reposito
   return connection.getRepository<T>(target);
 };
 
-export const createDbMetadataRecord = async (): Promise<IMetadataEntity> => {
+export const createDbMetadataRecord = async (): Promise<Metadata> => {
   const repository = getRepositoryFromContainer(Metadata);
-  const metadata = createFakeMetadataRecord();
+  const metadata = createFakeEntity();
   let entity;
   try {
     entity = await repository.save(metadata);

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import { Layer3DMetadata, Link, Pycsw3DCatalogRecord } from '@map-colonies/mc-model-types';
-// import { ILink, IMetadataPayload } from '../../metadata/models/metadata';
+import { I3DCatalogUpsertRequestBody, Link } from '@map-colonies/mc-model-types';
 
 export const formatLinks = (links: Link[] | undefined): string => {
   if (links == undefined) {
@@ -21,14 +20,18 @@ export const deserializeLinks = (linksStr: string | undefined): Link[] => {
   });
 };
 
-// export const formatStrings = (payload: Layer3DMetadata): Layer3DMetadata => {
-//   const keyValuePairs = Object.entries(payload);
-//   const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
-//     if (v && typeof v === 'string' && v.includes("'")) {
-//       return [k, v.replace("'", '`')];
-//     }
-//     return [k, v];
-//   });
+export const linksToString = (links: Link[]): string => {
+  const stringLinks = links.map((link) => `${link.name ?? ''}, ${link.description ?? ''}, ${link.protocol ?? ''}, ${link.url ?? ''}`);
+  return stringLinks.join('^');
+};
 
-//   return (Object.fromEntries(entries) as unknown) as Layer3DMetadata;
-// };
+export const formatStrings = (payload: I3DCatalogUpsertRequestBody): I3DCatalogUpsertRequestBody => {
+  const keyValuePairs = Object.entries(payload);
+  const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
+    if (v && typeof v === 'string' && v.includes("'")) {
+      return [k, v.replace("'", '`')];
+    }
+    return [k, v];
+  });
+  return Object.fromEntries(entries) as unknown as I3DCatalogUpsertRequestBody;
+};
