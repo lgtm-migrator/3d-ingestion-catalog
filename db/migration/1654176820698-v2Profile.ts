@@ -149,5 +149,7 @@ export class v2Profile1654176820698 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "records" ALTER COLUMN "type" SET NOT NULL`);
     await queryRunner.query(`ALTER TABLE "records" DROP COLUMN "update_date"`);
     await queryRunner.query(`ALTER TABLE "records" ADD "compartmentalization" text`);
+    await queryRunner.query(`DROP TRIGGER ftsupdate ON RECORDS`);
+    await queryRunner.query(`DROP FUNCTION records_update_anytext`);
   }
 }
