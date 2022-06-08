@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import { I3DCatalogUpsertRequestBody, Link } from '@map-colonies/mc-model-types';
+import { Link } from '@map-colonies/mc-model-types';
+import { IPayload } from '../dataModels/records';
 
 export const formatLinks = (links: Link[] | undefined): string => {
   if (links == undefined) {
@@ -25,7 +26,7 @@ export const linksToString = (links: Link[]): string => {
   return stringLinks.join('^');
 };
 
-export const formatStrings = (payload: I3DCatalogUpsertRequestBody): I3DCatalogUpsertRequestBody => {
+export const formatStrings = (payload: IPayload): IPayload => {
   const keyValuePairs = Object.entries(payload);
   const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
     if (v && typeof v === 'string' && v.includes("'")) {
@@ -33,5 +34,5 @@ export const formatStrings = (payload: I3DCatalogUpsertRequestBody): I3DCatalogU
     }
     return [k, v];
   });
-  return Object.fromEntries(entries) as unknown as I3DCatalogUpsertRequestBody;
+  return Object.fromEntries(entries) as unknown as IPayload;
 };

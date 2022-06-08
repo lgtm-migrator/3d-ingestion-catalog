@@ -15,7 +15,6 @@ const minY = faker.datatype.number();
 const maxX = faker.datatype.number({ min: minX });
 const maxY = faker.datatype.number({ min: minY });
 const WKT_GEOMETRY = {
-  type: 'Polygon',
   coordinates: [
     [
       [minX, minY],
@@ -25,12 +24,25 @@ const WKT_GEOMETRY = {
       [minX, minY],
     ],
   ],
+  type: 'Polygon',
 };
 
 const maxResolutionMeter = 8000;
 const noDataAccuracy = 999;
 const maxSE90 = 250;
 const maxAccuracy = 100;
+const linksPattern = [
+  {
+    protocol: 'test',
+    url: 'http://test.test/wmts',
+  },
+  {
+    name: 'testLink',
+    description: 'test test test',
+    protocol: 'fulltest',
+    url: 'http://test.test/wms',
+  },
+];
 
 export const createFakePayload = (): IPayload => {
   const record: IPayload = {
@@ -66,10 +78,7 @@ export const createFakePayload = (): IPayload => {
     minFlightAlt: faker.datatype.number(),
     maxFlightAlt: faker.datatype.number(),
     geographicArea: faker.random.word(),
-    links: [
-      { url: faker.random.word(), protocol: faker.random.word() },
-      { url: faker.random.word(), protocol: faker.random.word() },
-    ],
+    links: linksPattern,
   };
   return record;
 };
@@ -86,10 +95,6 @@ export const getUpdatePayload = (): IUpdatePayload => {
 
 export const createFakeEntity = (): Metadata => {
   const id = faker.datatype.uuid();
-  const links = [
-    { url: faker.random.word(), protocol: faker.random.word() },
-    { url: faker.random.word(), protocol: faker.random.word() },
-  ];
   const metadata: Metadata = {
     type: RecordType.RECORD_3D,
     productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
@@ -129,12 +134,12 @@ export const createFakeEntity = (): Metadata => {
     productBoundingBox: productBoundingBoxHelper,
     schema: 'md_3d',
     xml: '',
-    anyText: 'test',
-    keywords: 'test',
+    anyText: 'testAnyText',
+    keywords: 'testKeywords',
     updateDate: faker.date.past(),
     sensors: [faker.random.word()].join(', '),
     region: [faker.random.word()].join(', '),
-    links: linksToString(links),
+    links: linksToString(linksPattern),
   };
   return metadata;
 };

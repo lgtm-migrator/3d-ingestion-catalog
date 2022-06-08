@@ -112,7 +112,7 @@ describe('MetadataManager', () => {
 
     it('rejects if record already exists', async () => {
       const metadata = createFakeEntity();
-      save.mockRejectedValue(new IdAlreadyExistsError('Already Exists'));
+      findOne.mockResolvedValue(metadata);
 
       const createPromise = metadataManager.createRecord(metadata);
 

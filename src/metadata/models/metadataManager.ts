@@ -2,7 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
 import { SERVICES } from '../../common/constants';
-import { EntityNotFoundError } from './errors';
+import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 import { Metadata } from './generated';
 
 @injectable()
@@ -24,6 +24,10 @@ export class MetadataManager {
 
   public async createRecord(payload: Metadata): Promise<Metadata> {
     this.logger.info(`Create a new metadata record: ${JSON.stringify(payload)}`);
+    const ifExists = await this.repository.findOne(payload.id);
+    if (ifExists != undefined) {
+      throw new IdAlreadyExistsError(`Metadata record ${payload.id} already exists!`);
+    }
     const newMetadata = await this.repository.save(payload);
     return newMetadata;
   }

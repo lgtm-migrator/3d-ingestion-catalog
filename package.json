@@ -52,7 +52,7 @@
   "dependencies": {
     "@godaddy/terminus": "^4.9.0",
     "@map-colonies/code-generator": "^1.5.0",
-    "@map-colonies/mc-model-types": "^12.0.0",
+    "@map-colonies/mc-model-types": "^12.0.1",
     "@map-colonies/error-express-handler": "^2.0.0",
     "@map-colonies/express-access-log-middleware": "0.0.3",
     "@map-colonies/js-logger": "0.0.3",

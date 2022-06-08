@@ -63,7 +63,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/catalog-payload'
+              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
       responses:
         '200':
           $ref: '#/components/responses/success'

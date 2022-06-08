@@ -6,22 +6,21 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { v4 as uuidV4 } from 'uuid';
 import { Logger } from '@map-colonies/js-logger';
-import { I3DCatalogUpsertRequestBody } from '@map-colonies/mc-model-types';
 import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
 import { getAnyTextValue } from '../../common/anytext';
 import { Metadata } from '../models/generated';
-import { MetadataParams } from '../../common/dataModels/records';
+import { IPayload, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
 import { linksToString, formatStrings } from '../../common/utils/format';
 
 //Changed
-type GetAllRequestHandler = RequestHandler<undefined, Metadata[], I3DCatalogUpsertRequestBody>;
-type GetRequestHandler = RequestHandler<MetadataParams, Metadata, I3DCatalogUpsertRequestBody>;
-type CreateRequestHandler = RequestHandler<undefined, Metadata, I3DCatalogUpsertRequestBody>;
-type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, I3DCatalogUpsertRequestBody>;
-type UpdatePartialRequestHandler = RequestHandler<MetadataParams, Metadata, I3DCatalogUpsertRequestBody>;
+type GetAllRequestHandler = RequestHandler<undefined, Metadata[]>;
+type GetRequestHandler = RequestHandler<MetadataParams, Metadata, number>;
+type CreateRequestHandler = RequestHandler<undefined, Metadata, IPayload>;
+type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
+type UpdatePartialRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
@@ -56,7 +55,7 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-      const payload: I3DCatalogUpsertRequestBody = formatStrings(req.body);
+      const payload: IPayload = formatStrings(req.body);
       const metadata = await this.metadataToEntity(payload);
 
       const createdMetadata = await this.manager.createRecord(metadata);
@@ -72,7 +71,7 @@ export class MetadataController {
   public put: UpdateRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
-      const payload: I3DCatalogUpsertRequestBody = req.body;
+      const payload: IPayload = formatStrings(req.body);
       const metadata = await this.metadataToEntity(payload);
       const updatedMetadata = await this.manager.updateRecord(identifier, metadata);
       return res.status(httpStatus.OK).json(updatedMetadata);
@@ -87,9 +86,8 @@ export class MetadataController {
   public patch: UpdatePartialRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
-      const payload: I3DCatalogUpsertRequestBody = req.body;
-      const metadata = await this.metadataToEntity(payload);
-      const updatedPartialMetadata = await this.manager.updatePartialRecord(identifier, metadata);
+      const payload: IUpdatePayload = req.body;
+      const updatedPartialMetadata = await this.manager.updatePartialRecord(identifier, payload);
       return res.status(httpStatus.OK).json(updatedPartialMetadata);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
@@ -109,7 +107,7 @@ export class MetadataController {
     }
   };
 
-  private async metadataToEntity(metadata: I3DCatalogUpsertRequestBody): Promise<Metadata> {
+  private async metadataToEntity(metadata: IPayload): Promise<Metadata> {
     const entity = new Metadata();
     Object.assign(entity, metadata);
 

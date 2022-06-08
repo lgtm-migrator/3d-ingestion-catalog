@@ -1,7 +1,6 @@
 import { container } from 'tsyringe';
 import { Connection, EntityTarget, Repository } from 'typeorm';
 import { createFakeEntity } from '../../../../helpers/helpers';
-// import { IMetadataEntity } from '../../../../../src/metadata/models/metadata';
 import { Metadata } from '../../../../../src/metadata/models/generated';
 
 export const getRepositoryFromContainer = <T>(target: EntityTarget<T>): Repository<T> => {
