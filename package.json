@@ -4,7 +4,7 @@
   "description": "A restful API for saving and querying 3d metadata",
   "main": "./src/index.ts",
   "scripts": {
-    "test:unit": "jest --config=./tests/configurations/unit/jest.config.ts",
+    "test:unit": "npm run bundleOpenApi && npm run generate-record-entity && jest --config=./tests/configurations/unit/jest.config.ts",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.ts",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
@@ -19,7 +19,6 @@
     "migration:run": "npm run typeorm migration:run",
     "migration:revert": "npm run typeorm migration:revert",
     "schema:sync": "npm run typeorm schema:sync",
-    "pretest": "npm run bundleOpenApi && npm run generate-record-entity",
     "test": "npm run test:unit && npm run test:integration",
     "prebuild": "npm run clean && npm run generate-record-entity",
     "build": "tsc --project tsconfig.build.json && npm run bundleOpenApi && npm run assets:copy",
