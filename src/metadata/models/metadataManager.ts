@@ -24,18 +24,18 @@ export class MetadataManager {
 
   public async createRecord(payload: Metadata): Promise<Metadata> {
     this.logger.info(`Create a new metadata record: ${JSON.stringify(payload)}`);
-    const ifExists = await this.repository.findOne(payload.id);
-    if (ifExists != undefined) {
+    const ifExists: Metadata | undefined = await this.repository.findOne(payload.id);
+    if (ifExists != undefined && payload.id) {
       throw new IdAlreadyExistsError(`Metadata record ${payload.id} already exists!`);
     }
-    const newMetadata = await this.repository.save(payload);
+    const newMetadata: Metadata = await this.repository.save(payload);
     return newMetadata;
   }
 
   public async updateRecord(identifier: string, payload: Metadata): Promise<Metadata> {
     this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    const ifExists = await this.repository.findOne(identifier);
-    if (ifExists == undefined) {
+    const ifExists: Metadata | undefined = await this.repository.findOne(identifier);
+    if (ifExists == undefined && payload.id) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
     const newMetadata: Partial<Metadata> = { ...payload, id: identifier };
@@ -45,14 +45,14 @@ export class MetadataManager {
 
   public async updatePartialRecord(identifier: string, payload: Partial<Metadata>): Promise<Metadata> {
     this.logger.info(`Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    const dbMetadata = await this.repository.findOne(identifier);
+    const dbMetadata: Metadata | undefined = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    const metadata = { ...dbMetadata, ...payload, id: identifier };
+    const metadata: Metadata = { ...dbMetadata, ...payload, id: identifier };
     delete metadata.anyTextTsvector;
     delete metadata.wkbGeometry;
-    const updatedMetadata = await this.repository.save(metadata);
+    const updatedMetadata: Metadata = await this.repository.save(metadata);
     return updatedMetadata;
   }
 

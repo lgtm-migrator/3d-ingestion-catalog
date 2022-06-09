@@ -108,7 +108,7 @@ export class MetadataController {
   };
 
   private async metadataToEntity(metadata: IPayload): Promise<Metadata> {
-    const entity = new Metadata();
+    const entity: Metadata = new Metadata();
     Object.assign(entity, metadata);
 
     entity.id = uuidV4();
