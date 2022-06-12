@@ -99,6 +99,27 @@ export class v2Profile1654176820698 implements MigrationInterface {
                 OR NEW.classification IS NOT NULL
                 OR NEW.keywords IS NOT NULL)
                 EXECUTE PROCEDURE records_update_anytext();`);
+            
+    await queryRunner.query(`
+            CREATE FUNCTION records_update_geometry() RETURNS trigger
+                SET search_path FROM CURRENT
+                LANGUAGE plpgsql
+                AS $$
+            BEGIN
+            IF NEW.wkt_geometry IS NULL THEN
+                    RETURN NEW;
+            END IF;
+            NEW.wkb_geometry := ST_GeomFromText(NEW.wkt_geometry,4326);
+            RETURN NEW;
+            END;
+            $$;`);
+
+    await queryRunner.query(`
+            CREATE TRIGGER records_update_geometry
+                BEFORE INSERT OR UPDATE
+                ON records
+                FOR EACH ROW
+                EXECUTE PROCEDURE records_update_geometry();`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -151,5 +172,7 @@ export class v2Profile1654176820698 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "records" ADD "compartmentalization" text`);
     await queryRunner.query(`DROP TRIGGER ftsupdate ON RECORDS`);
     await queryRunner.query(`DROP FUNCTION records_update_anytext`);
+    await queryRunner.query(`DROP TRIGGER records_update_geometry ON RECORDS`);
+    await queryRunner.query(`DROP FUNCTION records_update_geometry`);
   }
 }

@@ -42,7 +42,7 @@ export class MetadataController {
   public get: GetRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
-      const metadata = await this.manager.getRecord(identifier);
+      const metadata: Metadata | undefined = await this.manager.getRecord(identifier);
       if (!metadata) {
         const error = new NotFoundError('Metadata record with given identifier was not found.');
         return next(error);

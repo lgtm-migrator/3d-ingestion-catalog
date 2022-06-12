@@ -22,7 +22,7 @@ export const deserializeLinks = (linksStr: string | undefined): Link[] => {
 };
 
 export const linksToString = (links: Link[]): string => {
-  const stringLinks = links.map((link) => `${link.name ?? ''}, ${link.description ?? ''}, ${link.protocol ?? ''}, ${link.url ?? ''}`);
+  const stringLinks = links.map((link) => `${link.name ?? ''},${link.description ?? ''},${link.protocol ?? ''},${link.url ?? ''}`);
   return stringLinks.join('^');
 };
 
