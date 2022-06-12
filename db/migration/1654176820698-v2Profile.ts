@@ -99,7 +99,7 @@ export class v2Profile1654176820698 implements MigrationInterface {
                 OR NEW.classification IS NOT NULL
                 OR NEW.keywords IS NOT NULL)
                 EXECUTE PROCEDURE records_update_anytext();`);
-            
+
     await queryRunner.query(`
             CREATE FUNCTION records_update_geometry() RETURNS trigger
                 SET search_path FROM CURRENT
