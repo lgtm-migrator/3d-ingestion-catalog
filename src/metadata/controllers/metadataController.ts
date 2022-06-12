@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as turf from '@turf/turf';
 import wkt from 'terraformer-wkt-parser';
 import { RequestHandler } from 'express';

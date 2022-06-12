@@ -1,6 +1,4 @@
-import type { Config } from '@jest/types';
-
-const config: Config.InitialOptions = {
+module.exports = {
   rootDir: '../../../.',
   transform: {
     '^.+\\.ts$': 'ts-jest',
@@ -27,5 +25,3 @@ const config: Config.InitialOptions = {
   },
   verbose: true,
 };
-
-export default config;
