@@ -6,7 +6,7 @@ jobs:
   tests:
     name: Run Tests
     runs-on: ubuntu-latest
-    container: node:12
+    container: node:14
 
     services:
       # Label used to access the service container
