@@ -1,6 +1,4 @@
-import type { Config } from '@jest/types';
-
-const config: Config.InitialOptions = {
+module.exports = {
   rootDir: '../../../.',
   transform: {
     '^.+\\.ts$': 'ts-jest',
@@ -15,11 +13,7 @@ const config: Config.InitialOptions = {
   testEnvironment: 'node',
   collectCoverage: true,
   coverageReporters: ['text', 'html', 'json'],
-  collectCoverageFrom: [
-    '<rootDir>/src/metadata/models/*.ts',
-    '!<rootDir>/src/metadata/models/metadata.ts',
-    '!<rootDir>/src/metadata/models/metadata.entity.ts',
-  ],
+  collectCoverageFrom: ['<rootDir>/src/metadata/models/*.ts', '!<rootDir>/src/metadata/models/generated.ts'],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
     global: {
@@ -31,5 +25,3 @@ const config: Config.InitialOptions = {
   },
   verbose: true,
 };
-
-export default config;
