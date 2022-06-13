@@ -26,10 +26,6 @@ export const linksToString = (links: Link[]): string => {
   return stringLinks.join('^');
 };
 
-
-
-
-
 export const formatStrings = (payload: IPayload): IPayload => {
   const keyValuePairs = Object.entries(payload);
   const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
