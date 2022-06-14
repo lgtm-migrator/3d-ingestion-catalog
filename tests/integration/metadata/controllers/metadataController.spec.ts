@@ -43,7 +43,7 @@ describe('MetadataController', function () {
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(response.body).toHaveLength(1);
 
-        const { anyText, anyTextTsvector, footprint, ...createResponseWithoutAnyText } = createResponse.body as unknown as Metadata;
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createResponseWithoutAnyText } = createResponse.body as unknown as Metadata;
         expect(response.body).toMatchObject([createResponseWithoutAnyText]);
       });
     });
@@ -80,7 +80,7 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.OK);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
-        const { anyText, anyTextTsvector, footprint, ...createResponseWithoutAnyText } = createResponse.body as unknown as Metadata;
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createResponseWithoutAnyText } = createResponse.body as unknown as Metadata;
         expect(response.body).toMatchObject(createResponseWithoutAnyText);
       });
     });
@@ -119,7 +119,7 @@ describe('MetadataController', function () {
 
         const body = response.body as unknown as Metadata;
         const getResponse = await requestSender.getRecord(app, body.id);
-        const { anyText, anyTextTsvector, footprint, ...createdResponseBody } = body;
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createdResponseBody } = body;
 
         expect(getResponse.body).toMatchObject(createdResponseBody);
         expect(createdResponseBody.productVersion).toBe(1);
@@ -138,20 +138,72 @@ describe('MetadataController', function () {
         const body = newResponse.body as unknown as Metadata;
 
         const getResponse = await requestSender.getRecord(app, body.id);
-        const { anyText, anyTextTsvector, footprint, ...createdResponseBody } = body;
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createdResponseBody } = body;
 
         expect(getResponse.body).toMatchObject(createdResponseBody);
         expect(createdResponseBody.productId).toBe(oldBody.productId);
         expect(createdResponseBody.productVersion).toBe(Number(oldBody.productVersion) + 1);
+      });
 
-        //   const response = await requestSender.createRecord(mockedApp, payload);
+      it('if region contains string with a \', should return 201 status code and the added metadata record as expected', async function () {
+        const payload = createFakePayload();
+        payload.region = ['st\'rng']
+        const response = await requestSender.createRecord(app, payload);
 
-        //   expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
-        //   expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} already exists`);
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+
+        const body = response.body as unknown as Metadata;
+        const getResponse = await requestSender.getRecord(app, body.id);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createdResponseBody } = body;
+
+        expect(getResponse.body).toMatchObject(createdResponseBody);
       });
     });
 
     describe('Sad Path 😥', function () {
+
+      it('should return 400 status code if region not exists', async function () {
+        const metadata = createFakePayload();
+        metadata.region = undefined;
+
+        const response = await requestSender.createRecord(app, metadata);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body should have required property 'region'`);
+
+      });
+
+      it('should return 400 status code if region is empty', async function () {
+        const metadata = createFakePayload();
+        metadata.region = [];
+
+        const response = await requestSender.createRecord(app, metadata);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body.region should NOT have fewer than 1 items`);
+      });
+
+      it('should return 400 status code if sensors not exists', async function () {
+        const metadata = createFakePayload();
+        metadata.sensors = undefined;
+
+        const response = await requestSender.createRecord(app, metadata);
+        
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
+      });
+
+      it('should return 400 status code if sensors is empty', async function () {
+        const metadata = createFakePayload();
+        metadata.sensors = [];
+
+        const response = await requestSender.createRecord(app, metadata);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body.sensors should NOT have fewer than 1 items`);
+      });
+
       it('should return 422 status code if a metadata record with the same id already exists', async function () {
         const metadata = createFakePayload();
         const findMock = jest.fn().mockResolvedValue(metadata);
