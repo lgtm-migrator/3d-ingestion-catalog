@@ -124,7 +124,7 @@ export class MetadataController {
     }
 
     entity.sensors = metadata.sensors ? metadata.sensors.join(', ') : '';
-    entity.region = metadata.region?.join(', ');
+    entity.region = metadata.region ? metadata.region.join(', ') : '';
     entity.links = linksToString(metadata.links);
 
     entity.anyText = getAnyTextValue(metadata);
