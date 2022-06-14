@@ -145,9 +145,9 @@ describe('MetadataController', function () {
         expect(createdResponseBody.productVersion).toBe(Number(oldBody.productVersion) + 1);
       });
 
-      it('if region contains string with a \', should return 201 status code and the added metadata record as expected', async function () {
+      it("if region contains string with a ', should return 201 status code and the added metadata record as expected", async function () {
         const payload = createFakePayload();
-        payload.region = ['st\'rng']
+        payload.region = ["st'rng"];
         const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.CREATED);
@@ -162,7 +162,6 @@ describe('MetadataController', function () {
     });
 
     describe('Sad Path 😥', function () {
-
       it('should return 400 status code if region not exists', async function () {
         const metadata = createFakePayload();
         metadata.region = undefined;
@@ -171,7 +170,6 @@ describe('MetadataController', function () {
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'region'`);
-
       });
 
       it('should return 400 status code if region is empty', async function () {
@@ -189,7 +187,7 @@ describe('MetadataController', function () {
         metadata.sensors = undefined;
 
         const response = await requestSender.createRecord(app, metadata);
-        
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
       });
