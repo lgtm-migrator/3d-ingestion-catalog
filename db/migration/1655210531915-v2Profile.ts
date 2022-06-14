@@ -45,6 +45,75 @@ export class v2Profile1655210531915 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "records" ADD CONSTRAINT "PK_2853dfd49850d5f439dfc462cd0" PRIMARY KEY ("identifier")`);
         await queryRunner.query(`ALTER TABLE "records" ALTER COLUMN "wkt_geometry" DROP NOT NULL`);
         await queryRunner.query(`ALTER TABLE "records" ALTER COLUMN "links" DROP NOT NULL`);
+        await queryRunner.query(`
+            CREATE FUNCTION records_update_anytext() RETURNS trigger
+                SET search_path FROM CURRENT
+                LANGUAGE plpgsql
+                AS $$
+            BEGIN   
+            IF TG_OP = 'INSERT' THEN
+                NEW.anytext := CONCAT (
+                NEW.product_name,' ',
+                NEW.product_version, ' ',
+                NEW.product_type, ' ',
+                NEW.description, ' ',
+                NEW.sensor_type, ' ',
+                NEW.srs_name, ' ',
+                NEW.region, ' ',
+                NEW.classification, ' ',
+                NEW.keywords);
+            ELSIF TG_OP = 'UPDATE' THEN
+                NEW.anytext := CONCAT (
+                COALESCE(NEW.product_name, OLD.product_name),' ',
+                COALESCE(NEW.product_version, OLD.product_version), ' ',
+                COALESCE(NEW.product_type, OLD.product_type), ' ',
+                COALESCE(NEW.description, OLD.description), ' ',
+                COALESCE(NEW.sensor_type, OLD.sensor_type), ' ',
+                COALESCE(NEW.srs_name, OLD.srs_name), ' ',
+                COALESCE(NEW.region, OLD.region), ' ',
+                COALESCE(NEW.classification, OLD.classification), ' ',
+                COALESCE(NEW.keywords, OLD.keywords));
+            END IF;
+            NEW.anytext_tsvector = to_tsvector('pg_catalog.english', NEW.anytext);
+            RETURN NEW;
+            END;
+            $$;`);
+        await queryRunner.query(`
+            CREATE TRIGGER ftsupdate
+                BEFORE INSERT OR UPDATE
+                ON records
+                FOR EACH ROW
+                WHEN (NEW.product_name IS NOT NULL 
+                OR NEW.product_version IS NOT NULL
+                OR NEW.product_type IS NOT NULL
+                OR NEW.description IS NOT NULL
+                OR NEW.sensor_type IS NOT NULL
+                OR NEW.srs_name IS NOT NULL
+                OR NEW.region IS NOT NULL
+                OR NEW.classification IS NOT NULL
+                OR NEW.keywords IS NOT NULL)
+                EXECUTE PROCEDURE records_update_anytext();`);
+
+        await queryRunner.query(`
+            CREATE FUNCTION records_update_geometry() RETURNS trigger
+                SET search_path FROM CURRENT
+                LANGUAGE plpgsql
+                AS $$
+            BEGIN
+            IF NEW.wkt_geometry IS NULL THEN
+                    RETURN NEW;
+            END IF;
+            NEW.wkb_geometry := ST_GeomFromText(NEW.wkt_geometry,4326);
+            RETURN NEW;
+            END;
+            $$;`);
+
+        await queryRunner.query(`
+            CREATE TRIGGER records_update_geometry
+                BEFORE INSERT OR UPDATE
+                ON records
+                FOR EACH ROW
+                EXECUTE PROCEDURE records_update_geometry();`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
@@ -89,6 +158,9 @@ export class v2Profile1655210531915 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "records" ALTER COLUMN "type" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "records" DROP COLUMN "update_date"`);
         await queryRunner.query(`ALTER TABLE "records" ADD "compartmentalization" text`);
+        await queryRunner.query(`DROP TRIGGER ftsupdate ON RECORDS`);
+        await queryRunner.query(`DROP FUNCTION records_update_anytext`);
+        await queryRunner.query(`DROP TRIGGER records_update_geometry ON RECORDS`);
+        await queryRunner.query(`DROP FUNCTION records_update_geometry`);
     }
-
 }
