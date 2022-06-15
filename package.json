@@ -4,14 +4,8 @@
   "description": "A restful API for saving and querying 3d metadata",
   "main": "./src/index.ts",
   "scripts": {
-<<<<<<< HEAD
-    "test:unit": "jest --config=./tests/configurations/unit/jest.config.ts",
-    "test:integration": "jest --config=./tests/configurations/integration/jest.config.ts",
-    "nati": "jest", 
-=======
     "test:unit": "npm run bundleOpenApi && npm run generate-record-entity && jest --config=./tests/configurations/unit/jest.config.js",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
->>>>>>> origin/master
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "prelint:fix": "npm run format:fix && npm run generate-record-entity",

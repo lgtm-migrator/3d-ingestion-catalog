@@ -8,20 +8,6 @@ export const getRepositoryFromContainer = <T>(target: EntityTarget<T>): Reposito
   return connection.getRepository<T>(target);
 };
 
-<<<<<<< HEAD
-// export const createDbMetadataRecord = async (): Promise<IMetadataEntity> => {
-//   const repository = getRepositoryFromContainer(Metadata);
-//   const metadata = createFakeMetadataRecord();
-//   let entity;
-//   try {
-//     entity = await repository.save(metadata);
-//   } catch (err) {
-//     console.error(err);
-//     throw err;
-//   }
-//   return entity;
-// };
-=======
 export const createDbMetadataRecord = async (): Promise<Metadata> => {
   const repository = getRepositoryFromContainer(Metadata);
   const metadata = createFakeEntity();
@@ -34,4 +20,3 @@ export const createDbMetadataRecord = async (): Promise<Metadata> => {
   }
   return entity;
 };
->>>>>>> origin/master

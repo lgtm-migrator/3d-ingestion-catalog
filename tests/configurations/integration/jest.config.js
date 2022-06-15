@@ -18,12 +18,7 @@ module.exports = {
   collectCoverage: true,
   coverageReporters: ['text', 'html', 'json'],
   moduleDirectories: ['node_modules', 'src'],
-<<<<<<< HEAD:tests/configurations/integration/jest.config.ts
-  moduleFileExtensions: ['ts', 'js'],
-  collectCoverageFrom: ['<rootDir>/src/metadata/**/*.ts', '!<rootDir>/src/metadata/models/metadata.entity.ts'],
-=======
   collectCoverageFrom: ['<rootDir>/src/metadata/**/*.ts', '!<rootDir>/src/metadata/models/generated.ts'],
->>>>>>> origin/master:tests/configurations/integration/jest.config.js
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
     global: {

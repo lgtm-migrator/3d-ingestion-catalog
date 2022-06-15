@@ -10,19 +10,6 @@ import { HttpError, NotFoundError } from '../../common/errors';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
 import { getAnyTextValue } from '../../common/anytext';
-<<<<<<< HEAD
-import { checkValidationValues } from './check';
-import { BadValues, IdNotExists } from './errors';
-
-interface MetadataParams {
-  identifier: string;
-}
-type GetAllRequestHandler = RequestHandler<undefined, IMetadataExternal[]>;
-type GetRequestHandler = RequestHandler<MetadataParams, IMetadataExternal>;
-type CreateRequestHandler = RequestHandler<undefined, IMetadataExternal, IMetadataPayload>;
-type UpdateRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IMetadataExternal>;
-type UpdatePartialRequestHandler = RequestHandler<MetadataParams, IMetadataExternal, IUpdatePayload>;
-=======
 import { Metadata } from '../models/generated';
 import { IPayload, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
 import { linksToString, formatStrings } from '../../common/utils/format';
@@ -33,7 +20,6 @@ type GetRequestHandler = RequestHandler<MetadataParams, Metadata, number>;
 type CreateRequestHandler = RequestHandler<undefined, Metadata, IPayload>;
 type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
 type UpdatePartialRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdatePayload>;
->>>>>>> origin/master
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
 @injectable()
@@ -68,43 +54,10 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-<<<<<<< HEAD
-      const payload = req.body;
-      const identifier = uuidV4();
-      if (await this.manager.getRecord(identifier)) {
-        throw new IdAlreadyExistsError('identifier already exists');
-      }
-      if (payload.productId != undefined) {
-        if (!(await this.manager.getRecord(payload.productId))) {
-          throw new IdNotExists("productId doesn't exist");
-        }
-      } else {
-        payload.productId = identifier;
-      }
-      const metadata: IMetadataEntity = {
-        ...payload,
-        identifier: identifier,
-        insertDate: new Date(),
-        type: 'RECORD_3D',
-        typeName: 'undefined',
-        schema: 'undefined',
-        mdSource: 'undefined',
-        xml: 'undefined',
-        anytext: getAnyTextValue(payload),
-        keywords: '3d',
-        productBoundingBox: turf.bbox(payload.footprint).toString(),
-        boundingBox: wkt.convert(payload.footprint),
-        productVersion: (await this.manager.findLastVersion(payload.productId)) + 1,
-      };
-
-      checkValidationValues(metadata);
-      const createdMetadata = await this.manager.createRecord(Object.assign(new Metadata(), metadata));
-=======
       const payload: IPayload = formatStrings(req.body);
       const metadata = await this.metadataToEntity(payload);
 
       const createdMetadata = await this.manager.createRecord(metadata);
->>>>>>> origin/master
       return res.status(httpStatus.CREATED).json(createdMetadata);
     } catch (error) {
       if (error instanceof BadValues || error instanceof IdNotExists) {
@@ -130,20 +83,6 @@ export class MetadataController {
     }
   };
 
-<<<<<<< HEAD
-  // public patch: UpdatePartialRequestHandler = async (req, res, next) => {
-  //   try {
-  //     const { identifier } = req.params;
-  //     const metadata = await this.manager.updatePartialRecord(identifier, req.body);
-  //     return res.status(httpStatus.OK).json(metadata);
-  //   } catch (error) {
-  //     if (error instanceof EntityNotFoundError) {
-  //       (error as HttpError).status = httpStatus.NOT_FOUND;
-  //     }
-  //     return next(error);
-  //   }
-  // };
-=======
   public patch: UpdatePartialRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
@@ -157,7 +96,6 @@ export class MetadataController {
       return next(error);
     }
   };
->>>>>>> origin/master
 
   public delete: DeleteRequestHandler = async (req, res, next) => {
     try {
