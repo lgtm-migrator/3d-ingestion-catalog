@@ -29,7 +29,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/payload'
+              $ref: ./Schema/3dCatalog/3dMetadata.yaml#/components/schemas/catalog-payload
       responses:
         '201':
           $ref: '#/components/responses/created'
@@ -63,7 +63,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/payload'
+              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
       responses:
         '200':
           $ref: '#/components/responses/success'
@@ -84,7 +84,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/updatePayload'
+              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/updatePayload'
       responses:
         '200':
           $ref: '#/components/responses/success'
@@ -121,19 +121,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/metadata'
+            $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
     list:
       description: OK
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/metadata'
+            $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
     created:
       description: Created
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/metadata'
+            $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
     badRequest:
       description: Bad Request
       content:
@@ -159,6 +159,7 @@ components:
         - message
       properties:
         message:
+<<<<<<< HEAD
           type: string
     link:
       type: object
@@ -424,3 +425,6 @@ components:
               items:
                 type: number
       example: '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}'
+=======
+          type: string
+>>>>>>> origin/master

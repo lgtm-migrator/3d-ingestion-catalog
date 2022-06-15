@@ -1,5 +1,5 @@
+import { Link } from '@map-colonies/mc-model-types';
 import { deserializeLinks, formatLinks } from '../../../../src/common/utils/format';
-import { ILink } from '../../../../src/metadata/models/metadata';
 
 describe('format tests', () => {
   describe('formatLinks tests', () => {
@@ -8,12 +8,12 @@ describe('format tests', () => {
       expect(formatLinks(links)).toBe('');
     });
     it('Should return correct serialized links string when given single Link', () => {
-      const links: ILink[] = [{ name: 'testName', description: 'testDescription', protocol: 'testProtocol', url: 'http://testURL.com' }];
+      const links: Link[] = [{ name: 'testName', description: 'testDescription', protocol: 'testProtocol', url: 'http://testURL.com' }];
       const expectedResult = 'testName,testDescription,testProtocol,http://testURL.com';
       expect(formatLinks(links)).toBe(expectedResult);
     });
     it('Should return correct serialized links string when given multiple Links', () => {
-      const links: ILink[] = [
+      const links: Link[] = [
         { name: 'testName1', description: 'testDescription1', protocol: 'testProtocol1', url: 'http://testURL1.com' },
         { name: 'testName2', description: 'testDescription2', protocol: 'testProtocol2', url: 'http://testURL2.com' },
       ];
@@ -29,12 +29,12 @@ describe('format tests', () => {
     });
     it('Should return correct serialized links string when given single Link', () => {
       const linksStr = 'testName,testDescription,testProtocol,http://testURL.com';
-      const expectedResult: ILink[] = [{ name: 'testName', description: 'testDescription', protocol: 'testProtocol', url: 'http://testURL.com' }];
+      const expectedResult: Link[] = [{ name: 'testName', description: 'testDescription', protocol: 'testProtocol', url: 'http://testURL.com' }];
       expect(deserializeLinks(linksStr)).toStrictEqual(expectedResult);
     });
     it('Should return correct serialized links string when given multiple Links', () => {
       const linksStr = 'testName1,testDescription1,testProtocol1,http://testURL1.com^testName2,testDescription2,testProtocol2,http://testURL2.com';
-      const expectedResult: ILink[] = [
+      const expectedResult: Link[] = [
         { name: 'testName1', description: 'testDescription1', protocol: 'testProtocol1', url: 'http://testURL1.com' },
         { name: 'testName2', description: 'testDescription2', protocol: 'testProtocol2', url: 'http://testURL2.com' },
       ];

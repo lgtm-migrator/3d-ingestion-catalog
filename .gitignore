@@ -110,3 +110,8 @@ reports
 
 # Helm custom values
 values.*.yaml
+
+#generated files
+bundledApi.yaml
+src/metadata/models/generated.ts
+Schema
