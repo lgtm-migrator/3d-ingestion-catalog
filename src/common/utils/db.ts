@@ -1,7 +1,7 @@
 import { hostname } from 'os';
 import { readFileSync } from 'fs';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
-import { Metadata } from '../../metadata/models/metadata.entity';
+import { Metadata } from '../../metadata/models/generated';
 import { DbConfig } from '../interfaces';
 
 export const ENTITIES_DIRS = [Metadata, 'src/metadata/models/*.ts'];

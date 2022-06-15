@@ -3,8 +3,7 @@ import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
 import { SERVICES } from '../../common/constants';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
-import { IUpdatePayload, IMetadataEntity } from './metadata';
-import { Metadata } from './metadata.entity';
+import { Metadata } from './generated';
 
 @injectable()
 export class MetadataManager {
@@ -13,47 +12,47 @@ export class MetadataManager {
     @inject(SERVICES.LOGGER) private readonly logger: Logger
   ) {}
 
-  public async getAll(): Promise<IMetadataEntity[] | undefined> {
+  public async getAll(): Promise<Metadata[] | undefined> {
     this.logger.info(`Get all models metadata`);
     return this.repository.find();
   }
 
-  public async getRecord(identifier: string): Promise<IMetadataEntity | undefined> {
+  public async getRecord(identifier: string): Promise<Metadata | undefined> {
     this.logger.info(`Get metadata record ${identifier}`);
     return this.repository.findOne(identifier);
   }
 
-  public async createRecord(payload: IMetadataEntity): Promise<IMetadataEntity> {
+  public async createRecord(payload: Metadata): Promise<Metadata> {
     this.logger.info(`Create a new metadata record: ${JSON.stringify(payload)}`);
-    const dbMetadata = await this.repository.findOne(payload.identifier);
-    if (dbMetadata != undefined) {
-      throw new IdAlreadyExistsError(`Metadata record ${dbMetadata.identifier} already exists`);
+    const ifExists: Metadata | undefined = await this.repository.findOne(payload.id);
+    if (ifExists != undefined && payload.id) {
+      throw new IdAlreadyExistsError(`Metadata record ${payload.id} already exists!`);
     }
-    const newMetadata = await this.repository.save(payload);
+    const newMetadata: Metadata = await this.repository.save(payload);
     return newMetadata;
   }
 
-  public async updateRecord(identifier: string, payload: Partial<IMetadataEntity>): Promise<IMetadataEntity> {
+  public async updateRecord(identifier: string, payload: Metadata): Promise<Metadata> {
     this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    const dbMetadata = await this.repository.findOne(identifier);
-    if (dbMetadata == undefined) {
+    const ifExists: Metadata | undefined = await this.repository.findOne(identifier);
+    if (ifExists == undefined && payload.id) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    const newMetadata: Partial<IMetadataEntity> = { ...payload, identifier: identifier };
+    const newMetadata: Partial<Metadata> = { ...payload, id: identifier };
     const updatedMetadata = await this.repository.save(newMetadata);
     return updatedMetadata;
   }
 
-  public async updatePartialRecord(identifier: string, payload: IUpdatePayload): Promise<IMetadataEntity> {
+  public async updatePartialRecord(identifier: string, payload: Partial<Metadata>): Promise<Metadata> {
     this.logger.info(`Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    const dbMetadata = await this.repository.findOne(identifier);
+    const dbMetadata: Metadata | undefined = await this.repository.findOne(identifier);
     if (dbMetadata == undefined) {
       throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
     }
-    const metadata = { ...dbMetadata, ...payload, id: identifier };
-    delete metadata.anytextTsvector;
+    const metadata: Metadata = { ...dbMetadata, ...payload, id: identifier };
+    delete metadata.anyTextTsvector;
     delete metadata.wkbGeometry;
-    const updatedMetadata = await this.repository.save(metadata);
+    const updatedMetadata: Metadata = await this.repository.save(metadata);
     return updatedMetadata;
   }
 
@@ -64,7 +63,7 @@ export class MetadataManager {
 
   public async findLastVersion(identifier: string): Promise<number> {
     this.logger.info(`Get last product version record ${identifier}`);
-    const metadata = (await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } })) as Metadata;
-    return metadata.productVersion;
+    const metadata: Metadata | undefined = await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } });
+    return metadata !== undefined ? metadata.productVersion : 0;
   }
 }

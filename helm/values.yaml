@@ -5,7 +5,7 @@ global:
   environment: {}
 image:
   repository: 3d-ingestion-catalog
-  tag: v2.0.4
+  tag: v3.0.0
 enabled: true
 environment: development
 initialDelaySeconds: 60
