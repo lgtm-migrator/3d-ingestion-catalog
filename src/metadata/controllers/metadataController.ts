@@ -60,9 +60,8 @@ export class MetadataController {
       const createdMetadata = await this.manager.createRecord(metadata);
       return res.status(httpStatus.CREATED).json(createdMetadata);
     } catch (error) {
-      if (error instanceof BadValues || error instanceof IdNotExists) {
-        (error as HttpError).status = httpStatus.BAD_REQUEST;
-        return error;
+      if (error instanceof IdAlreadyExistsError) {
+        (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
       }
       return next(error);
     }

@@ -1,42 +1,25 @@
-import { exec } from 'child_process';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { Application } from 'express';
 import { QueryFailedError, Repository } from 'typeorm';
-import config from 'config';
-import { Connection } from 'typeorm';
-import jsLogger from '@map-colonies/js-logger';
-import { Metadata } from '../../../../src/metadata/models/metadata.entity';
-import { IMetadataEntity } from '../../../../src/metadata/models/metadata';
-import { createFakeMetadataEntity, createFakeMetadataRecord, getUpdatePayload } from '../../../helpers/helpers';
+import { Metadata } from '../../../../src/metadata/models/generated';
+import { createFakePayload } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
-import { BadValues } from '../../../../src/metadata/controllers/errors';
-import { DbConfig } from '../../../../src/common/interfaces';
-import { initializeConnection } from '../../../../src/common/utils/db';
-import { SERVICES } from '../../../../src/common/constants';
 import { getRepositoryFromContainer } from './helpers/db';
 import * as requestSender from './helpers/requestSender';
 
 describe('MetadataController', function () {
   let app: Application;
-  let connection: Connection;
+  let repository: Repository<Metadata>;
 
   beforeAll(async function () {
-    container.register(SERVICES.CONFIG, { useValue: config });
-
-    container.register(SERVICES.LOGGER, { useValue: jsLogger({ enabled: false }) });
-
-    connection = await initializeConnection(config.get<DbConfig>('test'));
-    await connection.synchronize();
-    const repository = connection.getRepository(Metadata);
-    container.register(Connection, { useValue: connection });
-    container.register(SERVICES.METADATA_REPOSITORY, { useValue: repository });
-
+    await registerTestValues();
     app = requestSender.getApp();
+    repository = getRepositoryFromContainer(Metadata);
+    await repository.clear();
   });
 
-  afterAll(async function () {
-    await connection.close();
+  afterAll(function () {
     container.reset();
   });
 
@@ -49,10 +32,9 @@ describe('MetadataController', function () {
       });
 
       it('should return 200 status code and a metadata records list', async function () {
-        const metadata = createFakeMetadataRecord();
-        // const payload = getPayload(metadata);
+        const payload = createFakePayload();
 
-        const createResponse = await requestSender.createRecord(app, metadata);
+        const createResponse = await requestSender.createRecord(app, payload);
         expect(createResponse.status).toBe(httpStatusCodes.CREATED);
         expect(createResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         const response = await requestSender.getAll(app);
@@ -76,6 +58,7 @@ describe('MetadataController', function () {
         const mockedApp = requestSender.getMockedRepoApp({ find: findMock });
 
         const response = await requestSender.getAll(mockedApp);
+
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
       });
@@ -85,9 +68,9 @@ describe('MetadataController', function () {
   describe('GET /metadata/{identifier}', function () {
     describe('Happy Path 🙂', function () {
       it('should return 200 status code and the metadata record', async function () {
-        const metadata = createFakeMetadataRecord();
+        const payload = createFakePayload();
 
-        const createResponse = await requestSender.createRecord(app, metadata);
+        const createResponse = await requestSender.createRecord(app, payload);
         expect(createResponse.status).toBe(httpStatusCodes.CREATED);
         expect(createResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
@@ -129,8 +112,8 @@ describe('MetadataController', function () {
   describe('POST /metadata', function () {
     describe('Happy Path 🙂', function () {
       it('if productId not exists, should return 201 status code and the added metadata record when productVersion = 1', async function () {
-        const metadata = createFakeMetadataRecord();
-        const response = await requestSender.createRecord(app, metadata);
+        const payload = createFakePayload();
+        const response = await requestSender.createRecord(app, payload);
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
@@ -143,14 +126,13 @@ describe('MetadataController', function () {
       });
 
       it('if productId exists, should return 201 status code and the added metadata record when productVersion is + 1', async function () {
-        const metadata = createFakeMetadataRecord();
-        const response = await requestSender.createRecord(app, metadata);
+        const payload = createFakePayload();
+        const response = await requestSender.createRecord(app, payload);
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        const oldBody = (response.body as unknown) as IMetadataEntity;
-
-        metadata.productId = oldBody.productId;
-        const newResponse = await requestSender.createRecord(app, metadata);
+        const oldBody = response.body as unknown as Metadata;
+        payload.productId = oldBody.productId;
+        const newResponse = await requestSender.createRecord(app, payload);
         expect(newResponse.status).toBe(httpStatusCodes.CREATED);
         expect(newResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         const body = newResponse.body as unknown as Metadata;
@@ -162,139 +144,76 @@ describe('MetadataController', function () {
         expect(createdResponseBody.productId).toBe(oldBody.productId);
         expect(createdResponseBody.productVersion).toBe(Number(oldBody.productVersion) + 1);
       });
-    });
 
-    describe('Bad Path 😡', function () {
-      it('should return 400 status code if productId is not exists', async function () {
-        const metadata = createFakeMetadataRecord();
-        metadata.productId = '2';
-        const response = await requestSender.createRecord(app, metadata);
-        expect(response).toMatchObject(BadValues);
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.text).toContain("productId doesn't exist");
-      });
+      it("if region contains string with a ', should return 201 status code and the added metadata record as expected", async function () {
+        const payload = createFakePayload();
+        payload.region = ["st'rng"];
+        const response = await requestSender.createRecord(app, payload);
 
-      it('should return 400 status code if sourceStartDate is later than sourceEndDate', async function () {
-        // Part 1 - preparing data
-        const metadata = createFakeMetadataRecord();
-        const temp = metadata.sourceDateStart;
-        metadata.sourceDateStart = metadata.sourceDateEnd;
-        metadata.sourceDateEnd = temp;
-        const response = await requestSender.createRecord(app, metadata);
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.text).toContain('sourceStartDate should not be later than sourceEndDate');
-      });
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
-      it('should return 400 status code if minResolutionMeter is bigger than maxResolutionMeter', async function () {
-        // Part 1 - preparing data
-        const metadata = createFakeMetadataRecord();
-        const temp = metadata.minResolutionMeter;
-        metadata.minResolutionMeter = metadata.maxResolutionMeter;
-        metadata.maxResolutionMeter = temp;
-        const response = await requestSender.createRecord(app, metadata);
-        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.text).toContain('minResolutionMeter should not be bigger than maxResolutionMeter');
-      });
-    });
-
-    describe('Sad Path 😥', function () {
-      it('should return 500 status code if a db exception happens', async function () {
-        const metadata = createFakeMetadataRecord();
-        const findMock = jest.fn();
-        const saveMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const mockedApp = requestSender.getMockedRepoApp({ save: saveMock, findOne: findMock });
-
-        const response = await requestSender.createRecord(mockedApp, metadata);
+        const body = response.body as unknown as Metadata;
+        const getResponse = await requestSender.getRecord(app, body.id);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createdResponseBody } = body;
 
         expect(getResponse.body).toMatchObject(createdResponseBody);
       });
-
-      // it('should return 500 status code if identifier already exists', async function () {
-      //   const metadata = createFakeMetadataEntity();
-      //   const getMock = jest.fn().mockResolvedValue(metadata);
-      //   const mockedApp = requestSender.getMockedRepoApp({ get: getMock });
-
-      //   const response = await requestSender.createRecord(mockedApp, metadata);
-
-      //   expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-      //   expect(response.body).toHaveProperty('message', 'failed');
-      // });
-    });
-  });
-
-  describe('PUT /metadata/{identifier}', function () {
-    describe('Happy Path 🙂', function () {
-      it('should return 200 status code and the updated metadata record', async function () {
-        const metadata = createFakeMetadataRecord();
-        const newResponse = await requestSender.createRecord(app, metadata);
-        expect(newResponse.status).toBe(httpStatusCodes.CREATED);
-        expect(newResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        const body = (newResponse.body as unknown) as IMetadataEntity;
-        body.classification = '4';
-
-        const response = await requestSender.updateRecord(app, body.identifier, body);
-
-        expect(response.status).toBe(httpStatusCodes.OK);
-        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        expect(response.body).toMatchObject(body);
-      });
-
-    describe('Bad Path 😡', function () {
-      // No bad paths here!
     });
 
     describe('Sad Path 😥', function () {
-      it('should return 404 status code if the metadata record does not exist', async function () {
-        const metadata = createFakeMetadataEntity();
+      it('should return 400 status code if region not exists', async function () {
+        const metadata = createFakePayload();
+        metadata.region = undefined;
 
-        const response = await requestSender.updateRecord(app, metadata.identifier, metadata);
+        const response = await requestSender.createRecord(app, metadata);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body should have required property 'region'`);
+      });
+
+      it('should return 400 status code if region is empty', async function () {
+        const metadata = createFakePayload();
+        metadata.region = [];
+
+        const response = await requestSender.createRecord(app, metadata);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body.region should NOT have fewer than 1 items`);
       });
 
-      it('should return 500 status code if a db exception happens', async function () {
-        const metadata = createFakeMetadataEntity();
-        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+      it('should return 400 status code if sensors not exists', async function () {
+        const metadata = createFakePayload();
+        metadata.sensors = undefined;
 
-        const response = await requestSender.updateRecord(mockedApp, metadata.identifier, metadata);
+        const response = await requestSender.createRecord(app, metadata);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
       });
 
-  describe('PATCH /metadata/{identifier}', function () {
-    describe('Happy Path 🙂', function () {
-      it('should return 200 status code and the updated metadata record', async function () {
-        const metadata = createFakeMetadataRecord();
-        const updatedPayload = getUpdatePayload();
-        const newResponse = await requestSender.createRecord(app, metadata);
-        expect(newResponse.status).toBe(httpStatusCodes.CREATED);
-        expect(newResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        const body = (newResponse.body as unknown) as IMetadataEntity;
+      it('should return 400 status code if sensors is empty', async function () {
+        const metadata = createFakePayload();
+        metadata.sensors = [];
 
-        const response = await requestSender.updatePartialRecord(app, body.identifier, updatedPayload);
+        const response = await requestSender.createRecord(app, metadata);
 
-        expect(response.status).toBe(httpStatusCodes.OK);
-        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        expect(response.body).toMatchObject(body);
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body.sensors should NOT have fewer than 1 items`);
       });
 
-    describe('Sad Path 😥', function () {
-      it('should return 404 status code if the metadata record does not exist', async function () {
-        const metadata = createFakeMetadataEntity();
-        const payload = getUpdatePayload();
+      it('should return 422 status code if a metadata record with the same id already exists', async function () {
+        const metadata = createFakePayload();
+        const findMock = jest.fn().mockResolvedValue(metadata);
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.updatePartialRecord(app, metadata.identifier, payload);
-
-        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} does not exist`);
+        const response = await requestSender.createRecord(mockedApp, metadata);
+        expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
+        expect(response.body).toHaveProperty('message');
       });
 
       it('should return 500 status code if a db exception happens', async function () {
-        const metadata = createFakeMetadataEntity();
-        const payload = getUpdatePayload();
+        const metadata = createFakePayload();
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
@@ -410,10 +329,11 @@ describe('MetadataController', function () {
       });
 
       it('should return 204 status code if metadata record was found and deleted successfully', async function () {
-        const metadata = createFakeMetadataRecord();
-        const record = (await requestSender.createRecord(app, metadata)).body as IMetadataEntity;
+        const payload = createFakePayload();
+        const created = await requestSender.createRecord(app, payload);
+        const metadata = created.body as Metadata;
 
-        const response = await requestSender.deleteRecord(app, record.identifier);
+        const response = await requestSender.deleteRecord(app, metadata.id);
 
         expect(response.status).toBe(httpStatusCodes.NO_CONTENT);
       });
