@@ -29,7 +29,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/payload'
+              $ref: ./Schema/3dCatalog/3dMetadata.yaml#/components/schemas/catalog-payload
       responses:
         '201':
           $ref: '#/components/responses/created'
@@ -63,7 +63,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/payload'
+              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
       responses:
         '200':
           $ref: '#/components/responses/success'
@@ -84,7 +84,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/updatePayload'
+              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/updatePayload'
       responses:
         '200':
           $ref: '#/components/responses/success'
@@ -121,19 +121,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/metadata'
+            $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
     list:
       description: OK
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/metadata'
+            $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
     created:
       description: Created
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/metadata'
+            $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
     badRequest:
       description: Bad Request
       content:
@@ -160,267 +160,3 @@ components:
       properties:
         message:
           type: string
-    link:
-      type: object
-      description: Structure of link
-      required:
-        - protocol
-        - url
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        protocol:
-          type: string
-          example: 3DTiles
-        url:
-          type: string
-          example: >-
-            ,,3DTiles,http://URI-TO-S3/BUCKET/MODEL/tileset.json
-    payload:
-      type: object
-      description: 3d tiles metadata payload
-      required:
-        - productName
-        - productType
-        - sourceDateStart
-        - sourceDateEnd
-        - maxAccuracyCE90
-        - absoluteAccuracyLEP90
-        - sensors
-        - footprint
-        - srsName
-        - region
-        - classification
-        - productionSystem
-        - productionSystemVer
-        - producerName
-        - links
-      properties:
-        productId:
-          type: string
-          nullable: true
-          default: null
-          description: ID of product
-        productName:
-          type: string
-          maxLength: 50
-          description: Name of product
-        # productVersion:
-        #   type: integer
-        #   example: 1
-        #   description: Number of version
-        #   readOnly: true
-        productType:
-          type: string
-          description: Type of product (3DPhotoRealistic)
-          example: 3DPhotoRealistic
-        description:
-          type: string
-          maxLength: 250
-          nullable: true
-          description: description and comments
-        creationDate:
-          type: string
-          format: date-time
-          nullable: true
-          description: Creation date
-        sourceDateStart:
-          type: string
-          format: date-time
-          description: Oldest date of taken photo
-        sourceDateEnd:
-          type: string
-          format: date-time
-          description: Newest date of taken photo
-        minResolutionMeter:
-          type: number
-          format: double
-          nullable: true
-          example: 1.1
-          minimum: 0.01
-          maximum: 8000
-          description: Minimum resolution in meters
-        maxResolutionMeter:
-          type: number
-          format: double
-          nullable: true
-          example: 1.5
-          minimum: 0.01
-          maximum: 8000
-          description: Maximum resolution in meters
-        nominalResolution:
-          type: number
-          format: double
-          nullable: true
-          example: 5
-          minimum: 0
-          description: Number of points in one size unit
-        maxAccuracyCE90:
-          type: number
-          format: double
-          minimum: 0
-          description: Maximum absolute horizontal accuracy
-        absoluteAccuracyLEP90:
-          type: number
-          format: double
-          minimum: 0
-          maximum: 999
-          description: Absolute vertical accuracy
-        accuracySE90:
-          type: number
-          format: double
-          minimum: 0
-          nullable: true
-          maximum: 250
-          description: Absolute spherical accuracy
-        relativeAccuracyLEP90:
-          type: number
-          format: double
-          nullable: true
-          minimum: 0
-          maximum: 100
-          description: Relative vertical accuracy
-        visualAccuracy:
-          type: number
-          format: double
-          nullable: true
-          minimum: 0
-          maximum: 100
-          description: Measure of visual quality
-        sensors:
-          type: string
-          description: All sensors that took part as a source to the product
-        footprint:
-          $ref: '#/components/schemas/GeojsonGeometryPolygon'
-          description: Geographic demarkatetion of the product
-        heightRangeFrom:
-          type: number
-          format: double
-          nullable: true
-          description: Minimum height range of ground
-        heightRangeTo:
-          type: number
-          format: double
-          nullable: true
-          description: Maximum height range of ground
-        srsId:
-          type: integer
-          example: 4326
-          nullable: true
-          description: ID of srs
-        srsName:
-          type: string
-          description: Name of the srsID
-        srsOrigin:
-          type: string
-          nullable: true
-          example: (30;40;50)
-          pattern: ^\(([-]?(0|[1-9]\d*)(\.\d+)?;){2}[-]?(0|[1-9]\d*)(\.\d+)?\)$
-          description: First of axes
-        region:
-          type: string
-          description: States
-        classification:
-          type: string
-          example: '"5"'
-          pattern: ^[0-9]$
-          description: Classification of the product
-        compartmentalization:
-          type: string
-          nullable: true
-          description: compartmentalization of the product
-        productionSystem:
-          type: string
-          description: Production system
-        productionSystemVer:
-          type: string
-          maxLength: 20
-          description: Version production system
-        producerName:
-          type: string
-          description: The name of the producer (product owner)
-        productionMethod:
-          type: string
-          nullable: true
-          description: Method of the production
-        minFlightAlt:
-          type: number
-          format: double
-          description: Minimum height of the flight
-        maxFlightAlt:
-          type: number
-          nullable: true
-          format: double
-          description: Maximum height of the flight
-        geographicArea:
-          type: string
-          nullable: true
-          description: Area inside the region
-        # productBoundingBox:
-        #   type: string
-        #   readOnly: true
-        #   pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
-        #   description: The bounding box of the product
-        links:
-          type: array
-          items: {
-            $ref: '#/components/schemas/link'
-          }
-          
-    metadata:
-      allOf:
-        - $ref: '#/components/schemas/payload'
-        - type: object
-          required:
-            - identifier
-            - insertDate
-          properties:
-            identifier:
-              type: string
-            insertDate:
-              type: string
-              format: date-time
-            productVersion:
-              type: number
-            productBoundingBox:
-              type: string
-              pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
-    updatePayload:
-      type: object
-      description: 3d tiles metadata update payload
-      properties:
-        title:
-          type: string
-          description: Title
-        description:
-          type: string
-          description: Description
-        classification:
-          type: string
-          description: Product classification
-        sensorType:
-          type: string
-          description: The sensor used as the source of the product
-    GeojsonGeometryPolygon:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum:
-            - Polygon
-        coordinates:
-          type: array
-          items:
-            type: array
-            minItems: 5
-            items:
-              type: array
-              minItems: 2
-              items:
-                type: number
-      example: '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}'

@@ -1,12 +1,9 @@
 {
-  "ts-node": {
-    "files": true
-  },
   "files": [
     "declarations.d.ts"
   ],
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2021",
     "module": "commonjs",
     "declaration": true,
     "outDir": "dist",

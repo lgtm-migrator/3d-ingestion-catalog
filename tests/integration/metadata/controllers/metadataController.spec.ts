@@ -61,9 +61,8 @@ describe('MetadataController', function () {
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(response.body).toHaveLength(1);
 
-        const { anytextTsvector, ...createResponseWithoutTsVector } = (createResponse.body as unknown) as IMetadataEntity;
-
-        expect(response.body).toMatchObject([createResponseWithoutTsVector]);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createResponseWithoutAnyText } = createResponse.body as unknown as Metadata;
+        expect(response.body).toMatchObject([createResponseWithoutAnyText]);
       });
     });
 
@@ -92,14 +91,14 @@ describe('MetadataController', function () {
         expect(createResponse.status).toBe(httpStatusCodes.CREATED);
         expect(createResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
-        const id = ((createResponse.body as unknown) as IMetadataEntity).identifier;
+        const id = (createResponse.body as unknown as Metadata).id;
         const response = await requestSender.getRecord(app, id);
 
         expect(response.status).toBe(httpStatusCodes.OK);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
-        const { anytextTsvector, ...createResponseWithoutTsVector } = (createResponse.body as unknown) as IMetadataEntity;
-        expect(response.body).toMatchObject(createResponseWithoutTsVector);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createResponseWithoutAnyText } = createResponse.body as unknown as Metadata;
+        expect(response.body).toMatchObject(createResponseWithoutAnyText);
       });
     });
 
@@ -135,9 +134,9 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
 
-        const body = (response.body as unknown) as IMetadataEntity;
-        const getResponse = await requestSender.getRecord(app, body.identifier);
-        const { anytextTsvector, wkbGeometry, ...createdResponseBody } = body;
+        const body = response.body as unknown as Metadata;
+        const getResponse = await requestSender.getRecord(app, body.id);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createdResponseBody } = body;
 
         expect(getResponse.body).toMatchObject(createdResponseBody);
         expect(createdResponseBody.productVersion).toBe(1);
@@ -154,10 +153,10 @@ describe('MetadataController', function () {
         const newResponse = await requestSender.createRecord(app, metadata);
         expect(newResponse.status).toBe(httpStatusCodes.CREATED);
         expect(newResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        const body = (newResponse.body as unknown) as IMetadataEntity;
+        const body = newResponse.body as unknown as Metadata;
 
-        const getResponse = await requestSender.getRecord(app, body.identifier);
-        const { anytextTsvector, wkbGeometry, ...createdResponseBody } = body;
+        const getResponse = await requestSender.getRecord(app, body.id);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...createdResponseBody } = body;
 
         expect(getResponse.body).toMatchObject(createdResponseBody);
         expect(createdResponseBody.productId).toBe(oldBody.productId);
@@ -207,8 +206,7 @@ describe('MetadataController', function () {
 
         const response = await requestSender.createRecord(mockedApp, metadata);
 
-        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-        expect(response.body).toHaveProperty('message', 'failed');
+        expect(getResponse.body).toMatchObject(createdResponseBody);
       });
 
       // it('should return 500 status code if identifier already exists', async function () {
@@ -240,7 +238,6 @@ describe('MetadataController', function () {
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(response.body).toMatchObject(body);
       });
-    });
 
     describe('Bad Path 😡', function () {
       // No bad paths here!
@@ -252,8 +249,8 @@ describe('MetadataController', function () {
 
         const response = await requestSender.updateRecord(app, metadata.identifier, metadata);
 
-        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.identifier} does not exist`);
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body.region should NOT have fewer than 1 items`);
       });
 
       it('should return 500 status code if a db exception happens', async function () {
@@ -263,11 +260,9 @@ describe('MetadataController', function () {
 
         const response = await requestSender.updateRecord(mockedApp, metadata.identifier, metadata);
 
-        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-        expect(response.body).toHaveProperty('message', 'failed');
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
       });
-    });
-  });
 
   describe('PATCH /metadata/{identifier}', function () {
     describe('Happy Path 🙂', function () {
@@ -285,11 +280,6 @@ describe('MetadataController', function () {
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(response.body).toMatchObject(body);
       });
-    });
-
-    describe('Bad Path 😡', function () {
-      // No bad paths here!
-    });
 
     describe('Sad Path 😥', function () {
       it('should return 404 status code if the metadata record does not exist', async function () {
@@ -308,13 +298,108 @@ describe('MetadataController', function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.updatePartialRecord(mockedApp, metadata.identifier, payload);
+        const response = await requestSender.createRecord(mockedApp, metadata);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
       });
     });
   });
+
+  /* eslint-disable */
+
+  // describe('PUT /metadata/{identifier}', function () {
+  //   describe('Happy Path 🙂', function () {
+  //     it('should return 200 status code and the updated metadata record', async function () {
+  //       const metadata = createFakeEntity();
+  //       const findMock = jest.fn().mockResolvedValue(metadata);
+  //       metadata.classification = '4';
+  //       const saveMock = jest.fn().mockResolvedValue(metadata);
+  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
+  //       const response = await requestSender.updateRecord(mockedApp, metadata.id, metadata);
+
+  //       expect(response.status).toBe(httpStatusCodes.OK);
+  //       expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+  //     });
+  //   });
+
+  //   describe('Bad Path 😡', function () {
+  //     // No bad paths here!
+  //   });
+
+  //   describe('Sad Path 😥', function () {
+  //     it('should return 404 status code if the metadata record does not exist', async function () {
+  //       const metadata = createFakeEntity();
+  //       const findMock = jest.fn().mockResolvedValue(undefined);
+  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+  //       const response = await requestSender.updateRecord(mockedApp, metadata.id, metadata);
+
+  //       expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+  //       expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
+  //     });
+
+  //     it('should return 500 status code if a db exception happens', async function () {
+  //       const metadata = createFakeEntity();
+  //       const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+
+  //       const response = await requestSender.updateRecord(mockedApp, metadata.id, metadata);
+
+  //       expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+  //       expect(response.body).toHaveProperty('message', 'failed');
+  //     });
+  //   });
+  // });
+
+  // describe('PATCH /metadata/{identifier}', function () {
+  //   describe('Happy Path 🙂', function () {
+  //     it('should return 200 status code and the updated metadata record', async function () {
+  //       let metadata = createFakeEntity();
+  //       const payload = getUpdatePayload();
+  //       const findMock = jest.fn().mockResolvedValue(metadata);
+  //       metadata = { ...metadata, ...payload };
+  //       const saveMock = jest.fn().mockResolvedValue(metadata);
+  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
+
+  //       const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+
+  //       expect(response.status).toBe(httpStatusCodes.OK);
+  //       expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+  //     });
+  //   });
+
+  //   describe('Bad Path 😡', function () {
+  //     // No bad paths here!
+  //   });
+
+  //   describe('Sad Path 😥', function () {
+  //     it('should return 404 status code if the metadata record does not exist', async function () {
+  //       const metadata = createFakeEntity();
+  //       const payload = getUpdatePayload();
+  //       const findMock = jest.fn().mockResolvedValue(undefined);
+  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+
+  //       const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+
+  //       expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+  //       expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
+  //     });
+
+  //     it('should return 500 status code if a db exception happens', async function () {
+  //       const metadata = createFakeEntity();
+  //       const payload = getUpdatePayload();
+  //       const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+
+  //       const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+
+  //       expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+  //       expect(response.body).toHaveProperty('message', 'failed');
+  //     });
+  //   });
+  // });
+
+  /* eslint-enable */
 
   describe('DELETE /metadata/{identifier}', function () {
     describe('Happy Path 🙂', function () {

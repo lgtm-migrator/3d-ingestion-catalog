@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import RandExp from 'randexp';
 import faker from 'faker';
 import wkt from 'terraformer-wkt-parser';
@@ -63,15 +62,14 @@ export const createFakeMetadataRecord = (): IMetadataPayload => {
     srsId: faker.random.number(),
     srsName: faker.random.word(),
     srsOrigin: srsOriginHelper,
-    region: faker.random.word(),
+    region: [faker.random.word()],
     classification: classificationHelper,
-    compartmentalization: faker.random.word(),
     productionSystem: faker.random.word(),
     productionSystemVer: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     producerName: faker.random.word(),
     productionMethod: faker.random.word(),
-    minFlightAlt: faker.random.number(),
-    maxFlightAlt: faker.random.number(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
     geographicArea: faker.random.word(),
     links: [
       { url: faker.random.word(), protocol: faker.random.word() },
