@@ -8,20 +8,20 @@ export interface MetadataParams {
 export type IPayload = Omit<I3DCatalogUpsertRequestBody, 'productVersion' | 'productBoundingBox' | 'updateDate'>;
 
 export interface IUpdatePayload extends Partial<Metadata> {
-  /**
-   * Title
-   */
   productName: string;
-  /**
-   * Description
-   */
   description?: string;
-  /**
-   * Product classification
-   */
+  creationDate: Date;
+  accuracySE90: number;
+  relativeAccuracyLEP90: number;
+  visualAccuracy: number;
+  heightRangeFrom: number;
+  heightRangeTo: number;
+  region: string;
   classification: string;
-  /**
-   * The sensor used as the source of the product
-   */
-  sensors: string;
+  productionMethod: string;
+  geographicArea: string;
+}
+
+export interface IUpdateMetadata extends IUpdatePayload {
+  anytext: string;
 }

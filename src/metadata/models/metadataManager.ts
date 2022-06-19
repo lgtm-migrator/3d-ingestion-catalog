@@ -51,6 +51,7 @@ export class MetadataManager {
     }
     const metadata: Metadata = { ...dbMetadata, ...payload, id: identifier };
     delete metadata.anyTextTsvector;
+    delete metadata.wktGeometry;
     delete metadata.wkbGeometry;
     const updatedMetadata: Metadata = await this.repository.save(metadata);
     return updatedMetadata;
