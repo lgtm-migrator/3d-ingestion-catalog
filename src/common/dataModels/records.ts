@@ -22,7 +22,6 @@ export interface IUpdatePayload {
   geographicArea: string;
 }
 
-
 export interface IUpdateMetadata extends IUpdatePayloadWithoutRegion {
   id: string;
   region: string;

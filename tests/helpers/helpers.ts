@@ -116,7 +116,7 @@ export const createFakeUpdateMetadata = (): IUpdateMetadata => {
     productionMethod: faker.random.word(),
     geographicArea: faker.random.word(),
     updateDate: new Date(Date.now()),
-    id: faker.datatype.uuid()
+    id: faker.datatype.uuid(),
   };
   return metadata;
 };

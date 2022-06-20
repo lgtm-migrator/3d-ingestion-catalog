@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Link } from '@map-colonies/mc-model-types';
-import { IPayload, IUpdatePayload } from '../dataModels/records';
 
 export const formatLinks = (links: Link[] | undefined): string => {
   if (links == undefined) {

@@ -285,7 +285,6 @@ describe('MetadataController', function () {
         expect(updateResponse.status).toBe(httpStatusCodes.OK);
         expect(updateResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(updatedResponseBody.productName).toBe(payload.productName);
-
       });
     });
 

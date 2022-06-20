@@ -2,7 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
 import { SERVICES } from '../../common/constants';
-import { IUpdateMetadata, IUpdatePayload } from '../../common/dataModels/records';
+import { IUpdateMetadata } from '../../common/dataModels/records';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 import { Metadata } from './generated';
 

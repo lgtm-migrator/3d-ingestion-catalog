@@ -87,7 +87,7 @@ export class MetadataController {
       const { identifier } = req.params;
       const payload: IUpdatePayload = formatStrings<IUpdatePayload>(req.body);
       const metadata: IUpdateMetadata = this.updatePayloadToMatadata(identifier, payload);
-      
+
       const updatedPartialMetadata = await this.manager.updatePartialRecord(metadata);
       return res.status(httpStatus.OK).json(updatedPartialMetadata);
     } catch (error) {
@@ -136,13 +136,12 @@ export class MetadataController {
   }
 
   private updatePayloadToMatadata(identifier: string, payload: IUpdatePayload): IUpdateMetadata {
-    
     const region = payload.region.join(', ');
     const metadata: IUpdateMetadata = {
       ...payload,
       region: region,
       id: identifier,
-      updateDate: new Date()
+      updateDate: new Date(),
     };
 
     return metadata;
