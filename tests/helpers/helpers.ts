@@ -2,7 +2,7 @@ import RandExp from 'randexp';
 import faker from 'faker';
 import { RecordType, ProductType } from '@map-colonies/mc-model-types';
 import { Metadata } from '../../src/metadata/models/generated';
-import { IPayload, IUpdatePayload } from '../../src/common/dataModels/records';
+import { IPayload, IUpdateMetadata, IUpdatePayload } from '../../src/common/dataModels/records';
 import { linksToString } from '../../src/common/utils/format';
 
 const srsOriginHelper = new RandExp('^\\(([-]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
@@ -83,14 +83,42 @@ export const createFakePayload = (): IPayload => {
   return record;
 };
 
-export const getUpdatePayload = (): IUpdatePayload => {
+export const createFakeUpdatePayload = (): IUpdatePayload => {
   const payload: IUpdatePayload = {
     productName: faker.random.word(),
+    accuracySE90: faker.datatype.number(maxSE90),
+    creationDate: faker.date.past(),
     description: faker.random.word(),
-    classification: faker.random.word(),
-    sensors: faker.random.word(),
+    classification: classificationHelper,
+    region: [faker.random.word()],
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    productionMethod: faker.random.word(),
+    geographicArea: faker.random.word(),
   };
   return payload;
+};
+
+export const createFakeUpdateMetadata = (): IUpdateMetadata => {
+  const metadata: IUpdateMetadata = {
+    productName: faker.random.word(),
+    accuracySE90: faker.datatype.number(maxSE90),
+    creationDate: faker.date.past(),
+    description: faker.random.word(),
+    classification: classificationHelper,
+    region: faker.random.word(),
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    productionMethod: faker.random.word(),
+    geographicArea: faker.random.word(),
+    updateDate: new Date(Date.now()),
+    id: faker.datatype.uuid()
+  };
+  return metadata;
 };
 
 export const createFakeEntity = (): Metadata => {

@@ -3,7 +3,7 @@ import { container } from 'tsyringe';
 import { Application } from 'express';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Metadata } from '../../../../src/metadata/models/generated';
-import { createFakePayload } from '../../../helpers/helpers';
+import { createFakeEntity, createFakePayload, createFakeUpdatePayload } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
 import { getRepositoryFromContainer } from './helpers/db';
 import * as requestSender from './helpers/requestSender';
@@ -270,53 +270,53 @@ describe('MetadataController', function () {
   //   });
   // });
 
-  // describe('PATCH /metadata/{identifier}', function () {
-  //   describe('Happy Path 🙂', function () {
-  //     it('should return 200 status code and the updated metadata record', async function () {
-  //       let metadata = createFakeEntity();
-  //       const payload = getUpdatePayload();
-  //       const findMock = jest.fn().mockResolvedValue(metadata);
-  //       metadata = { ...metadata, ...payload };
-  //       const saveMock = jest.fn().mockResolvedValue(metadata);
-  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock, save: saveMock });
+  describe('PATCH /metadata/{identifier}', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 200 status code and the updated metadata record', async function () {
+        const response = await requestSender.createRecord(app, createFakePayload());
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const id = (response.body as unknown as Metadata).id;
+        const payload = createFakeUpdatePayload();
 
-  //       const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+        const updateResponse = await requestSender.updatePartialRecord(app, id, payload);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...updatedResponseBody } = updateResponse.body;
 
-  //       expect(response.status).toBe(httpStatusCodes.OK);
-  //       expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-  //     });
-  //   });
+        expect(updateResponse.status).toBe(httpStatusCodes.OK);
+        expect(updateResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        expect(updatedResponseBody.productName).toBe(payload.productName);
 
-  //   describe('Bad Path 😡', function () {
-  //     // No bad paths here!
-  //   });
+      });
+    });
 
-  //   describe('Sad Path 😥', function () {
-  //     it('should return 404 status code if the metadata record does not exist', async function () {
-  //       const metadata = createFakeEntity();
-  //       const payload = getUpdatePayload();
-  //       const findMock = jest.fn().mockResolvedValue(undefined);
-  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+    describe('Bad Path 😡', function () {
+      // No bad paths here!
+    });
 
-  //       const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+    describe('Sad Path 😥', function () {
+      it('should return 404 status code if the metadata record does not exist', async function () {
+        const metadata = createFakeEntity();
+        const payload = createFakeUpdatePayload();
 
-  //       expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-  //       expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
-  //     });
+        const response = await requestSender.updatePartialRecord(app, metadata.id, payload);
 
-  //     it('should return 500 status code if a db exception happens', async function () {
-  //       const metadata = createFakeEntity();
-  //       const payload = getUpdatePayload();
-  //       const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
-  //       const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
+      });
 
-  //       const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+      it('should return 500 status code if a db exception happens', async function () {
+        const metadata = createFakeEntity();
+        const payload = createFakeUpdatePayload();
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-  //       expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
-  //       expect(response.body).toHaveProperty('message', 'failed');
-  //     });
-  //   });
-  // });
+        const response = await requestSender.updatePartialRecord(mockedApp, metadata.id, payload);
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+      });
+    });
+  });
 
   /* eslint-enable */
 

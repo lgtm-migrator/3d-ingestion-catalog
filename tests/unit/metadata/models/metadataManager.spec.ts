@@ -3,7 +3,7 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../../../../src/metadata/models/errors';
 import { Metadata } from '../../../../src/metadata/models/generated';
 import { MetadataManager } from '../../../../src/metadata/models/metadataManager';
-import { createFakeEntity } from '../../../helpers/helpers';
+import { createFakeEntity, createFakeUpdateMetadata } from '../../../helpers/helpers';
 
 let metadataManager: MetadataManager;
 
@@ -172,29 +172,29 @@ describe('MetadataManager', () => {
     });
 
     it('resolves without errors if id exists', async () => {
-      const metadata = createFakeEntity();
+      const metadata = createFakeUpdateMetadata();
       findOne.mockResolvedValue(metadata);
       save.mockResolvedValue(metadata);
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata.id, metadata);
+      const updatePromise = metadataManager.updatePartialRecord(metadata);
 
       await expect(updatePromise).resolves.toStrictEqual(metadata);
     });
 
     it('rejects on DB error', async () => {
-      const metadata = createFakeEntity();
+      const metadata = createFakeUpdateMetadata();
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata.id, metadata);
+      const updatePromise = metadataManager.updatePartialRecord(metadata);
 
       await expect(updatePromise).rejects.toThrow(QueryFailedError);
     });
 
     it('rejects if record does not exists', async () => {
-      const metadata = createFakeEntity();
+      const metadata = createFakeUpdateMetadata();
       findOne.mockResolvedValue(undefined);
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata.id, metadata);
+      const updatePromise = metadataManager.updatePartialRecord(metadata);
 
       await expect(updatePromise).rejects.toThrow(EntityNotFoundError);
     });
