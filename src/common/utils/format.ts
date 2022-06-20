@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Link } from '@map-colonies/mc-model-types';
-import { IPayload } from '../dataModels/records';
+import { IPayload, IUpdatePayload } from '../dataModels/records';
 
 export const formatLinks = (links: Link[] | undefined): string => {
   if (links == undefined) {
@@ -26,7 +26,7 @@ export const linksToString = (links: Link[]): string => {
   return stringLinks.join('^');
 };
 
-export const formatStrings = (payload: IPayload): IPayload => {
+export const formatStrings = <T>(payload: T): T => {
   const keyValuePairs = Object.entries(payload);
   const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
     if (v && typeof v === 'string' && v.includes("'")) {
@@ -34,5 +34,5 @@ export const formatStrings = (payload: IPayload): IPayload => {
     }
     return [k, v];
   });
-  return Object.fromEntries(entries) as unknown as IPayload;
+  return Object.fromEntries(entries) as unknown as T;
 };

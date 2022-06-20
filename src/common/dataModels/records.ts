@@ -1,27 +1,30 @@
 import { I3DCatalogUpsertRequestBody } from '@map-colonies/mc-model-types';
-import { Metadata } from '../../metadata/models/generated';
 
+type IUpdatePayloadWithoutRegion = Omit<IUpdatePayload, 'region'>;
 export interface MetadataParams {
   identifier: string;
 }
 
 export type IPayload = Omit<I3DCatalogUpsertRequestBody, 'productVersion' | 'productBoundingBox' | 'updateDate'>;
 
-export interface IUpdatePayload extends Partial<Metadata> {
-  /**
-   * Title
-   */
+export interface IUpdatePayload {
   productName: string;
-  /**
-   * Description
-   */
   description?: string;
-  /**
-   * Product classification
-   */
+  creationDate: Date;
+  accuracySE90: number;
+  relativeAccuracyLEP90: number;
+  visualAccuracy: number;
+  heightRangeFrom: number;
+  heightRangeTo: number;
+  region: string[];
   classification: string;
-  /**
-   * The sensor used as the source of the product
-   */
-  sensors: string;
+  productionMethod: string;
+  geographicArea: string;
+}
+
+
+export interface IUpdateMetadata extends IUpdatePayloadWithoutRegion {
+  id: string;
+  region: string;
+  updateDate: Date;
 }
