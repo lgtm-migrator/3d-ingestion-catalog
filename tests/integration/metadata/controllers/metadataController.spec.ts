@@ -1,26 +1,41 @@
+import { exec } from 'child_process';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { Application } from 'express';
 import { QueryFailedError, Repository } from 'typeorm';
+import config from 'config';
+import { Connection } from 'typeorm';
+import jsLogger from '@map-colonies/js-logger';
 import { Metadata } from '../../../../src/metadata/models/generated';
 import { createFakeEntity, createFakePayload, createFakeUpdatePayload } from '../../../helpers/helpers';
 import { registerTestValues } from '../../testContainerConfig';
-import { getRepositoryFromContainer } from './helpers/db';
+import { BadValues } from '../../../../src/metadata/controllers/errors';
+import { DbConfig } from '../../../../src/common/interfaces';
+import { initializeConnection } from '../../../../src/common/utils/db';
+import { SERVICES } from '../../../../src/common/constants';
 import * as requestSender from './helpers/requestSender';
+import { getRepositoryFromContainer } from './helpers/db';
 
 describe('MetadataController', function () {
   let app: Application;
-  let repository: Repository<Metadata>;
+  let connection: Connection;
 
   beforeAll(async function () {
-    await registerTestValues();
+    container.register(SERVICES.CONFIG, { useValue: config });
+
+    container.register(SERVICES.LOGGER, { useValue: jsLogger({ enabled: false }) });
+
+    connection = await initializeConnection(config.get<DbConfig>('test'));
+    await connection.synchronize();
+    const repository = connection.getRepository(Metadata);
+    container.register(Connection, { useValue: connection });
+    container.register(SERVICES.METADATA_REPOSITORY, { useValue: repository });
+
     app = requestSender.getApp();
-    repository = getRepositoryFromContainer(Metadata);
-    await repository.clear();
   });
 
-  afterAll(function () {
-    container.reset();
+  afterAll(async function () {
+    await connection.close();
   });
 
   describe('GET /metadata', function () {
@@ -161,46 +176,86 @@ describe('MetadataController', function () {
       });
     });
 
-    describe('Sad Path 😥', function () {
+    describe('Bad Path 😡', function () {
+
+      it('should return 400 status code if productId is not exists', async function () {
+        const payload = createFakePayload();
+        payload.productId = '2';
+  
+        const response = await requestSender.createRecord(app, payload);
+  
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.text).toContain("productId doesn't exist");
+      });
+  
+      it('should return 400 status code if sourceStartDate is later than sourceEndDate', async function () {
+        const payload = createFakePayload();
+        const temp = payload.sourceDateStart;
+        payload.sourceDateStart = payload.sourceDateEnd;
+        payload.sourceDateEnd = temp;
+  
+        const response = await requestSender.createRecord(app, payload);
+  
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.text).toContain('sourceStartDate should not be later than sourceEndDate');
+      });
+  
+      it('should return 400 status code if minResolutionMeter is bigger than maxResolutionMeter', async function () {
+        // Part 1 - preparing data
+        const payload = createFakePayload();
+        const temp = payload.minResolutionMeter;
+        payload.minResolutionMeter = payload.maxResolutionMeter;
+        payload.maxResolutionMeter = temp;
+  
+        const response = await requestSender.createRecord(app, payload);
+        
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.text).toContain('minResolutionMeter should not be bigger than maxResolutionMeter');
+      });
+  
       it('should return 400 status code if region not exists', async function () {
         const metadata = createFakePayload();
         metadata.region = undefined;
-
+  
         const response = await requestSender.createRecord(app, metadata);
-
+  
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'region'`);
       });
-
+  
       it('should return 400 status code if region is empty', async function () {
         const metadata = createFakePayload();
         metadata.region = [];
-
+  
         const response = await requestSender.createRecord(app, metadata);
-
+  
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body.region should NOT have fewer than 1 items`);
       });
-
+  
       it('should return 400 status code if sensors not exists', async function () {
         const metadata = createFakePayload();
         metadata.sensors = undefined;
-
+  
         const response = await requestSender.createRecord(app, metadata);
-
+  
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
       });
-
+  
       it('should return 400 status code if sensors is empty', async function () {
         const metadata = createFakePayload();
         metadata.sensors = [];
-
+  
         const response = await requestSender.createRecord(app, metadata);
-
+  
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body.sensors should NOT have fewer than 1 items`);
       });
+      
+    });
+
+    describe('Sad Path 😥', function () {
 
       it('should return 422 status code if a metadata record with the same id already exists', async function () {
         const metadata = createFakePayload();

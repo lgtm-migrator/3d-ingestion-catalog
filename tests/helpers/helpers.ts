@@ -9,6 +9,7 @@ const srsOriginHelper = new RandExp('^\\(([-]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-]?(0
 const classificationHelper = new RandExp('^[0-9]$').gen();
 const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
 const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
+const years = 4;
 
 const minX = faker.datatype.number();
 const minY = faker.datatype.number();
@@ -45,6 +46,9 @@ const linksPattern = [
 ];
 
 export const createFakePayload = (): IPayload => {
+  const sourceDateEnd = faker.date.past();
+  const sourceDateStart = faker.date.past(years, sourceDateEnd);
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
   const record: IPayload = {
     productId: undefined,
     type: RecordType.RECORD_3D,
@@ -52,10 +56,10 @@ export const createFakePayload = (): IPayload => {
     productType: ProductType.PHOTO_REALISTIC_3D,
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past(),
-    sourceDateStart: faker.date.past(),
-    sourceDateEnd: faker.date.past(),
-    minResolutionMeter: faker.datatype.number(maxResolutionMeter),
-    maxResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    sourceDateStart: sourceDateStart,
+    sourceDateEnd: sourceDateEnd,
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({min: minResolutionMeter, max: maxResolutionMeter}),
     nominalResolution: faker.datatype.number(),
     maxAccuracyCE90: faker.datatype.number(),
     absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
@@ -122,6 +126,9 @@ export const createFakeUpdateMetadata = (): IUpdateMetadata => {
 };
 
 export const createFakeEntity = (): Metadata => {
+  const sourceDateEnd = faker.date.past();
+  const sourceDateStart = faker.date.past(years, sourceDateEnd);
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
   const id = faker.datatype.uuid();
   const metadata: Metadata = {
     type: RecordType.RECORD_3D,
@@ -129,10 +136,10 @@ export const createFakeEntity = (): Metadata => {
     productType: ProductType.PHOTO_REALISTIC_3D,
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past(),
-    sourceDateStart: faker.date.past(),
-    sourceDateEnd: faker.date.past(),
-    minResolutionMeter: faker.datatype.number(maxResolutionMeter),
-    maxResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    sourceDateStart: sourceDateStart,
+    sourceDateEnd: sourceDateEnd,
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({min: minResolutionMeter, max: maxResolutionMeter}),
     nominalResolution: faker.datatype.number(),
     maxAccuracyCE90: faker.datatype.number(),
     absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),

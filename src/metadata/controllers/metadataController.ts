@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as turf from '@turf/turf';
 import wkt from 'terraformer-wkt-parser';
 import { RequestHandler } from 'express';
@@ -12,6 +13,7 @@ import { MetadataManager } from '../models/metadataManager';
 import { Metadata } from '../models/generated';
 import { IPayload, IUpdateMetadata, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
 import { linksToString, formatStrings } from '../../common/utils/format';
+import { BadValues, IdNotExists } from './errors';
 
 //Changed
 type GetAllRequestHandler = RequestHandler<undefined, Metadata[]>;
@@ -61,26 +63,28 @@ export class MetadataController {
     } catch (error) {
       if (error instanceof IdAlreadyExistsError) {
         (error as HttpError).status = httpStatus.UNPROCESSABLE_ENTITY;
+      } else if (error instanceof BadValues || error instanceof IdNotExists) {
+        (error as HttpError).status = httpStatus.BAD_REQUEST;
       }
       return next(error);
     }
   };
 
-  public put: UpdateRequestHandler = async (req, res, next) => {
-    try {
-      const { identifier } = req.params;
-      const payload: IPayload = formatStrings<IPayload>(req.body);
-      const metadata = await this.metadataToEntity(payload);
+  // public put: UpdateRequestHandler = async (req, res, next) => {
+  //   try {
+  //     const { identifier } = req.params;
+  //     const payload: IPayload = formatStrings<IPayload>(req.body);
+  //     const metadata = await this.metadataToEntity(payload);
 
-      const updatedMetadata = await this.manager.updateRecord(identifier, metadata);
-      return res.status(httpStatus.OK).json(updatedMetadata);
-    } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        (error as HttpError).status = httpStatus.NOT_FOUND;
-      }
-      return next(error);
-    }
-  };
+  //     const updatedMetadata = await this.manager.updateRecord(identifier, metadata);
+  //     return res.status(httpStatus.OK).json(updatedMetadata);
+  //   } catch (error) {
+  //     if (error instanceof EntityNotFoundError) {
+  //       (error as HttpError).status = httpStatus.NOT_FOUND;
+  //     }
+  //     return next(error);
+  //   }
+  // };
 
   public patch: UpdatePartialRequestHandler = async (req, res, next) => {
     try {
@@ -108,26 +112,31 @@ export class MetadataController {
     }
   };
 
-  private async metadataToEntity(metadata: IPayload): Promise<Metadata> {
-    const entity: Metadata = new Metadata();
-    Object.assign(entity, metadata);
+  private async metadataToEntity(payload: IPayload): Promise<Metadata> {
 
-    entity.id = uuidV4();
-    if (metadata.productId != undefined) {
-      entity.productVersion = (await this.manager.findLastVersion(metadata.productId)) + 1;
+    const id = uuidV4();
+
+    await this.checkValuesValidation(payload);
+
+    const entity: Metadata = new Metadata();
+    Object.assign(entity, payload);
+
+    entity.id = id;
+    if (payload.productId != undefined) {
+      entity.productVersion = (await this.manager.findLastVersion(payload.productId)) + 1;
     } else {
       entity.productVersion = 1;
-      entity.productId = entity.id;
+      entity.productId = id;
     }
 
-    if (metadata.footprint !== undefined) {
-      entity.wktGeometry = wkt.convert(metadata.footprint as GeoJSON.Geometry);
-      entity.productBoundingBox = turf.bbox(metadata.footprint).toString();
+    if (payload.footprint !== undefined) {
+      entity.wktGeometry = wkt.convert(payload.footprint as GeoJSON.Geometry);
+      entity.productBoundingBox = turf.bbox(payload.footprint).toString();
     }
 
-    entity.sensors = metadata.sensors ? metadata.sensors.join(', ') : '';
-    entity.region = metadata.region ? metadata.region.join(', ') : '';
-    entity.links = linksToString(metadata.links);
+    entity.sensors = payload.sensors!.join(', ');
+    entity.region = payload.region!.join(', ');
+    entity.links = linksToString(payload.links);
 
     entity.updateDate = new Date();
     entity.insertDate = new Date();
@@ -146,4 +155,29 @@ export class MetadataController {
 
     return metadata;
   }
+
+  private async checkValuesValidation(payload: IPayload): Promise<void> {
+
+    // Validates that productId exists (when is not null)
+    if (payload.productId != undefined) {
+      if (!(await this.manager.getRecord(payload.productId))) {
+        throw new IdNotExists("productId doesn't exist");
+      }
+    }
+
+    // Validates that startDate isn't later than endDate
+    if (payload.sourceDateStart! > payload.sourceDateEnd!) {
+      throw new BadValues('sourceStartDate should not be later than sourceEndDate');
+    }
+  
+    // Validates that the condition is relevant by checking if both of them are filled
+    if (payload.minResolutionMeter != undefined && payload.maxResolutionMeter != undefined) {
+
+      // Validates that minRes isn't bigger than maxRes 
+      if (payload.minResolutionMeter > payload.maxResolutionMeter) {
+        throw new BadValues('minResolutionMeter should not be bigger than maxResolutionMeter');
+      }
+    }
+  }
+
 }

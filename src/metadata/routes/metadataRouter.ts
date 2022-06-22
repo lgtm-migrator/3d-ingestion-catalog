@@ -9,7 +9,7 @@ const metadataRouterFactory: FactoryFunction<Router> = (dependencyContainer) => 
   router.get('/', controller.getAll);
   router.get('/:identifier', controller.get);
   router.post('/', controller.post);
-  router.put('/:identifier', controller.put);
+  // router.put('/:identifier', controller.put);
   router.patch('/:identifier', controller.patch);
   router.delete('/:identifier', controller.delete);
 
