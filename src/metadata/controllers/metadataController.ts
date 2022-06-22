@@ -9,9 +9,8 @@ import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
-import { getAnyTextValue } from '../../common/anytext';
 import { Metadata } from '../models/generated';
-import { IPayload, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
+import { IPayload, IUpdateMetadata, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
 import { linksToString, formatStrings } from '../../common/utils/format';
 
 //Changed
@@ -54,7 +53,7 @@ export class MetadataController {
 
   public post: CreateRequestHandler = async (req, res, next) => {
     try {
-      const payload: IPayload = formatStrings(req.body);
+      const payload: IPayload = formatStrings<IPayload>(req.body);
       const metadata = await this.metadataToEntity(payload);
 
       const createdMetadata = await this.manager.createRecord(metadata);
@@ -70,8 +69,9 @@ export class MetadataController {
   public put: UpdateRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
-      const payload: IPayload = formatStrings(req.body);
+      const payload: IPayload = formatStrings<IPayload>(req.body);
       const metadata = await this.metadataToEntity(payload);
+
       const updatedMetadata = await this.manager.updateRecord(identifier, metadata);
       return res.status(httpStatus.OK).json(updatedMetadata);
     } catch (error) {
@@ -85,8 +85,10 @@ export class MetadataController {
   public patch: UpdatePartialRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
-      const payload: IUpdatePayload = req.body;
-      const updatedPartialMetadata = await this.manager.updatePartialRecord(identifier, payload);
+      const payload: IUpdatePayload = formatStrings<IUpdatePayload>(req.body);
+      const metadata: IUpdateMetadata = this.updatePayloadToMatadata(identifier, payload);
+
+      const updatedPartialMetadata = await this.manager.updatePartialRecord(metadata);
       return res.status(httpStatus.OK).json(updatedPartialMetadata);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
@@ -127,11 +129,21 @@ export class MetadataController {
     entity.region = metadata.region ? metadata.region.join(', ') : '';
     entity.links = linksToString(metadata.links);
 
-    entity.anyText = getAnyTextValue(metadata);
-
     entity.updateDate = new Date();
     entity.insertDate = new Date();
 
     return entity;
+  }
+
+  private updatePayloadToMatadata(identifier: string, payload: IUpdatePayload): IUpdateMetadata {
+    const region = payload.region.join(', ');
+    const metadata: IUpdateMetadata = {
+      ...payload,
+      region: region,
+      id: identifier,
+      updateDate: new Date(),
+    };
+
+    return metadata;
   }
 }

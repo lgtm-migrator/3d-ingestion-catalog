@@ -2,6 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
 import { SERVICES } from '../../common/constants';
+import { IUpdateMetadata } from '../../common/dataModels/records';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 import { Metadata } from './generated';
 
@@ -43,16 +44,14 @@ export class MetadataManager {
     return updatedMetadata;
   }
 
-  public async updatePartialRecord(identifier: string, payload: Partial<Metadata>): Promise<Metadata> {
-    this.logger.info(`Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    const dbMetadata: Metadata | undefined = await this.repository.findOne(identifier);
+  public async updatePartialRecord(payload: IUpdateMetadata): Promise<Metadata> {
+    this.logger.info(`Update partial metadata record ${payload.id}: ${JSON.stringify(payload)}`);
+    const dbMetadata: Metadata | undefined = await this.repository.findOne(payload.id);
     if (dbMetadata == undefined) {
-      throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
+      throw new EntityNotFoundError(`Metadata record ${payload.id} does not exist`);
     }
-    const metadata: Metadata = { ...dbMetadata, ...payload, id: identifier };
-    delete metadata.anyTextTsvector;
-    delete metadata.wktGeometry;
-    delete metadata.wkbGeometry;
+    const metadata: IUpdateMetadata = { ...dbMetadata, ...payload };
+
     const updatedMetadata: Metadata = await this.repository.save(metadata);
     return updatedMetadata;
   }
