@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as turf from '@turf/turf';
 import wkt from 'terraformer-wkt-parser';
 import { RequestHandler } from 'express';
@@ -19,7 +18,7 @@ import { BadValues, IdNotExists } from './errors';
 type GetAllRequestHandler = RequestHandler<undefined, Metadata[]>;
 type GetRequestHandler = RequestHandler<MetadataParams, Metadata, number>;
 type CreateRequestHandler = RequestHandler<undefined, Metadata, IPayload>;
-type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
+// type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
 type UpdatePartialRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
 
@@ -44,7 +43,7 @@ export class MetadataController {
       const { identifier } = req.params;
       const metadata: Metadata | undefined = await this.manager.getRecord(identifier);
       if (!metadata) {
-        const error = new NotFoundError('Metadata record with given identifier was not found.');
+        const error = new NotFoundError(`Metadata record with identifier ${identifier} was not found.`);
         return next(error);
       }
       return res.status(httpStatus.OK).json(metadata);
@@ -113,10 +112,9 @@ export class MetadataController {
   };
 
   private async metadataToEntity(payload: IPayload): Promise<Metadata> {
-
     const id = uuidV4();
 
-    await this.checkValuesValidation(payload);
+    await this.checkValuesValidation(payload, id);
 
     const entity: Metadata = new Metadata();
     Object.assign(entity, payload);
@@ -134,8 +132,8 @@ export class MetadataController {
       entity.productBoundingBox = turf.bbox(payload.footprint).toString();
     }
 
-    entity.sensors = payload.sensors!.join(', ');
-    entity.region = payload.region!.join(', ');
+    entity.sensors = payload.sensors ? payload.sensors.join(', ') : '';
+    entity.region = payload.region ? payload.region.join(', ') : '';
     entity.links = linksToString(payload.links);
 
     entity.updateDate = new Date();
@@ -156,28 +154,35 @@ export class MetadataController {
     return metadata;
   }
 
-  private async checkValuesValidation(payload: IPayload): Promise<void> {
+  private async checkValuesValidation(payload: IPayload, id: string): Promise<void> {
+    // Validates that generated id doesn't exists. If exists, go fill a lottery card now!
+    if (await this.manager.getRecord(id)) {
+      throw new IdAlreadyExistsError(`Metadata record ${id} already exists!`);
+    }
 
     // Validates that productId exists (when is not null)
     if (payload.productId != undefined) {
       if (!(await this.manager.getRecord(payload.productId))) {
-        throw new IdNotExists("productId doesn't exist");
+        throw new IdNotExists(`productId ${payload.productId} doesn't exist`);
       }
     }
 
+    // Written just to please eslint... Must be filled and openapi validates it.
+    if (payload.sourceDateStart == undefined || payload.sourceDateEnd == undefined) {
+      throw new BadValues('must enter dates!');
+    }
+
     // Validates that startDate isn't later than endDate
-    if (payload.sourceDateStart! > payload.sourceDateEnd!) {
+    if (payload.sourceDateStart > payload.sourceDateEnd) {
       throw new BadValues('sourceStartDate should not be later than sourceEndDate');
     }
-  
+
     // Validates that the condition is relevant by checking if both of them are filled
     if (payload.minResolutionMeter != undefined && payload.maxResolutionMeter != undefined) {
-
-      // Validates that minRes isn't bigger than maxRes 
+      // Validates that minRes isn't bigger than maxRes
       if (payload.minResolutionMeter > payload.maxResolutionMeter) {
         throw new BadValues('minResolutionMeter should not be bigger than maxResolutionMeter');
       }
     }
   }
-
 }

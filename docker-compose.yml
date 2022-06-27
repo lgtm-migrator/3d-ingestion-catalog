@@ -9,4 +9,4 @@ services:
       - 'ALLOW_EMPTY_PASSWORD=yes'
       - POSTGRESQL_USERNAME=postgres
       - POSTGRESQL_PASSWORD=postgres
-      - POSTGRESQL_DATABASE=3d-dev
+      - POSTGRESQL_DATABASE=3d-catalog-manager-dev

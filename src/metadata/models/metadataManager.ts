@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
@@ -65,6 +64,6 @@ export class MetadataManager {
   public async findLastVersion(identifier: string): Promise<number> {
     this.logger.info(`Get last product version record ${identifier}`);
     const metadata: Metadata | undefined = await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } });
-    return metadata!.productVersion;
+    return metadata !== undefined ? metadata.productVersion : 0;
   }
 }

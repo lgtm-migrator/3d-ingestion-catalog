@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Link } from '@map-colonies/mc-model-types';
 
 export const formatLinks = (links: Link[] | undefined): string => {
@@ -28,7 +26,7 @@ export const linksToString = (links: Link[]): string => {
 export const formatStrings = <T>(payload: T): T => {
   const keyValuePairs = Object.entries(payload);
   const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
-    if (v && typeof v === 'string' && v.includes("'")) {
+    if (v != undefined && typeof v === 'string' && v.includes("'")) {
       return [k, v.replace("'", '`')];
     }
     return [k, v];

@@ -1,20 +1,16 @@
-import { exec } from 'child_process';
 import httpStatusCodes from 'http-status-codes';
 import { container } from 'tsyringe';
 import { Application } from 'express';
-import { QueryFailedError, Repository } from 'typeorm';
+import { QueryFailedError } from 'typeorm';
 import config from 'config';
 import { Connection } from 'typeorm';
 import jsLogger from '@map-colonies/js-logger';
 import { Metadata } from '../../../../src/metadata/models/generated';
 import { createFakeEntity, createFakePayload, createFakeUpdatePayload } from '../../../helpers/helpers';
-import { registerTestValues } from '../../testContainerConfig';
-import { BadValues } from '../../../../src/metadata/controllers/errors';
 import { DbConfig } from '../../../../src/common/interfaces';
 import { initializeConnection } from '../../../../src/common/utils/db';
 import { SERVICES } from '../../../../src/common/constants';
 import * as requestSender from './helpers/requestSender';
-import { getRepositoryFromContainer } from './helpers/db';
 
 describe('MetadataController', function () {
   let app: Application;
@@ -101,17 +97,15 @@ describe('MetadataController', function () {
     });
 
     describe('Bad Path 😡', function () {
-      // No bad paths here!
-    });
-
-    describe('Sad Path 😥', function () {
       it('should return 404 if a metadata record with the requested identifier does not exist', async function () {
         const response = await requestSender.getRecord(app, '1');
 
         expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
-        expect(response.body).toHaveProperty('message', `Metadata record with given identifier was not found.`);
+        expect(response.body).toHaveProperty('message', `Metadata record with identifier 1 was not found.`);
       });
+    });
 
+    describe('Sad Path 😥', function () {
       it('should return 500 status code if a db exception happens', async function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
@@ -177,86 +171,83 @@ describe('MetadataController', function () {
     });
 
     describe('Bad Path 😡', function () {
-
       it('should return 400 status code if productId is not exists', async function () {
         const payload = createFakePayload();
         payload.productId = '2';
-  
+
         const response = await requestSender.createRecord(app, payload);
-  
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.text).toContain("productId doesn't exist");
+        expect(response.text).toContain(`productId ${payload.productId} doesn't exist`);
       });
-  
+
       it('should return 400 status code if sourceStartDate is later than sourceEndDate', async function () {
         const payload = createFakePayload();
         const temp = payload.sourceDateStart;
         payload.sourceDateStart = payload.sourceDateEnd;
         payload.sourceDateEnd = temp;
-  
+
         const response = await requestSender.createRecord(app, payload);
-  
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.text).toContain('sourceStartDate should not be later than sourceEndDate');
       });
-  
+
       it('should return 400 status code if minResolutionMeter is bigger than maxResolutionMeter', async function () {
         // Part 1 - preparing data
         const payload = createFakePayload();
         const temp = payload.minResolutionMeter;
         payload.minResolutionMeter = payload.maxResolutionMeter;
         payload.maxResolutionMeter = temp;
-  
+
         const response = await requestSender.createRecord(app, payload);
-        
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.text).toContain('minResolutionMeter should not be bigger than maxResolutionMeter');
       });
-  
+
       it('should return 400 status code if region not exists', async function () {
         const metadata = createFakePayload();
         metadata.region = undefined;
-  
+
         const response = await requestSender.createRecord(app, metadata);
-  
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'region'`);
       });
-  
+
       it('should return 400 status code if region is empty', async function () {
         const metadata = createFakePayload();
         metadata.region = [];
-  
+
         const response = await requestSender.createRecord(app, metadata);
-  
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body.region should NOT have fewer than 1 items`);
       });
-  
+
       it('should return 400 status code if sensors not exists', async function () {
         const metadata = createFakePayload();
         metadata.sensors = undefined;
-  
+
         const response = await requestSender.createRecord(app, metadata);
-  
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
       });
-  
+
       it('should return 400 status code if sensors is empty', async function () {
         const metadata = createFakePayload();
         metadata.sensors = [];
-  
+
         const response = await requestSender.createRecord(app, metadata);
-  
+
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body.sensors should NOT have fewer than 1 items`);
       });
-      
     });
 
     describe('Sad Path 😥', function () {
-
       it('should return 422 status code if a metadata record with the same id already exists', async function () {
         const metadata = createFakePayload();
         const findMock = jest.fn().mockResolvedValue(metadata);
@@ -325,6 +316,8 @@ describe('MetadataController', function () {
   //   });
   // });
 
+  /* eslint-enable */
+
   describe('PATCH /metadata/{identifier}', function () {
     describe('Happy Path 🙂', function () {
       it('should return 200 status code and the updated metadata record', async function () {
@@ -335,7 +328,7 @@ describe('MetadataController', function () {
         const payload = createFakeUpdatePayload();
 
         const updateResponse = await requestSender.updatePartialRecord(app, id, payload);
-        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...updatedResponseBody } = updateResponse.body;
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...updatedResponseBody } = updateResponse.body as Metadata;
 
         expect(updateResponse.status).toBe(httpStatusCodes.OK);
         expect(updateResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
@@ -344,10 +337,6 @@ describe('MetadataController', function () {
     });
 
     describe('Bad Path 😡', function () {
-      // No bad paths here!
-    });
-
-    describe('Sad Path 😥', function () {
       it('should return 404 status code if the metadata record does not exist', async function () {
         const metadata = createFakeEntity();
         const payload = createFakeUpdatePayload();
@@ -357,7 +346,9 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
         expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
       });
+    });
 
+    describe('Sad Path 😥', function () {
       it('should return 500 status code if a db exception happens', async function () {
         const metadata = createFakeEntity();
         const payload = createFakeUpdatePayload();
@@ -371,8 +362,6 @@ describe('MetadataController', function () {
       });
     });
   });
-
-  /* eslint-enable */
 
   describe('DELETE /metadata/{identifier}', function () {
     describe('Happy Path 🙂', function () {

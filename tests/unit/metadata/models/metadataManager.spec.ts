@@ -129,6 +129,7 @@ describe('MetadataManager', () => {
     });
   });
 
+  /* eslint-disable  */
   // describe('#updateRecord', () => {
   //   const findOne = jest.fn();
   //   const save = jest.fn();
@@ -168,6 +169,7 @@ describe('MetadataManager', () => {
   //     await expect(updatePromise).rejects.toThrow(new EntityNotFoundError(`Metadata record ${metadata.id} does not exist`));
   //   });
   // });
+  /* eslint-enable  */
 
   describe('#updatePartialRecord', () => {
     const findOne = jest.fn();
@@ -256,13 +258,13 @@ describe('MetadataManager', () => {
       await expect(findPromise).resolves.toBe(metadata.productVersion);
     });
 
-    // it('returns 0 if productId is not exists', async () => {
-    //   const metadata = createFakeEntity();
-    //   findOne.mockResolvedValue(undefined);
+    it('returns 0 if productId is not exists', async () => {
+      const metadata = createFakeEntity();
+      findOne.mockResolvedValue(undefined);
 
-    //   const findPromise = metadataManager.findLastVersion(metadata.id);
+      const findPromise = metadataManager.findLastVersion(metadata.id);
 
-    //   await expect(findPromise).resolves.toBe(0);
-    // });
+      await expect(findPromise).resolves.toBe(0);
+    });
   });
 });
