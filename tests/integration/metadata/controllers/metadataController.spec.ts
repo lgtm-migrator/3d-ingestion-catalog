@@ -46,7 +46,6 @@ describe('MetadataController', function () {
         const payload = createFakePayload();
 
         const createResponse = await requestSender.createRecord(app, payload);
-        expect(createResponse.status).toBe(httpStatusCodes.CREATED);
         expect(createResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         const response = await requestSender.getAll(app);
 
@@ -332,7 +331,7 @@ describe('MetadataController', function () {
 
         expect(updateResponse.status).toBe(httpStatusCodes.OK);
         expect(updateResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        expect(updatedResponseBody.productName).toBe(payload.productName);
+        expect(updatedResponseBody.description).toBe(payload.description);
       });
     });
 

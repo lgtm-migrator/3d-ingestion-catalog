@@ -61,7 +61,7 @@ export const createFakePayload = (): IPayload => {
     minResolutionMeter: minResolutionMeter,
     maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
     nominalResolution: faker.datatype.number(),
-    maxAccuracyCE90: faker.datatype.number(),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
     absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
     accuracySE90: faker.datatype.number(maxSE90),
     relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
@@ -88,36 +88,45 @@ export const createFakePayload = (): IPayload => {
 };
 
 export const createFakeUpdatePayload = (): IUpdatePayload => {
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
   const payload: IUpdatePayload = {
-    productName: faker.random.word(),
-    accuracySE90: faker.datatype.number(maxSE90),
-    creationDate: faker.date.past(),
     description: faker.random.word(),
-    classification: classificationHelper,
-    region: [faker.random.word()],
+    creationDate: faker.date.past(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
     relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
     visualAccuracy: faker.datatype.number(maxAccuracy),
     heightRangeFrom: faker.datatype.number(),
     heightRangeTo: faker.datatype.number(),
-    productionMethod: faker.random.word(),
+    producerName: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
     geographicArea: faker.random.word(),
   };
   return payload;
 };
 
 export const createFakeUpdateMetadata = (): IUpdateMetadata => {
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
+  
   const metadata: IUpdateMetadata = {
-    productName: faker.random.word(),
-    accuracySE90: faker.datatype.number(maxSE90),
-    creationDate: faker.date.past(),
     description: faker.random.word(),
-    classification: classificationHelper,
-    region: faker.random.word(),
+    creationDate: faker.date.past(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
     relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
     visualAccuracy: faker.datatype.number(maxAccuracy),
     heightRangeFrom: faker.datatype.number(),
     heightRangeTo: faker.datatype.number(),
-    productionMethod: faker.random.word(),
+    producerName: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
     geographicArea: faker.random.word(),
     updateDate: new Date(Date.now()),
     id: faker.datatype.uuid(),
@@ -141,7 +150,7 @@ export const createFakeEntity = (): Metadata => {
     minResolutionMeter: minResolutionMeter,
     maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
     nominalResolution: faker.datatype.number(),
-    maxAccuracyCE90: faker.datatype.number(),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
     absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
     accuracySE90: faker.datatype.number(maxSE90),
     relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
