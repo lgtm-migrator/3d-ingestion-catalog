@@ -143,10 +143,8 @@ export class MetadataController {
   }
 
   private updatePayloadToMatadata(identifier: string, payload: IUpdatePayload): IUpdateMetadata {
-    const region = payload.region.join(', ');
     const metadata: IUpdateMetadata = {
       ...payload,
-      region: region,
       id: identifier,
       updateDate: new Date(),
     };
