@@ -7,7 +7,6 @@ import jsLogger, { LoggerOptions } from '@map-colonies/js-logger';
 import { DB_TIMEOUT, SERVICES, SERVICE_NAME } from './common/constants';
 import { promiseTimeout } from './common/utils/promiseTimeout';
 import { Metadata } from './metadata/models/generated';
-// import { Metadata } from './metadata/models/metadata.entity';
 import { initializeConnection } from './common/utils/db';
 import { tracing } from './common/tracing';
 import { DbConfig } from './common/interfaces';

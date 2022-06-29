@@ -10,8 +10,6 @@ tsbuildconfig.json
 tsconfig.json
 node_modules
 *.html
-*.yaml
 coverage
 helm
-.versionrc.json
 reports
