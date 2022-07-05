@@ -206,40 +206,40 @@ describe('MetadataController', function () {
       });
 
       it('should return 400 status code if region not exists', async function () {
-        const metadata = createFakePayload();
-        metadata.region = undefined;
+        const payload = createFakePayload();
+        payload.region = undefined;
 
-        const response = await requestSender.createRecord(app, metadata);
+        const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'region'`);
       });
 
       it('should return 400 status code if region is empty', async function () {
-        const metadata = createFakePayload();
-        metadata.region = [];
+        const payload = createFakePayload();
+        payload.region = [];
 
-        const response = await requestSender.createRecord(app, metadata);
+        const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body.region should NOT have fewer than 1 items`);
       });
 
       it('should return 400 status code if sensors not exists', async function () {
-        const metadata = createFakePayload();
-        metadata.sensors = undefined;
+        const payload = createFakePayload();
+        payload.sensors = undefined;
 
-        const response = await requestSender.createRecord(app, metadata);
+        const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
       });
 
       it('should return 400 status code if sensors is empty', async function () {
-        const metadata = createFakePayload();
-        metadata.sensors = [];
+        const payload = createFakePayload();
+        payload.sensors = [];
 
-        const response = await requestSender.createRecord(app, metadata);
+        const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(response.body).toHaveProperty('message', `request.body.sensors should NOT have fewer than 1 items`);
@@ -248,21 +248,21 @@ describe('MetadataController', function () {
 
     describe('Sad Path 😥', function () {
       it('should return 422 status code if a metadata record with the same id already exists', async function () {
-        const metadata = createFakePayload();
-        const findMock = jest.fn().mockResolvedValue(metadata);
+        const payload = createFakePayload();
+        const findMock = jest.fn().mockResolvedValue(payload);
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.createRecord(mockedApp, metadata);
+        const response = await requestSender.createRecord(mockedApp, payload);
         expect(response.status).toBe(httpStatusCodes.UNPROCESSABLE_ENTITY);
         expect(response.body).toHaveProperty('message');
       });
 
       it('should return 500 status code if a db exception happens', async function () {
-        const metadata = createFakePayload();
+        const payload = createFakePayload();
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.createRecord(mockedApp, metadata);
+        const response = await requestSender.createRecord(mockedApp, payload);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');
