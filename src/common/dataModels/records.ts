@@ -9,16 +9,16 @@ export type IPayload = Omit<I3DCatalogUpsertRequestBody, 'productVersion' | 'pro
 export interface IUpdatePayload {
   description?: string;
   creationDate: Date;
-  minResolutionMeter: number,
-  maxResolutionMeter: number,
-  maxAccuracyCE90: number,
-  absoluteAccuracyLEP90: number,
+  minResolutionMeter: number;
+  maxResolutionMeter: number;
+  maxAccuracyCE90: number;
+  absoluteAccuracyLEP90: number;
   accuracySE90: number;
   relativeAccuracyLEP90: number;
   visualAccuracy: number;
   heightRangeFrom: number;
   heightRangeTo: number;
-  producerName: string,
+  producerName: string;
   minFlightAlt: number;
   maxFlightAlt: number;
   geographicArea: string;

@@ -111,7 +111,7 @@ export const createFakeUpdatePayload = (): IUpdatePayload => {
 
 export const createFakeUpdateMetadata = (): IUpdateMetadata => {
   const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
-  
+
   const metadata: IUpdateMetadata = {
     description: faker.random.word(),
     creationDate: faker.date.past(),
