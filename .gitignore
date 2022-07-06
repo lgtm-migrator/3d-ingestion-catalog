@@ -113,5 +113,4 @@ reports
 
 #generated files
 bundledApi.yaml
-src/metadata/models/generated.ts
 Schema
