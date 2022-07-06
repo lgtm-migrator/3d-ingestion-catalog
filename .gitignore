@@ -112,6 +112,4 @@ jest_html_reporters.html
 reports
 
 #generated files
-bundledApi.yaml
-src/metadata/models/generated.ts
 Schema
