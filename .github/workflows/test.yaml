@@ -6,7 +6,6 @@ jobs:
   tests:
     name: Run Tests
     runs-on: ubuntu-latest
-    container: node:14
 
     services:
       # Label used to access the service container
@@ -35,6 +34,11 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
 
       - name: Install Node.js dependencies
         run: npm ci
