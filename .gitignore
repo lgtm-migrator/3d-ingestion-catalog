@@ -112,4 +112,5 @@ jest_html_reporters.html
 reports
 
 #generated files
+bundledApi.yaml
 Schema
