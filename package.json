@@ -4,7 +4,7 @@
   "description": "A restful API for saving and querying 3d metadata",
   "main": "./src/index.ts",
   "scripts": {
-    "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
+    "test:unit": "npm run bundleOpenApi && jest --config=./tests/configurations/unit/jest.config.js",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
