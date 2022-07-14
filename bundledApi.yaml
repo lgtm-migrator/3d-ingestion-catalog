@@ -351,7 +351,6 @@ components:
           type: number
           format: double
           minimum: 0
-          maximum: 999
           description: Maximum absolute horizontal accuracy
         absoluteAccuracyLEP90:
           type: number
@@ -521,92 +520,15 @@ components:
       type: object
       description: 3d tiles metadata update payload
       properties:
+        title:
+          type: string
+          description: Title
         description:
           type: string
-          nullable: true
-          maxLength: 250
-          description: description and comments
-        creationDate:
+          description: Description
+        classification:
           type: string
-          format: date-time
-          nullable: true
-          description: Creation date
-        minResolutionMeter:
-          type: number
-          format: double
-          nullable: true
-          example: 1.1
-          minimum: 0.01
-          maximum: 8000
-          description: Minimum resolution in meters
-        maxResolutionMeter:
-          type: number
-          format: double
-          nullable: true
-          example: 1.5
-          minimum: 0.01
-          maximum: 8000
-          description: Maximum resolution in meters
-        maxAccuracyCE90:
-          type: number
-          format: double
-          minimum: 0
-          maximum: 999
-          description: Maximum absolute horizontal accuracy
-        absoluteAccuracyLEP90:
-          type: number
-          format: double
-          minimum: 0
-          maximum: 999
-          description: Absolute vertical accuracy
-        accuracySE90:
-          type: number
-          format: double
-          minimum: 0
-          nullable: true
-          maximum: 250
-          description: Absolute spherical accuracy
-        relativeAccuracyLEP90:
-          type: number
-          format: double
-          nullable: true
-          minimum: 0
-          maximum: 100
-          description: Relative vertical accuracy
-        visualAccuracy:
-          type: number
-          format: double
-          nullable: true
-          minimum: 0
-          maximum: 100
-          description: Measure of visual quality
-        heightRangeFrom:
-          type: number
-          format: double
-          nullable: true
-          description: Minimum height range of ground
-        heightRangeTo:
-          type: number
-          format: double
-          nullable: true
-          description: Maximum height range of ground
-        producerName:
+          description: Product classification
+        sensorType:
           type: string
-          description: The name of the producer (product owner)
-        productionMethod:
-          type: string
-          nullable: true
-          description: Method of the production
-        minFlightAlt:
-          type: number
-          format: double
-          description: Minimum height of the flight
-        maxFlightAlt:
-          type: number
-          nullable: true
-          format: double
-          description: Maximum height of the flight
-        geographicArea:
-          type: string
-          nullable: true
-          description: Area inside the region
+          description: The sensor used as the source of the product
