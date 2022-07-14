@@ -182,7 +182,7 @@ describe('MetadataController', function () {
       });
 
       it('should return 400 status code if has property that is not in post scheme', async function () {
-        const entity = { avi: "aviavi" }
+        const entity = { avi: 'aviavi' };
         const payload: IPayload = createFakePayload();
         Object.assign(payload, entity);
 
@@ -350,7 +350,7 @@ describe('MetadataController', function () {
         const response = await requestSender.createRecord(app, createFakePayload());
         expect(response.status).toBe(httpStatusCodes.CREATED);
         expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
-        const responseBody = response.body as unknown as Metadata
+        const responseBody = response.body as unknown as Metadata;
         const id = responseBody.id;
         const payload = createFakeUpdatePayload();
         delete payload.sensors;
@@ -382,7 +382,7 @@ describe('MetadataController', function () {
         const responseBody = response.body as unknown as Metadata;
         const id = responseBody.id;
         const payload: IUpdatePayload = createFakeUpdatePayload();
-        const entity = { avi: "aviavi" }
+        const entity = { avi: 'aviavi' };
         Object.assign(payload, entity);
 
         const newResponse = await requestSender.updatePartialRecord(app, id, payload);
@@ -398,7 +398,7 @@ describe('MetadataController', function () {
         const responseBody = response.body as unknown as Metadata;
         const id = responseBody.id;
         const payload: IUpdatePayload = createFakeUpdatePayload();
-        const entity = { sensors: null }
+        const entity = { sensors: null };
         Object.assign(payload, entity);
 
         const newResponse = await requestSender.updatePartialRecord(app, id, payload);

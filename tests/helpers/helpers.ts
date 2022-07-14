@@ -160,7 +160,7 @@ export const createFakeUpdatePayload = (): IUpdatePayload => {
     minFlightAlt: faker.datatype.number(),
     maxFlightAlt: faker.datatype.number(),
     geographicArea: faker.random.word(),
-    sensors: [faker.random.word()]
+    sensors: [faker.random.word()],
   };
   return payload;
 };
@@ -187,7 +187,7 @@ export const createFakeUpdateMetadata = (): IUpdateMetadata => {
     geographicArea: faker.random.word(),
     updateDate: new Date(Date.now()),
     id: faker.datatype.uuid(),
-    sensors: faker.random.word()
+    sensors: faker.random.word(),
   };
   return metadata;
 };

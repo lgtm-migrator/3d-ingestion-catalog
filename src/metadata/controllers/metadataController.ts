@@ -147,14 +147,13 @@ export class MetadataController {
       ...(payload as IUpdate),
       id: identifier,
       updateDate: new Date(),
-      ...(payload.sensors && {sensors: payload.sensors.join(', ')})
+      ...(payload.sensors && { sensors: payload.sensors.join(', ') }),
     };
 
     return metadata;
   }
 
   private async checkValuesValidation(payload: IPayload, id: string): Promise<void> {
-
     // Validates that generated id doesn't exists. If exists, go fill a lottery card now!
     if (await this.manager.getRecord(id)) {
       throw new IdAlreadyExistsError(`Metadata record ${id} already exists!`);

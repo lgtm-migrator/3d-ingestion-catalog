@@ -25,7 +25,7 @@ export interface IUpdate {
   geographicArea?: string;
 }
 
-export interface IUpdatePayload extends IUpdate{
+export interface IUpdatePayload extends IUpdate {
   sensors?: string[];
 }
 
