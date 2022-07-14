@@ -52,27 +52,6 @@ paths:
           $ref: '#/components/responses/notFound'
         5XX:
           $ref: '#/components/responses/unexpectedError'
-    put:
-      operationId: updateRecord
-      summary: Update 3d model metadata record fields
-      tags:
-        - metadata
-      parameters:
-        - $ref: '#/components/parameters/identifier'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/metadata'
-      responses:
-        '200':
-          $ref: '#/components/responses/success'
-        '400':
-          $ref: '#/components/responses/badRequest'
-        '404':
-          $ref: '#/components/responses/notFound'
-        5XX:
-          $ref: '#/components/responses/unexpectedError'
     patch:
       operationId: updatePartialRecord
       summary: Update partial 3d model metadata record fields
@@ -274,9 +253,28 @@ components:
         - $ref: '#/components/schemas/MultiPoint'
         - $ref: '#/components/schemas/MultiLineString'
         - $ref: '#/components/schemas/MultiPolygon'
-    payload:
+    Link:
       type: object
-      description: 3d tiles metadata payload
+      description: layer meta data
+      required:
+        - protocol
+        - url
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        protocol:
+          type: string
+          description: link applicative protocol (WMS, WMTS, TMS, XYZ, etc...)
+        url:
+          type: string
+          description: link url template
+          pattern: ^https?:\/\/.*$
+      additionalProperties: false
+    catalog-payload:
+      type: object
+      description: 3d tiles metadata payload with links
       required:
         - productName
         - productType
@@ -286,13 +284,20 @@ components:
         - absoluteAccuracyLEP90
         - sensors
         - footprint
+        - srsId
         - srsName
         - region
         - classification
         - productionSystem
         - productionSystemVer
         - producerName
+        - links
       properties:
+        type:
+          type: string
+          nullable: true
+          default: RECORD_3D
+          description: Type of records
         productId:
           type: string
           nullable: true
@@ -385,7 +390,6 @@ components:
           items:
             type: string
           minItems: 1
-          description: Layer sensors list
           example:
             - OTHER
         footprint:
@@ -456,38 +460,12 @@ components:
           type: string
           nullable: true
           description: Area inside the region
-    Link:
-      type: object
-      description: layer meta data
-      required:
-        - protocol
-        - url
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        protocol:
-          type: string
-          description: link applicative protocol (WMS, WMTS, TMS, XYZ, etc...)
-        url:
-          type: string
-          description: link url template
-          pattern: ^https?:\/\/.*$
+        links:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Link'
       additionalProperties: false
-    catalog-payload:
-      type: object
-      description: 3d tiles metadata payload with links
-      required:
-        - links
-      allOf:
-        - $ref: '#/components/schemas/payload'
-        - properties:
-            links:
-              type: array
-              minItems: 1
-              items:
-                $ref: '#/components/schemas/Link'
     metadata:
       type: object
       description: 3d tiles catalog metadata payload
@@ -521,6 +499,10 @@ components:
       type: object
       description: 3d tiles metadata update payload
       properties:
+        productName:
+          type: string
+          maxLength: 50
+          description: Name of product
         description:
           type: string
           nullable: true
@@ -580,6 +562,14 @@ components:
           minimum: 0
           maximum: 100
           description: Measure of visual quality
+        sensors:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Layer sensors list
+          example:
+            - OTHER
         heightRangeFrom:
           type: number
           format: double
@@ -593,10 +583,6 @@ components:
         producerName:
           type: string
           description: The name of the producer (product owner)
-        productionMethod:
-          type: string
-          nullable: true
-          description: Method of the production
         minFlightAlt:
           type: number
           format: double
@@ -610,3 +596,4 @@ components:
           type: string
           nullable: true
           description: Area inside the region
+      additionalProperties: false

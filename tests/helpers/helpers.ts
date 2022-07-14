@@ -87,54 +87,7 @@ export const createFakePayload = (): IPayload => {
   return record;
 };
 
-export const createFakeUpdatePayload = (): IUpdatePayload => {
-  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
-  const payload: IUpdatePayload = {
-    description: faker.random.word(),
-    creationDate: faker.date.past(),
-    minResolutionMeter: minResolutionMeter,
-    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
-    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
-    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
-    accuracySE90: faker.datatype.number(maxSE90),
-    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
-    visualAccuracy: faker.datatype.number(maxAccuracy),
-    heightRangeFrom: faker.datatype.number(),
-    heightRangeTo: faker.datatype.number(),
-    producerName: faker.random.word(),
-    minFlightAlt: faker.datatype.number(),
-    maxFlightAlt: faker.datatype.number(),
-    geographicArea: faker.random.word(),
-  };
-  return payload;
-};
-
-export const createFakeUpdateMetadata = (): IUpdateMetadata => {
-  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
-
-  const metadata: IUpdateMetadata = {
-    description: faker.random.word(),
-    creationDate: faker.date.past(),
-    minResolutionMeter: minResolutionMeter,
-    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
-    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
-    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
-    accuracySE90: faker.datatype.number(maxSE90),
-    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
-    visualAccuracy: faker.datatype.number(maxAccuracy),
-    heightRangeFrom: faker.datatype.number(),
-    heightRangeTo: faker.datatype.number(),
-    producerName: faker.random.word(),
-    minFlightAlt: faker.datatype.number(),
-    maxFlightAlt: faker.datatype.number(),
-    geographicArea: faker.random.word(),
-    updateDate: new Date(Date.now()),
-    id: faker.datatype.uuid(),
-  };
-  return metadata;
-};
-
-export const createFakeEntity = (): Metadata => {
+export const createFakeMetadata = (): Metadata => {
   const sourceDateEnd = faker.date.past();
   const sourceDateStart = faker.date.past(years, sourceDateEnd);
   const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
@@ -184,6 +137,57 @@ export const createFakeEntity = (): Metadata => {
     sensors: [faker.random.word()].join(', '),
     region: [faker.random.word()].join(', '),
     links: linksToString(linksPattern),
+  };
+  return metadata;
+};
+
+export const createFakeUpdatePayload = (): IUpdatePayload => {
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
+  const payload: IUpdatePayload = {
+    productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
+    description: faker.random.word(),
+    creationDate: faker.date.past(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    producerName: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
+    geographicArea: faker.random.word(),
+    sensors: [faker.random.word()]
+  };
+  return payload;
+};
+
+export const createFakeUpdateMetadata = (): IUpdateMetadata => {
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
+
+  const metadata: IUpdateMetadata = {
+    productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
+    description: faker.random.word(),
+    creationDate: faker.date.past(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    producerName: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
+    geographicArea: faker.random.word(),
+    updateDate: new Date(Date.now()),
+    id: faker.datatype.uuid(),
+    sensors: faker.random.word()
   };
   return metadata;
 };

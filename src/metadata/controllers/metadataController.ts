@@ -10,7 +10,7 @@ import { HttpError, NotFoundError } from '../../common/errors';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
 import { Metadata } from '../models/generated';
-import { IPayload, IUpdateMetadata, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
+import { IPayload, IUpdate, IUpdateMetadata, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
 import { linksToString, formatStrings } from '../../common/utils/format';
 import { BadValues, IdNotExists } from './errors';
 
@@ -144,15 +144,17 @@ export class MetadataController {
 
   private updatePayloadToMatadata(identifier: string, payload: IUpdatePayload): IUpdateMetadata {
     const metadata: IUpdateMetadata = {
-      ...payload,
+      ...(payload as IUpdate),
       id: identifier,
       updateDate: new Date(),
+      ...(payload.sensors && {sensors: payload.sensors.join(', ')})
     };
 
     return metadata;
   }
 
   private async checkValuesValidation(payload: IPayload, id: string): Promise<void> {
+
     // Validates that generated id doesn't exists. If exists, go fill a lottery card now!
     if (await this.manager.getRecord(id)) {
       throw new IdAlreadyExistsError(`Metadata record ${id} already exists!`);

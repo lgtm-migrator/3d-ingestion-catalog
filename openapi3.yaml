@@ -52,27 +52,27 @@ paths:
           $ref: '#/components/responses/notFound'
         5XX:
           $ref: '#/components/responses/unexpectedError'
-    put:
-      operationId: updateRecord
-      summary: Update 3d model metadata record fields
-      tags:
-        - metadata
-      parameters:
-        - $ref: '#/components/parameters/identifier'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
-      responses:
-        '200':
-          $ref: '#/components/responses/success'
-        '400':
-          $ref: '#/components/responses/badRequest'
-        '404':
-          $ref: '#/components/responses/notFound'
-        5XX:
-          $ref: '#/components/responses/unexpectedError'
+    # put:
+    #   operationId: updateRecord
+    #   summary: Update 3d model metadata record fields
+    #   tags:
+    #     - metadata
+    #   parameters:
+    #     - $ref: '#/components/parameters/identifier'
+    #   requestBody:
+    #     content:
+    #       application/json:
+    #         schema:
+    #           $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/metadata'
+    #   responses:
+    #     '200':
+    #       $ref: '#/components/responses/success'
+    #     '400':
+    #       $ref: '#/components/responses/badRequest'
+    #     '404':
+    #       $ref: '#/components/responses/notFound'
+    #     5XX:
+    #       $ref: '#/components/responses/unexpectedError'
     patch:
       operationId: updatePartialRecord
       summary: Update partial 3d model metadata record fields
