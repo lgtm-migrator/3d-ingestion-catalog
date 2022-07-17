@@ -21,7 +21,7 @@ describe('format tests', () => {
       expect(deserializeLinks(linksStr)).toStrictEqual(expectedResult);
     });
   });
-  
+
   describe('linksToString tests', () => {
     it('Should return empty link when recieving an empty array', () => {
       const linksStr: Link[] = [];
