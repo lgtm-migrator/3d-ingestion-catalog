@@ -1,5 +1,16 @@
 import { Link } from '@map-colonies/mc-model-types';
 
+export const deserializeLinks = (linksStr: string | undefined): Link[] => {
+  if (linksStr == undefined) {
+    return [];
+  }
+
+  return linksStr.split('^').map((linkStr) => {
+    const [name, description, protocol, url] = linkStr.split(',');
+    return { name, description, protocol, url };
+  });
+};
+
 export const linksToString = (links: Link[]): string => {
   const stringLinks = links.map((link) => `${link.name ?? ''},${link.description ?? ''},${link.protocol ?? ''},${link.url ?? ''}`);
   return stringLinks.join('^');
