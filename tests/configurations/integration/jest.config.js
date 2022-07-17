@@ -12,20 +12,24 @@ module.exports = {
       { multipleReportsUnitePath: './reports', pageTitle: 'integration', publicPath: './reports', filename: 'integration.html' },
     ],
   ],
+
   preset: 'ts-jest',
   testEnvironment: 'node',
   collectCoverage: true,
   coverageReporters: ['text', 'html', 'json'],
   moduleDirectories: ['node_modules', 'src'],
+  moduleFileExtensions: ['ts', 'js'],
   collectCoverageFrom: ['<rootDir>/src/metadata/**/*.ts', '!<rootDir>/src/metadata/models/generated.ts'],
   coverageDirectory: '<rootDir>/coverage',
   coverageThreshold: {
     global: {
-      branches: 60, // 80
-      functions: 70, // 80
-      lines: 70, // 80
-      statements: -40, // -10
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: -10,
     },
   },
   verbose: true,
+  globalSetup: '<rootDir>/tests/global-setup.js',
+  globalTeardown: '<rootDir>/tests/global-teardown.js',
 };

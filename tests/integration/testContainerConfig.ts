@@ -12,7 +12,7 @@ async function registerTestValues(): Promise<void> {
 
   container.register(SERVICES.LOGGER, { useValue: jsLogger({ enabled: false }) });
 
-  const connection = await initializeConnection(config.get<DbConfig>('db'));
+  const connection = await initializeConnection(config.get<DbConfig>('test'));
   await connection.synchronize();
   const repository = connection.getRepository(Metadata);
   container.register(Connection, { useValue: connection });

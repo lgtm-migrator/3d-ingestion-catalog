@@ -2,13 +2,14 @@ import RandExp from 'randexp';
 import faker from 'faker';
 import { RecordType, ProductType } from '@map-colonies/mc-model-types';
 import { Metadata } from '../../src/metadata/models/generated';
-import { IPayload, IUpdatePayload } from '../../src/common/dataModels/records';
+import { IPayload, IUpdateMetadata, IUpdatePayload } from '../../src/common/dataModels/records';
 import { linksToString } from '../../src/common/utils/format';
 
 const srsOriginHelper = new RandExp('^\\(([-]?(0|[1-9]\\d*)(\\.\\d+)?;){2}[-]?(0|[1-9]\\d*)(\\.\\d+)?\\)$').gen();
 const classificationHelper = new RandExp('^[0-9]$').gen();
 const productBoundingBoxHelper = new RandExp('^([-+]?(0|[1-9]\\d*)(\\.\\d+)?,){3}[-+]?(0|[1-9]\\d*)(\\.\\d+)?$').gen();
 const listOfRandomWords = ['avi', 'אבי', 'lalalalala', 'וןםפ'];
+const years = 4;
 
 const minX = faker.datatype.number();
 const minY = faker.datatype.number();
@@ -45,6 +46,9 @@ const linksPattern = [
 ];
 
 export const createFakePayload = (): IPayload => {
+  const sourceDateEnd = faker.date.past();
+  const sourceDateStart = faker.date.past(years, sourceDateEnd);
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
   const record: IPayload = {
     productId: undefined,
     type: RecordType.RECORD_3D,
@@ -52,10 +56,10 @@ export const createFakePayload = (): IPayload => {
     productType: ProductType.PHOTO_REALISTIC_3D,
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past(),
-    sourceDateStart: faker.date.past(),
-    sourceDateEnd: faker.date.past(),
-    minResolutionMeter: faker.datatype.number(maxResolutionMeter),
-    maxResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    sourceDateStart: sourceDateStart,
+    sourceDateEnd: sourceDateEnd,
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
     nominalResolution: faker.datatype.number(),
     maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
     absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
@@ -83,17 +87,57 @@ export const createFakePayload = (): IPayload => {
   return record;
 };
 
-export const getUpdatePayload = (): IUpdatePayload => {
+export const createFakeUpdatePayload = (): IUpdatePayload => {
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
   const payload: IUpdatePayload = {
-    productName: faker.random.word(),
     description: faker.random.word(),
-    classification: faker.random.word(),
-    sensors: faker.random.word(),
+    creationDate: faker.date.past(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    producerName: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
+    geographicArea: faker.random.word(),
   };
   return payload;
 };
 
+export const createFakeUpdateMetadata = (): IUpdateMetadata => {
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
+
+  const metadata: IUpdateMetadata = {
+    description: faker.random.word(),
+    creationDate: faker.date.past(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
+    absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
+    relativeAccuracyLEP90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    producerName: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
+    geographicArea: faker.random.word(),
+    updateDate: new Date(Date.now()),
+    id: faker.datatype.uuid(),
+  };
+  return metadata;
+};
+
 export const createFakeEntity = (): Metadata => {
+  const sourceDateEnd = faker.date.past();
+  const sourceDateStart = faker.date.past(years, sourceDateEnd);
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
   const id = faker.datatype.uuid();
   const metadata: Metadata = {
     type: RecordType.RECORD_3D,
@@ -101,10 +145,10 @@ export const createFakeEntity = (): Metadata => {
     productType: ProductType.PHOTO_REALISTIC_3D,
     description: Math.floor(Math.random() * listOfRandomWords.length).toString(),
     creationDate: faker.date.past(),
-    sourceDateStart: faker.date.past(),
-    sourceDateEnd: faker.date.past(),
-    minResolutionMeter: faker.datatype.number(maxResolutionMeter),
-    maxResolutionMeter: faker.datatype.number(maxResolutionMeter),
+    sourceDateStart: sourceDateStart,
+    sourceDateEnd: sourceDateEnd,
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
     nominalResolution: faker.datatype.number(),
     maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
     absoluteAccuracyLEP90: faker.datatype.number(noDataAccuracy),

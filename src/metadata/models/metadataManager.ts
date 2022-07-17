@@ -2,6 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
 import { SERVICES } from '../../common/constants';
+import { IUpdateMetadata } from '../../common/dataModels/records';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 import { Metadata } from './generated';
 
@@ -32,26 +33,25 @@ export class MetadataManager {
     return newMetadata;
   }
 
-  public async updateRecord(identifier: string, payload: Metadata): Promise<Metadata> {
-    this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    const ifExists: Metadata | undefined = await this.repository.findOne(identifier);
-    if (ifExists == undefined && payload.id) {
-      throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
-    }
-    const newMetadata: Partial<Metadata> = { ...payload, id: identifier };
-    const updatedMetadata = await this.repository.save(newMetadata);
-    return updatedMetadata;
-  }
+  // public async updateRecord(identifier: string, payload: Metadata): Promise<Metadata> {
+  //   this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
+  //   const ifExists: Metadata | undefined = await this.repository.findOne(identifier);
+  //   if (ifExists == undefined && payload.id) {
+  //     throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
+  //   }
+  //   const newMetadata: Partial<Metadata> = { ...payload, id: identifier };
+  //   const updatedMetadata = await this.repository.save(newMetadata);
+  //   return updatedMetadata;
+  // }
 
-  public async updatePartialRecord(identifier: string, payload: Partial<Metadata>): Promise<Metadata> {
-    this.logger.info(`Update partial metadata record ${identifier}: ${JSON.stringify(payload)}`);
-    const dbMetadata: Metadata | undefined = await this.repository.findOne(identifier);
-    if (dbMetadata == undefined) {
-      throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
+  public async updatePartialRecord(payload: IUpdateMetadata): Promise<Metadata> {
+    this.logger.info(`Update partial metadata record ${payload.id}: ${JSON.stringify(payload)}`);
+    const ifExists: Metadata | undefined = await this.repository.findOne(payload.id);
+    if (ifExists == undefined) {
+      throw new EntityNotFoundError(`Metadata record ${payload.id} does not exist`);
     }
-    const metadata: Metadata = { ...dbMetadata, ...payload, id: identifier };
-    delete metadata.anyTextTsvector;
-    delete metadata.wkbGeometry;
+    const metadata: IUpdateMetadata = { ...ifExists, ...payload };
+
     const updatedMetadata: Metadata = await this.repository.save(metadata);
     return updatedMetadata;
   }
