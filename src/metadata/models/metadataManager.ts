@@ -25,8 +25,8 @@ export class MetadataManager {
 
   public async createRecord(payload: Metadata): Promise<Metadata> {
     this.logger.info(`Create a new metadata record: ${JSON.stringify(payload)}`);
-    const ifExists: Metadata | undefined = await this.repository.findOne(payload.id);
-    if (ifExists != undefined && payload.id) {
+    const record: Metadata | undefined = await this.repository.findOne(payload.id);
+    if (record != undefined && payload.id) {
       throw new IdAlreadyExistsError(`Metadata record ${payload.id} already exists!`);
     }
     const newMetadata: Metadata = await this.repository.save(payload);
@@ -46,11 +46,11 @@ export class MetadataManager {
 
   public async updatePartialRecord(payload: IUpdateMetadata): Promise<Metadata> {
     this.logger.info(`Update partial metadata record ${payload.id}: ${JSON.stringify(payload)}`);
-    const ifExists: Metadata | undefined = await this.repository.findOne(payload.id);
-    if (ifExists == undefined) {
+    const record: Metadata | undefined = await this.repository.findOne(payload.id);
+    if (record == undefined) {
       throw new EntityNotFoundError(`Metadata record ${payload.id} does not exist`);
     }
-    const metadata: IUpdateMetadata = { ...ifExists, ...payload };
+    const metadata: Metadata = { ...record, ...payload };
 
     const updatedMetadata: Metadata = await this.repository.save(metadata);
     return updatedMetadata;

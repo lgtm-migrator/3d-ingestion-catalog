@@ -6,10 +6,11 @@ import config from 'config';
 import { Connection } from 'typeorm';
 import jsLogger from '@map-colonies/js-logger';
 import { Metadata } from '../../../../src/metadata/models/generated';
-import { createFakeEntity, createFakePayload, createFakeUpdatePayload } from '../../../helpers/helpers';
+import { createFakeMetadata, createFakePayload, createFakeUpdatePayload } from '../../../helpers/helpers';
 import { DbConfig } from '../../../../src/common/interfaces';
 import { initializeConnection } from '../../../../src/common/utils/db';
 import { SERVICES } from '../../../../src/common/constants';
+import { IPayload, IUpdatePayload } from '../../../../src/common/dataModels/records';
 import * as requestSender from './helpers/requestSender';
 
 describe('MetadataController', function () {
@@ -180,6 +181,17 @@ describe('MetadataController', function () {
         expect(response.text).toContain(`productId ${payload.productId} doesn't exist`);
       });
 
+      it('should return 400 status code if has property that is not in post scheme', async function () {
+        const entity = { avi: 'aviavi' };
+        const payload: IPayload = createFakePayload();
+        Object.assign(payload, entity);
+
+        const response = await requestSender.createRecord(app, payload);
+
+        expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(response.text).toContain(`request.body should NOT have additional properties`);
+      });
+
       it('should return 400 status code if sourceStartDate is later than sourceEndDate', async function () {
         const payload = createFakePayload();
         const temp = payload.sourceDateStart;
@@ -212,7 +224,7 @@ describe('MetadataController', function () {
         const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', `request.body should have required property 'region'`);
+        expect(response.text).toContain(`request.body should have required property 'region'`);
       });
 
       it('should return 400 status code if region is empty', async function () {
@@ -222,7 +234,7 @@ describe('MetadataController', function () {
         const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', `request.body.region should NOT have fewer than 1 items`);
+        expect(response.text).toContain(`request.body.region should NOT have fewer than 1 items`);
       });
 
       it('should return 400 status code if sensors not exists', async function () {
@@ -232,7 +244,7 @@ describe('MetadataController', function () {
         const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', `request.body should have required property 'sensors'`);
+        expect(response.text).toContain(`request.body should have required property 'sensors'`);
       });
 
       it('should return 400 status code if sensors is empty', async function () {
@@ -242,7 +254,7 @@ describe('MetadataController', function () {
         const response = await requestSender.createRecord(app, payload);
 
         expect(response.status).toBe(httpStatusCodes.BAD_REQUEST);
-        expect(response.body).toHaveProperty('message', `request.body.sensors should NOT have fewer than 1 items`);
+        expect(response.text).toContain(`request.body.sensors should NOT have fewer than 1 items`);
       });
     });
 
@@ -333,11 +345,28 @@ describe('MetadataController', function () {
         expect(updateResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
         expect(updatedResponseBody.description).toBe(payload.description);
       });
+
+      it('should return 200 status code when there is no sensors', async function () {
+        const response = await requestSender.createRecord(app, createFakePayload());
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const responseBody = response.body as unknown as Metadata;
+        const id = responseBody.id;
+        const payload = createFakeUpdatePayload();
+        delete payload.sensors;
+
+        const updateResponse = await requestSender.updatePartialRecord(app, id, payload);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...updatedResponseBody } = updateResponse.body as Metadata;
+
+        expect(updateResponse.status).toBe(httpStatusCodes.OK);
+        expect(updateResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        expect(updatedResponseBody.sensors).toBe(responseBody.sensors);
+      });
     });
 
     describe('Bad Path 😡', function () {
       it('should return 404 status code if the metadata record does not exist', async function () {
-        const metadata = createFakeEntity();
+        const metadata = createFakeMetadata();
         const payload = createFakeUpdatePayload();
 
         const response = await requestSender.updatePartialRecord(app, metadata.id, payload);
@@ -345,11 +374,43 @@ describe('MetadataController', function () {
         expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
         expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
       });
+
+      it('should return 400 status code if has property that is not in update scheme', async function () {
+        const response = await requestSender.createRecord(app, createFakePayload());
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const responseBody = response.body as unknown as Metadata;
+        const id = responseBody.id;
+        const payload: IUpdatePayload = createFakeUpdatePayload();
+        const entity = { avi: 'aviavi' };
+        Object.assign(payload, entity);
+
+        const newResponse = await requestSender.updatePartialRecord(app, id, payload);
+
+        expect(newResponse.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(newResponse.text).toContain(`request.body should NOT have additional properties`);
+      });
+
+      it('should return 400 status code if sensors is null', async function () {
+        const response = await requestSender.createRecord(app, createFakePayload());
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const responseBody = response.body as unknown as Metadata;
+        const id = responseBody.id;
+        const payload: IUpdatePayload = createFakeUpdatePayload();
+        const entity = { sensors: null };
+        Object.assign(payload, entity);
+
+        const newResponse = await requestSender.updatePartialRecord(app, id, payload);
+
+        expect(newResponse.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(newResponse.text).toContain(`request.body.sensors should be array`);
+      });
     });
 
     describe('Sad Path 😥', function () {
       it('should return 500 status code if a db exception happens', async function () {
-        const metadata = createFakeEntity();
+        const metadata = createFakeMetadata();
         const payload = createFakeUpdatePayload();
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });

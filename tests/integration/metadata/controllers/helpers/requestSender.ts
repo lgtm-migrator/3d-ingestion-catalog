@@ -27,9 +27,9 @@ export async function createRecord(app: Application, payload: IPayload): Promise
   return supertest.agent(app).post('/metadata').set('Content-Type', 'application/json').send(payload);
 }
 
-export async function updateRecord(app: Application, identifier: string, payload: IPayload): Promise<supertest.Response> {
-  return supertest.agent(app).put(`/metadata/${identifier}`).set('Content-Type', 'application/json').send(payload);
-}
+// export async function updateRecord(app: Application, identifier: string, payload: IPayload): Promise<supertest.Response> {
+//   return supertest.agent(app).put(`/metadata/${identifier}`).set('Content-Type', 'application/json').send(payload);
+// }
 
 export async function updatePartialRecord(app: Application, identifier: string, payload: IUpdatePayload): Promise<supertest.Response> {
   return supertest.agent(app).patch(`/metadata/${identifier}`).set('Content-Type', 'application/json').send(payload);

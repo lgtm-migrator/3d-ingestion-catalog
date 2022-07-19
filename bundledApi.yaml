@@ -52,27 +52,6 @@ paths:
           $ref: '#/components/responses/notFound'
         5XX:
           $ref: '#/components/responses/unexpectedError'
-    put:
-      operationId: updateRecord
-      summary: Update 3d model metadata record fields
-      tags:
-        - metadata
-      parameters:
-        - $ref: '#/components/parameters/identifier'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/metadata'
-      responses:
-        '200':
-          $ref: '#/components/responses/success'
-        '400':
-          $ref: '#/components/responses/badRequest'
-        '404':
-          $ref: '#/components/responses/notFound'
-        5XX:
-          $ref: '#/components/responses/unexpectedError'
     patch:
       operationId: updatePartialRecord
       summary: Update partial 3d model metadata record fields
@@ -274,9 +253,28 @@ components:
         - $ref: '#/components/schemas/MultiPoint'
         - $ref: '#/components/schemas/MultiLineString'
         - $ref: '#/components/schemas/MultiPolygon'
-    payload:
+    Link:
       type: object
-      description: 3d tiles metadata payload
+      description: layer meta data
+      required:
+        - protocol
+        - url
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        protocol:
+          type: string
+          description: link applicative protocol (WMS, WMTS, TMS, XYZ, etc...)
+        url:
+          type: string
+          description: link url template
+          pattern: ^https?:\/\/.*$
+      additionalProperties: false
+    catalog-payload:
+      type: object
+      description: 3d tiles metadata payload with links
       required:
         - productName
         - productType
@@ -286,13 +284,20 @@ components:
         - absoluteAccuracyLEP90
         - sensors
         - footprint
+        - srsId
         - srsName
         - region
         - classification
         - productionSystem
         - productionSystemVer
         - producerName
+        - links
       properties:
+        type:
+          type: string
+          nullable: true
+          default: RECORD_3D
+          description: Type of records
         productId:
           type: string
           nullable: true
@@ -351,6 +356,186 @@ components:
           type: number
           format: double
           minimum: 0
+          maximum: 999
+          description: Maximum absolute horizontal accuracy
+        absoluteAccuracyLEP90:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 999
+          description: Absolute vertical accuracy
+        accuracySE90:
+          type: number
+          format: double
+          minimum: 0
+          nullable: true
+          maximum: 250
+          description: Absolute spherical accuracy
+        relativeAccuracyLEP90:
+          type: number
+          format: double
+          nullable: true
+          minimum: 0
+          maximum: 100
+          description: Relative vertical accuracy
+        visualAccuracy:
+          type: number
+          format: double
+          nullable: true
+          minimum: 0
+          maximum: 100
+          description: Measure of visual quality
+        sensors:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          example:
+            - OTHER
+        footprint:
+          allOf:
+            - $ref: '#/components/schemas/Geometry'
+            - description: Geographic demarkatetion of the product
+            - example: >-
+                {"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}
+        heightRangeFrom:
+          type: number
+          format: double
+          nullable: true
+          description: Minimum height range of ground
+        heightRangeTo:
+          type: number
+          format: double
+          nullable: true
+          description: Maximum height range of ground
+        srsId:
+          type: string
+          example: 4326
+          description: ID of srs
+        srsName:
+          type: string
+          description: Name of the srsID
+          default: WGS84GEO
+        srsOrigin:
+          type: string
+          nullable: true
+          example: (30;40;50)
+          pattern: ^\(([-]?(0|[1-9]\d*)(\.\d+)?;){2}[-]?(0|[1-9]\d*)(\.\d+)?\)$
+          description: First of axes
+        region:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: regions included in the layer
+        classification:
+          type: string
+          example: '5'
+          pattern: ^[0-9]$
+          description: Classification of the product
+        productionSystem:
+          type: string
+          description: Production system
+        productionSystemVer:
+          type: string
+          maxLength: 20
+          description: Version production system
+        producerName:
+          type: string
+          description: The name of the producer (product owner)
+          default: IDFMU
+        productionMethod:
+          type: string
+          nullable: true
+          description: Method of the production
+          default: photogrammetric
+        minFlightAlt:
+          type: number
+          format: double
+          description: Minimum height of the flight
+        maxFlightAlt:
+          type: number
+          nullable: true
+          format: double
+          description: Maximum height of the flight
+        geographicArea:
+          type: string
+          nullable: true
+          description: Area inside the region
+        links:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Link'
+      additionalProperties: false
+    metadata:
+      type: object
+      description: 3d tiles catalog metadata payload
+      allOf:
+        - $ref: '#/components/schemas/catalog-payload'
+        - properties:
+            identifier:
+              type: string
+            productBoundingBox:
+              type: string
+              readOnly: true
+              pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
+              description: The bounding box of the product
+            productVersion:
+              type: integer
+              example: 1
+              description: Number of version
+              readOnly: true
+            insertDate:
+              type: string
+              description: Insertion date
+              format: date-time
+              readOnly: true
+            updateDate:
+              type: string
+              description: Update date
+              format: date-time
+              readOnly: true
+              nullable: true
+    updatePayload:
+      type: object
+      description: 3d tiles metadata update payload
+      properties:
+        productName:
+          type: string
+          maxLength: 50
+          description: Name of product
+        description:
+          type: string
+          nullable: true
+          maxLength: 250
+          description: description and comments
+        creationDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Creation date
+        minResolutionMeter:
+          type: number
+          format: double
+          nullable: true
+          example: 1.1
+          minimum: 0.01
+          maximum: 8000
+          description: Minimum resolution in meters
+        maxResolutionMeter:
+          type: number
+          format: double
+          nullable: true
+          example: 1.5
+          minimum: 0.01
+          maximum: 8000
+          description: Maximum resolution in meters
+        maxAccuracyCE90:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 999
           description: Maximum absolute horizontal accuracy
         absoluteAccuracyLEP90:
           type: number
@@ -387,12 +572,6 @@ components:
           description: Layer sensors list
           example:
             - OTHER
-        footprint:
-          allOf:
-            - $ref: '#/components/schemas/Geometry'
-            - description: Geographic demarkatetion of the product
-            - example: >-
-                {"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[7,8],[1,2]]]}
         heightRangeFrom:
           type: number
           format: double
@@ -403,45 +582,10 @@ components:
           format: double
           nullable: true
           description: Maximum height range of ground
-        srsId:
-          type: string
-          example: 4326
-          nullable: true
-          description: ID of srs
-        srsName:
-          type: string
-          description: Name of the srsID
-        srsOrigin:
-          type: string
-          nullable: true
-          example: (30;40;50)
-          pattern: ^\(([-]?(0|[1-9]\d*)(\.\d+)?;){2}[-]?(0|[1-9]\d*)(\.\d+)?\)$
-          description: First of axes
-        region:
-          type: array
-          items:
-            type: string
-          minItems: 1
-          description: regions included in the layer
-        classification:
-          type: string
-          example: '5'
-          pattern: ^[0-9]$
-          description: Classification of the product
-        productionSystem:
-          type: string
-          description: Production system
-        productionSystemVer:
-          type: string
-          maxLength: 20
-          description: Version production system
         producerName:
           type: string
           description: The name of the producer (product owner)
-        productionMethod:
-          type: string
-          nullable: true
-          description: Method of the production
+          default: IDFMU
         minFlightAlt:
           type: number
           format: double
@@ -455,80 +599,4 @@ components:
           type: string
           nullable: true
           description: Area inside the region
-    Link:
-      type: object
-      description: layer meta data
-      required:
-        - protocol
-        - url
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        protocol:
-          type: string
-          description: link applicative protocol (WMS, WMTS, TMS, XYZ, etc...)
-        url:
-          type: string
-          description: link url template
-          pattern: ^https?:\/\/.*$
       additionalProperties: false
-    catalog-payload:
-      type: object
-      description: 3d tiles metadata payload with links
-      required:
-        - links
-      allOf:
-        - $ref: '#/components/schemas/payload'
-        - properties:
-            links:
-              type: array
-              minItems: 1
-              items:
-                $ref: '#/components/schemas/Link'
-    metadata:
-      type: object
-      description: 3d tiles catalog metadata payload
-      allOf:
-        - $ref: '#/components/schemas/catalog-payload'
-        - properties:
-            identifier:
-              type: string
-            productBoundingBox:
-              type: string
-              readOnly: true
-              pattern: ^([-+]?(0|[1-9]\d*)(\.\d+)?,){3}[-+]?(0|[1-9]\d*)(\.\d+)?$
-              description: The bounding box of the product
-            productVersion:
-              type: integer
-              example: 1
-              description: Number of version
-              readOnly: true
-            insertDate:
-              type: string
-              description: Insertion date
-              format: date-time
-              readOnly: true
-            updateDate:
-              type: string
-              description: Update date
-              format: date-time
-              readOnly: true
-              nullable: true
-    updatePayload:
-      type: object
-      description: 3d tiles metadata update payload
-      properties:
-        title:
-          type: string
-          description: Title
-        description:
-          type: string
-          description: Description
-        classification:
-          type: string
-          description: Product classification
-        sensorType:
-          type: string
-          description: The sensor used as the source of the product
