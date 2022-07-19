@@ -38,14 +38,14 @@ resources:
       cpu: 100m
       memory: 128Mi
 dbConfig:
-  host: 10.8.1.20
-  port: 6432
+  host: 10.0.4.4
+  port: 5432
   username: postgres
-  password: postgres
+  password: Libot4allnonprod
   database: 3d-catalog-manager-dev
   sslAuth:
     enabled: false
-    secretName: secret-name
+    secretName: catalog-3d-ingestion-catalog-secret
     certFileName: postgresql.crt
     keyFileName: postgresql.key
     caFileName: root.crt
