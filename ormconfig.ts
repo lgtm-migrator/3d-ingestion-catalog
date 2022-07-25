@@ -2,7 +2,7 @@ import config from 'config';
 import { createConnectionOptions } from './src/common/utils/db';
 import { DbConfig } from './src/common/interfaces';
 
-const connectionOptions = config.get<DbConfig>('db');
+const connectionOptions = config.get<DbConfig>('test');
 
 module.exports = {
   ...createConnectionOptions(connectionOptions),

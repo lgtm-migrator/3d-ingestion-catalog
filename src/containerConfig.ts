@@ -42,7 +42,7 @@ async function registerExternalValues(): Promise<void> {
   const tracer = trace.getTracer(SERVICE_NAME);
   container.register(SERVICES.TRACER, { useValue: tracer });
 
-  const connectionOptions = config.get<DbConfig>('db');
+  const connectionOptions = config.get<DbConfig>('test');
   const connection = await initializeConnection(connectionOptions);
   container.register(Connection, { useValue: connection });
   container.register(SERVICES.METADATA_REPOSITORY, { useValue: connection.getRepository(Metadata) });

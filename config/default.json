@@ -12,7 +12,7 @@
     }
   },
   "server": {
-    "port": "8080",
+    "port": "8081",
     "request": {
       "payload": {
         "limit": "1mb"
@@ -30,7 +30,7 @@
     "host": "10.0.4.4",
     "port": 5432,
     "username": "postgres",
-    "password": "postgres",
+    "password": "Libot4allnonprod",
     "database": "3d-catalog-manager-dev",
     "enableSslAuth": false,
     "sslPaths": {
