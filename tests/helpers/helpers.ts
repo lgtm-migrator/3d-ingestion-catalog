@@ -26,7 +26,7 @@ const FOOTPRINT = {
   ],
   type: 'Polygon',
 };
-const WKT_GEOMETRY = `POLYGON ((${minX} ${minY}, ${minX} ${maxY}, ${maxX} ${maxY}, ${maxX} ${minY}, ${minX} ${minY}))`
+const WKT_GEOMETRY = `POLYGON ((${minX} ${minY}, ${minX} ${maxY}, ${maxX} ${maxY}, ${maxX} ${minY}, ${minX} ${minY}))`;
 const maxResolutionMeter = 8000;
 const noDataAccuracy = 999;
 const maxSE90 = 250;
