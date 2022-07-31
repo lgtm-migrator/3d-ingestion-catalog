@@ -123,7 +123,6 @@ export const createFakeMetadata = (): Metadata => {
     id: id,
     productVersion: 1,
     productId: id,
-    insertDate: faker.date.past(),
     typeName: 'mc_MC3DRecord',
     mdSource: '',
     productBoundingBox: productBoundingBoxHelper,
@@ -131,7 +130,6 @@ export const createFakeMetadata = (): Metadata => {
     xml: '',
     anyText: 'testAnyText',
     keywords: 'testKeywords',
-    updateDate: faker.date.past(),
     sensors: [faker.random.word()].join(', '),
     region: [faker.random.word()].join(', '),
     links: linksToString(linksPattern),
@@ -184,7 +182,6 @@ export const createFakeUpdateMetadata = (): IUpdateMetadata => {
     maxFlightAlt: faker.datatype.number(),
     geographicArea: faker.random.word(),
     productStatus: RecordStatus.UNPUBLISHED,
-    updateDate: new Date(Date.now()),
     id: faker.datatype.uuid(),
     sensors: faker.random.word(),
   };
