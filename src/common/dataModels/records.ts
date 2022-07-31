@@ -23,6 +23,7 @@ export interface IUpdate {
   minFlightAlt?: number;
   maxFlightAlt?: number;
   geographicArea?: string;
+  keywods?: string;
 }
 
 export interface IUpdatePayload extends IUpdate {

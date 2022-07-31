@@ -71,7 +71,7 @@ export class Metadata {
   public productBoundingBox!: string;
   @Column({ name: 'product_source', type: 'text', nullable: false })
   public productSource!: string;
-  @Column({ name: 'product_status', type: 'text', default: 'UnPublished', nullable: true })
+  @Column({ name: 'product_status', type: 'text', default: 'UNPUBLISHED', nullable: true })
   public productStatus?: string = 'UNPUBLISHED';
   @Column({ name: 'identifier', type: 'text', nullable: false, primary: true })
   public id: string = 'UNKNOWN';

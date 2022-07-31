@@ -446,11 +446,15 @@ components:
           description: Area inside the region
         productStatus:
           type: string
-          default: UnPublished
-          description: The path of the model
+          default: UNPUBLISHED
+          description: The status of the model
         productSource:
           type: string
           description: The path of the model
+        keywords:
+          type: string
+          nullable: true
+          description: The keywords of the product
         links:
           type: array
           minItems: 1
@@ -588,4 +592,8 @@ components:
           type: string
           nullable: true
           description: Area inside the region
+        keywords:
+          type: string
+          nullable: true
+          description: The keywords of the product
       additionalProperties: false
