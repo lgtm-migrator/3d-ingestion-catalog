@@ -85,7 +85,7 @@ export class Metadata {
   public xml: string = '';
   @Column({ name: 'anytext', type: 'text' })
   public anyText: string = '';
-  @Column({ name: 'insert_date', type: 'timestamp without time zone', nullable: true })
+  @Column({ name: 'insert_date', type: 'timestamp without time zone', default: () => 'CURRENT_TIMESTAMP', nullable: true })
   public insertDate?: Date;
   @Column({ name: 'wkt_geometry', type: 'text', nullable: false })
   public wktGeometry!: string;
