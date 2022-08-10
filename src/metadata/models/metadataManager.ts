@@ -67,7 +67,7 @@ export class MetadataManager {
       this.logger.info({ msg: 'Updated record', modelId: payload.id });
       return updatedMetadata;
     } catch (error) {
-      this.logger.error({ msg: 'error saving update of record ', modelId: payload.id , error});
+      this.logger.error({ msg: 'error saving update of record ', modelId: payload.id, error });
       throw error;
     }
   }

@@ -29,12 +29,12 @@ export class MetadataController {
     try {
       const metadataList = await this.manager.getAll();
       if (!metadataList || metadataList.length == 0) {
-        this.logger.info({msg:'No Data found'})
+        this.logger.info({ msg: 'No Data found' });
         return res.sendStatus(httpStatus.NO_CONTENT);
       }
       return res.status(httpStatus.OK).json(metadataList);
     } catch (error) {
-      this.logger.error({msg:'Couldnt get all records', error})
+      this.logger.error({ msg: 'Couldnt get all records', error });
       return next(error);
     }
   };
