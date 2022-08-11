@@ -5,8 +5,8 @@ global:
   environment: {}
 image:
   repository: 3d-ingestion-catalog
-  tag: nati-v2-profile-test
-enabled: true
+  tag: v4.0.0
+  enabled: true
 environment: development
 initialDelaySeconds: 60
 nodePort: 30030
@@ -42,7 +42,7 @@ dbConfig:
   port: 5432
   username: postgres
   password: Libot4allnonprod
-  database: 3d-v2-profile-test
+  database: 3d-catalog-manager-dev
   sslAuth:
     enabled: false
     secretName: catalog-3d-ingestion-catalog-secret
