@@ -7,7 +7,7 @@
   },
   "telemetry": {
     "logger": {
-      "level": "info",
+      "level": "debug",
       "prettyPrint": true
     }
   },
@@ -30,7 +30,7 @@
     "host": "127.0.0.1",
     "port": 5432,
     "username": "postgres",
-    "password": "postgres",
+    "password": "Libot4allnonprod",
     "database": "3d-catalog-manager-dev",
     "enableSslAuth": false,
     "sslPaths": {
