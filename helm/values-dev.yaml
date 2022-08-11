@@ -6,7 +6,7 @@ global:
 image:
   repository: 3d-ingestion-catalog
   tag: v4.0.0
-  enabled: true
+enabled: true
 environment: development
 initialDelaySeconds: 60
 nodePort: 30030
