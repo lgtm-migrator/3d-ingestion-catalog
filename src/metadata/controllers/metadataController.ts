@@ -14,13 +14,12 @@ import { IPayload, IUpdate, IUpdateMetadata, IUpdatePayload, MetadataParams } fr
 import { linksToString, formatStrings } from '../../common/utils/format';
 import { BadValues, IdNotExists } from './errors';
 
-//Changed
 type GetAllRequestHandler = RequestHandler<undefined, Metadata[]>;
 type GetRequestHandler = RequestHandler<MetadataParams, Metadata, number>;
 type CreateRequestHandler = RequestHandler<undefined, Metadata, IPayload>;
-// type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
 type UpdatePartialRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
+// type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
 
 @injectable()
 export class MetadataController {
@@ -30,10 +29,12 @@ export class MetadataController {
     try {
       const metadataList = await this.manager.getAll();
       if (!metadataList || metadataList.length == 0) {
+        this.logger.info({ msg: 'No Data found' });
         return res.sendStatus(httpStatus.NO_CONTENT);
       }
       return res.status(httpStatus.OK).json(metadataList);
     } catch (error) {
+      this.logger.error({ msg: 'Couldnt get all records', error });
       return next(error);
     }
   };
@@ -68,22 +69,6 @@ export class MetadataController {
       return next(error);
     }
   };
-
-  // public put: UpdateRequestHandler = async (req, res, next) => {
-  //   try {
-  //     const { identifier } = req.params;
-  //     const payload: IPayload = formatStrings<IPayload>(req.body);
-  //     const metadata = await this.metadataToEntity(payload);
-
-  //     const updatedMetadata = await this.manager.updateRecord(identifier, metadata);
-  //     return res.status(httpStatus.OK).json(updatedMetadata);
-  //   } catch (error) {
-  //     if (error instanceof EntityNotFoundError) {
-  //       (error as HttpError).status = httpStatus.NOT_FOUND;
-  //     }
-  //     return next(error);
-  //   }
-  // };
 
   public patch: UpdatePartialRequestHandler = async (req, res, next) => {
     try {
@@ -184,4 +169,23 @@ export class MetadataController {
       }
     }
   }
+  /*
+  Deperacted
+
+  public put: UpdateRequestHandler = async (req, res, next) => {
+    try {
+      const { identifier } = req.params;
+      const payload: IPayload = formatStrings<IPayload>(req.body);
+      const metadata = await this.metadataToEntity(payload);
+
+      const updatedMetadata = await this.manager.updateRecord(identifier, metadata);
+      return res.status(httpStatus.OK).json(updatedMetadata);
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
+      return next(error);
+    }
+  };
+  */
 }

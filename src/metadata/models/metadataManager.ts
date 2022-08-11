@@ -14,56 +14,98 @@ export class MetadataManager {
   ) {}
 
   public async getAll(): Promise<Metadata[] | undefined> {
-    this.logger.info(`Get all models metadata`);
-    return this.repository.find();
+    this.logger.debug({ msg: 'Get all models metadata' });
+    try {
+      const records = await this.repository.find();
+      this.logger.info({ msg: 'Got all records' });
+      return records;
+    } catch (error) {
+      this.logger.error({ msg: 'Failed to get all records' });
+      throw error;
+    }
   }
 
   public async getRecord(identifier: string): Promise<Metadata | undefined> {
-    this.logger.info(`Get metadata record ${identifier}`);
-    return this.repository.findOne(identifier);
+    this.logger.debug({ msg: 'Get metadata of record', modelId: identifier });
+    try {
+      const record = await this.repository.findOne(identifier);
+      this.logger.info({ msg: 'Got metadata ', modelId: identifier });
+      return record;
+    } catch (error) {
+      this.logger.error({ msg: 'Failed to get metadata', modelId: identifier });
+      throw error;
+    }
   }
 
   public async createRecord(payload: Metadata): Promise<Metadata> {
-    this.logger.info(`Create a new metadata record: ${JSON.stringify(payload)}`);
-    const record: Metadata | undefined = await this.repository.findOne(payload.id);
-    if (record != undefined && payload.id) {
-      throw new IdAlreadyExistsError(`Metadata record ${payload.id} already exists!`);
+    this.logger.debug({ msg: 'create new record', metadata: payload });
+    try {
+      const record: Metadata | undefined = await this.repository.findOne(payload.id);
+      if (record !== undefined && payload.id) {
+        this.logger.error({ msg: 'duplicate identifier' });
+        throw new IdAlreadyExistsError(`Record with identifier: ${payload.id} already exists!`);
+      }
+      const newMetadata: Metadata = await this.repository.save(payload);
+      this.logger.info({ msg: 'Saved new record', modelId: payload.id });
+      return newMetadata;
+    } catch (error) {
+      this.logger.error({ msg: 'Saving new record failed' });
+      throw error;
     }
-    const newMetadata: Metadata = await this.repository.save(payload);
-    return newMetadata;
   }
 
-  // public async updateRecord(identifier: string, payload: Metadata): Promise<Metadata> {
-  //   this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
-  //   const ifExists: Metadata | undefined = await this.repository.findOne(identifier);
-  //   if (ifExists == undefined && payload.id) {
-  //     throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
-  //   }
-  //   const newMetadata: Partial<Metadata> = { ...payload, id: identifier };
-  //   const updatedMetadata = await this.repository.save(newMetadata);
-  //   return updatedMetadata;
-  // }
-
   public async updatePartialRecord(payload: IUpdateMetadata): Promise<Metadata> {
-    this.logger.info(`Update partial metadata record ${payload.id}: ${JSON.stringify(payload)}`);
-    const record: Metadata | undefined = await this.repository.findOne(payload.id);
-    if (record == undefined) {
-      throw new EntityNotFoundError(`Metadata record ${payload.id} does not exist`);
+    this.logger.debug({ msg: 'Update partial metadata', modelId: payload.id });
+    try {
+      const record: Metadata | undefined = await this.repository.findOne(payload.id);
+      if (record === undefined) {
+        this.logger.error({ msg: 'model identifier not found' });
+        throw new EntityNotFoundError(`Metadata record ${payload.id} does not exist`);
+      }
+      const metadata: Metadata = { ...record, ...payload };
+      const updatedMetadata: Metadata = await this.repository.save(metadata);
+      this.logger.info({ msg: 'Updated record', modelId: payload.id });
+      return updatedMetadata;
+    } catch (error) {
+      this.logger.error({ msg: 'error saving update of record ', modelId: payload.id, error });
+      throw error;
     }
-    const metadata: Metadata = { ...record, ...payload };
-
-    const updatedMetadata: Metadata = await this.repository.save(metadata);
-    return updatedMetadata;
   }
 
   public async deleteRecord(identifier: string): Promise<void> {
-    this.logger.info(`Delete metadata record ${identifier}`);
-    await this.repository.delete(identifier);
+    this.logger.debug({ msg: 'Delete record', modelId: identifier });
+    try {
+      await this.repository.delete(identifier);
+      this.logger.info({ msg: 'Deleted record', modelId: identifier });
+    } catch (error) {
+      this.logger.error({ msg: 'Failed to delete record', modelId: identifier });
+      throw error;
+    }
   }
 
   public async findLastVersion(identifier: string): Promise<number> {
-    this.logger.info(`Get last product version record ${identifier}`);
-    const metadata: Metadata | undefined = await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } });
-    return metadata !== undefined ? metadata.productVersion : 0;
+    this.logger.debug({ msg: 'Get last product version', modelId: identifier });
+    try {
+      const metadata: Metadata | undefined = await this.repository.findOne({ where: { productId: identifier }, order: { productVersion: 'DESC' } });
+      this.logger.info({ msg: 'Got latest model version', modelId: identifier });
+      return metadata !== undefined ? metadata.productVersion : 0;
+    } catch (error) {
+      this.logger.error({ msg: 'Error in retrieving latest model version', modelId: identifier });
+      throw error;
+    }
   }
+
+  /*
+  deprecated: updatefull record
+  public async updateRecord(identifier: string, payload: Metadata): Promise<Metadata> {
+    this.logger.info(`Update metadata record ${identifier}: ${JSON.stringify(payload)}`);
+    const ifExists: Metadata | undefined = await this.repository.findOne(identifier);
+    if (ifExists == undefined && payload.id) {
+      throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
+    }
+    const newMetadata: Partial<Metadata> = { ...payload, id: identifier };
+    const updatedMetadata = await this.repository.save(newMetadata);
+    return updatedMetadata;
+  }
+  */
 }
