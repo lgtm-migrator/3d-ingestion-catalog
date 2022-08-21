@@ -5,7 +5,6 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { v4 as uuidV4 } from 'uuid';
 import { Logger } from '@map-colonies/js-logger';
-import { RecordStatus } from '@map-colonies/mc-model-types';
 import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
@@ -122,6 +121,9 @@ export class MetadataController {
     entity.region = payload.region ? payload.region.join(', ') : '';
     entity.links = linksToString(payload.links);
 
+    entity.updateDate = new Date();
+    entity.insertDate = new Date();
+
     return entity;
   }
 
@@ -129,8 +131,8 @@ export class MetadataController {
     const metadata: IUpdateMetadata = {
       ...(payload as IUpdate),
       id: identifier,
+      updateDate: new Date(),
       ...(payload.sensors && { sensors: payload.sensors.join(', ') }),
-      productStatus: RecordStatus.UNPUBLISHED,
     };
 
     return metadata;

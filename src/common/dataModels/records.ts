@@ -1,4 +1,4 @@
-import { I3DCatalogUpsertRequestBody, RecordStatus } from '@map-colonies/mc-model-types';
+import { I3DCatalogUpsertRequestBody } from '@map-colonies/mc-model-types';
 
 export interface MetadataParams {
   identifier: string;
@@ -13,9 +13,9 @@ export interface IUpdate {
   minResolutionMeter?: number;
   maxResolutionMeter?: number;
   maxAccuracyCE90?: number;
-  absoluteAccuracyLE90?: number;
+  absoluteAccuracyLEP90?: number;
   accuracySE90?: number;
-  relativeAccuracySE90?: number;
+  relativeAccuracyLEP90?: number;
   visualAccuracy?: number;
   heightRangeFrom?: number;
   heightRangeTo?: number;
@@ -23,7 +23,6 @@ export interface IUpdate {
   minFlightAlt?: number;
   maxFlightAlt?: number;
   geographicArea?: string;
-  keywods?: string;
 }
 
 export interface IUpdatePayload extends IUpdate {
@@ -32,6 +31,6 @@ export interface IUpdatePayload extends IUpdate {
 
 export interface IUpdateMetadata extends IUpdate {
   id: string;
-  productStatus?: RecordStatus;
+  updateDate: Date;
   sensors?: string;
 }
