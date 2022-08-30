@@ -31,7 +31,9 @@ export interface IUpdatePayload extends IUpdate {
 }
 
 export interface IUpdateMetadata extends IUpdate {
-  id: string;
-  productStatus?: RecordStatus;
   sensors?: string;
+}
+
+export interface IUpdateStatus {
+  productStatus: RecordStatus;
 }

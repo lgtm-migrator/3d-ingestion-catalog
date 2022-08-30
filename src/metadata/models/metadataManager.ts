@@ -2,7 +2,7 @@ import { inject, injectable } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Logger } from '@map-colonies/js-logger';
 import { SERVICES } from '../../common/constants';
-import { IUpdateMetadata } from '../../common/dataModels/records';
+import { IUpdateMetadata, IUpdateStatus } from '../../common/dataModels/records';
 import { EntityNotFoundError, IdAlreadyExistsError } from './errors';
 import { Metadata } from './generated';
 
@@ -41,7 +41,7 @@ export class MetadataManager {
     this.logger.debug({ msg: 'create new record', metadata: payload });
     try {
       const record: Metadata | undefined = await this.repository.findOne(payload.id);
-      if (record !== undefined && payload.id) {
+      if (record !== undefined) {
         this.logger.error({ msg: 'duplicate identifier' });
         throw new IdAlreadyExistsError(`Record with identifier: ${payload.id} already exists!`);
       }
@@ -54,20 +54,20 @@ export class MetadataManager {
     }
   }
 
-  public async updatePartialRecord(payload: IUpdateMetadata): Promise<Metadata> {
-    this.logger.debug({ msg: 'Update partial metadata', modelId: payload.id });
+  public async updatePartialRecord(identifier: string, payload: IUpdateMetadata): Promise<Metadata> {
+    this.logger.debug({ msg: 'Update partial metadata', modelId: identifier });
     try {
-      const record: Metadata | undefined = await this.repository.findOne(payload.id);
+      const record: Metadata | undefined = await this.repository.findOne(identifier);
       if (record === undefined) {
         this.logger.error({ msg: 'model identifier not found' });
-        throw new EntityNotFoundError(`Metadata record ${payload.id} does not exist`);
+        throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
       }
       const metadata: Metadata = { ...record, ...payload };
       const updatedMetadata: Metadata = await this.repository.save(metadata);
-      this.logger.info({ msg: 'Updated record', modelId: payload.id });
+      this.logger.info({ msg: 'Updated record', modelId: identifier });
       return updatedMetadata;
     } catch (error) {
-      this.logger.error({ msg: 'error saving update of record ', modelId: payload.id, error });
+      this.logger.error({ msg: 'error saving update of record ', modelId: identifier, error });
       throw error;
     }
   }
@@ -79,6 +79,24 @@ export class MetadataManager {
       this.logger.info({ msg: 'Deleted record', modelId: identifier });
     } catch (error) {
       this.logger.error({ msg: 'Failed to delete record', modelId: identifier });
+      throw error;
+    }
+  }
+
+  public async publishRecord(identifier: string, payload: IUpdateStatus): Promise<Metadata> {
+    this.logger.debug({ msg: 'Update status record', modelId: identifier, status: payload.productStatus });
+    try {
+      const record: Metadata | undefined = await this.repository.findOne(identifier);
+      if (record === undefined) {
+        this.logger.error({ msg: 'model identifier not found' });
+        throw new EntityNotFoundError(`Metadata record ${identifier} does not exist`);
+      }
+      const metadata: Metadata = { ...record, productStatus: payload.productStatus };
+      const updatedMetadata: Metadata = await this.repository.save(metadata);
+      this.logger.info({ msg: 'Updated record', modelId: identifier, status: payload.productStatus });
+      return updatedMetadata;
+    } catch (error) {
+      this.logger.error({ msg: 'error saving update of record ', modelId: identifier, status: payload.productStatus, error });
       throw error;
     }
   }

@@ -2,7 +2,7 @@ import RandExp from 'randexp';
 import faker from 'faker';
 import { RecordType, ProductType, RecordStatus } from '@map-colonies/mc-model-types';
 import { Metadata } from '../../src/metadata/models/generated';
-import { IPayload, IUpdateMetadata, IUpdatePayload } from '../../src/common/dataModels/records';
+import { IPayload, IUpdateMetadata, IUpdatePayload, IUpdateStatus } from '../../src/common/dataModels/records';
 import { linksToString } from '../../src/common/utils/format';
 
 const classificationHelper = new RandExp('^[0-9]$').gen();
@@ -43,6 +43,29 @@ const linksPattern = [
     url: 'http://test.test/wms',
   },
 ];
+
+function createFakeIUpdate(): Partial<IUpdatePayload> {
+  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
+  const payload: IUpdatePayload = {
+    productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
+    description: faker.random.word(),
+    creationDate: faker.date.past(),
+    minResolutionMeter: minResolutionMeter,
+    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
+    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
+    absoluteAccuracyLE90: faker.datatype.number(noDataAccuracy),
+    accuracySE90: faker.datatype.number(maxSE90),
+    relativeAccuracySE90: faker.datatype.number(maxAccuracy),
+    visualAccuracy: faker.datatype.number(maxAccuracy),
+    heightRangeFrom: faker.datatype.number(),
+    heightRangeTo: faker.datatype.number(),
+    producerName: faker.random.word(),
+    minFlightAlt: faker.datatype.number(),
+    maxFlightAlt: faker.datatype.number(),
+    geographicArea: faker.random.word(),
+  };
+  return payload;
+}
 
 export const createFakePayload = (): IPayload => {
   const sourceDateEnd = faker.date.past();
@@ -138,52 +161,28 @@ export const createFakeMetadata = (): Metadata => {
 };
 
 export const createFakeUpdatePayload = (): IUpdatePayload => {
-  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
   const payload: IUpdatePayload = {
-    productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
-    description: faker.random.word(),
-    creationDate: faker.date.past(),
-    minResolutionMeter: minResolutionMeter,
-    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
-    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
-    absoluteAccuracyLE90: faker.datatype.number(noDataAccuracy),
-    accuracySE90: faker.datatype.number(maxSE90),
-    relativeAccuracySE90: faker.datatype.number(maxAccuracy),
-    visualAccuracy: faker.datatype.number(maxAccuracy),
-    heightRangeFrom: faker.datatype.number(),
-    heightRangeTo: faker.datatype.number(),
-    producerName: faker.random.word(),
-    minFlightAlt: faker.datatype.number(),
-    maxFlightAlt: faker.datatype.number(),
-    geographicArea: faker.random.word(),
+    ...createFakeIUpdate(),
     sensors: [faker.random.word()],
   };
   return payload;
 };
 
 export const createFakeUpdateMetadata = (): IUpdateMetadata => {
-  const minResolutionMeter = faker.datatype.number(maxResolutionMeter);
-
   const metadata: IUpdateMetadata = {
-    productName: Math.floor(Math.random() * listOfRandomWords.length).toString() + '',
-    description: faker.random.word(),
-    creationDate: faker.date.past(),
-    minResolutionMeter: minResolutionMeter,
-    maxResolutionMeter: faker.datatype.number({ min: minResolutionMeter, max: maxResolutionMeter }),
-    maxAccuracyCE90: faker.datatype.number(noDataAccuracy),
-    absoluteAccuracyLE90: faker.datatype.number(noDataAccuracy),
-    accuracySE90: faker.datatype.number(maxSE90),
-    relativeAccuracySE90: faker.datatype.number(maxAccuracy),
-    visualAccuracy: faker.datatype.number(maxAccuracy),
-    heightRangeFrom: faker.datatype.number(),
-    heightRangeTo: faker.datatype.number(),
-    producerName: faker.random.word(),
-    minFlightAlt: faker.datatype.number(),
-    maxFlightAlt: faker.datatype.number(),
-    geographicArea: faker.random.word(),
-    productStatus: RecordStatus.UNPUBLISHED,
-    id: faker.datatype.uuid(),
+    ...createFakeIUpdate(),
     sensors: faker.random.word(),
   };
   return metadata;
+};
+
+export const createFakeUpdateStatus = (): IUpdateStatus => {
+  const metadata: IUpdateStatus = {
+    productStatus: RecordStatus.PUBLISHED,
+  };
+  return metadata;
+};
+
+export const createFakeID = (): string => {
+  return faker.datatype.uuid();
 };

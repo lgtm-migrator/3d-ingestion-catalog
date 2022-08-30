@@ -5,13 +5,12 @@ import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { v4 as uuidV4 } from 'uuid';
 import { Logger } from '@map-colonies/js-logger';
-import { RecordStatus } from '@map-colonies/mc-model-types';
 import { SERVICES } from '../../common/constants';
 import { HttpError, NotFoundError } from '../../common/errors';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../models/errors';
 import { MetadataManager } from '../models/metadataManager';
 import { Metadata } from '../models/generated';
-import { IPayload, IUpdate, IUpdateMetadata, IUpdatePayload, MetadataParams } from '../../common/dataModels/records';
+import { IPayload, IUpdate, IUpdateMetadata, IUpdatePayload, IUpdateStatus, MetadataParams } from '../../common/dataModels/records';
 import { linksToString, formatStrings } from '../../common/utils/format';
 import { BadValues, IdNotExists } from './errors';
 
@@ -20,6 +19,7 @@ type GetRequestHandler = RequestHandler<MetadataParams, Metadata, number>;
 type CreateRequestHandler = RequestHandler<undefined, Metadata, IPayload>;
 type UpdatePartialRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
+type PublishRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdateStatus>;
 // type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
 
 @injectable()
@@ -75,9 +75,9 @@ export class MetadataController {
     try {
       const { identifier } = req.params;
       const payload: IUpdatePayload = formatStrings<IUpdatePayload>(req.body);
-      const metadata: IUpdateMetadata = this.updatePayloadToMatadata(identifier, payload);
+      const metadata: IUpdateMetadata = this.updatePayloadToMatadata(payload);
 
-      const updatedPartialMetadata = await this.manager.updatePartialRecord(metadata);
+      const updatedPartialMetadata = await this.manager.updatePartialRecord(identifier, metadata);
       return res.status(httpStatus.OK).json(updatedPartialMetadata);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
@@ -93,6 +93,20 @@ export class MetadataController {
       await this.manager.deleteRecord(identifier);
       return res.sendStatus(httpStatus.NO_CONTENT);
     } catch (error) {
+      return next(error);
+    }
+  };
+
+  public publish: PublishRequestHandler = async (req, res, next) => {
+    try {
+      const { identifier } = req.params;
+      const payload: IUpdateStatus = req.body;
+      const record = await this.manager.publishRecord(identifier, payload);
+      return res.status(httpStatus.OK).json(record);
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        (error as HttpError).status = httpStatus.NOT_FOUND;
+      }
       return next(error);
     }
   };
@@ -125,12 +139,10 @@ export class MetadataController {
     return entity;
   }
 
-  private updatePayloadToMatadata(identifier: string, payload: IUpdatePayload): IUpdateMetadata {
+  private updatePayloadToMatadata(payload: IUpdatePayload): IUpdateMetadata {
     const metadata: IUpdateMetadata = {
       ...(payload as IUpdate),
-      id: identifier,
       ...(payload.sensors && { sensors: payload.sensors.join(', ') }),
-      productStatus: RecordStatus.UNPUBLISHED,
     };
 
     return metadata;

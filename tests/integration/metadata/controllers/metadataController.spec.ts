@@ -6,11 +6,11 @@ import config from 'config';
 import { Connection } from 'typeorm';
 import jsLogger from '@map-colonies/js-logger';
 import { Metadata } from '../../../../src/metadata/models/generated';
-import { createFakeMetadata, createFakePayload, createFakeUpdatePayload } from '../../../helpers/helpers';
+import { createFakeMetadata, createFakePayload, createFakeUpdatePayload, createFakeUpdateStatus } from '../../../helpers/helpers';
 import { DbConfig } from '../../../../src/common/interfaces';
 import { initializeConnection } from '../../../../src/common/utils/db';
 import { SERVICES } from '../../../../src/common/constants';
-import { IPayload, IUpdatePayload } from '../../../../src/common/dataModels/records';
+import { IPayload, IUpdatePayload, IUpdateStatus } from '../../../../src/common/dataModels/records';
 import * as requestSender from './helpers/requestSender';
 
 describe('MetadataController', function () {
@@ -452,6 +452,82 @@ describe('MetadataController', function () {
         const mockedApp = requestSender.getMockedRepoApp({ delete: deleteMock });
 
         const response = await requestSender.deleteRecord(mockedApp, '1');
+
+        expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
+        expect(response.body).toHaveProperty('message', 'failed');
+      });
+    });
+  });
+
+  describe('PATCH /metadata/ChangeStatus/{identifier}', function () {
+    describe('Happy Path 🙂', function () {
+      it('should return 200 status code and the updated status record', async function () {
+        const response = await requestSender.createRecord(app, createFakePayload());
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const id = (response.body as unknown as Metadata).id;
+        const payload: IUpdateStatus = createFakeUpdateStatus();
+
+        const updateResponse = await requestSender.publishRecord(app, id, payload);
+        const { anyText, anyTextTsvector, footprint, wkbGeometry, ...updatedResponseBody } = updateResponse.body as Metadata;
+
+        expect(updateResponse.status).toBe(httpStatusCodes.OK);
+        expect(updateResponse.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        expect(updatedResponseBody.productStatus).toBe(payload.productStatus);
+      });
+    });
+
+    describe('Bad Path 😡', function () {
+      it('should return 404 status code if the metadata record does not exist', async function () {
+        const metadata = createFakeMetadata();
+        const payload = createFakeUpdateStatus();
+
+        const response = await requestSender.publishRecord(app, metadata.id, payload);
+
+        expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
+        expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
+      });
+
+      it('should return 400 status code if has property that is not in update scheme', async function () {
+        const response = await requestSender.createRecord(app, createFakePayload());
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const responseBody = response.body as unknown as Metadata;
+        const id = responseBody.id;
+        const payload: IUpdateStatus = createFakeUpdateStatus();
+        const entity = { avi: 'aviavi' };
+        Object.assign(payload, entity);
+
+        const newResponse = await requestSender.publishRecord(app, id, payload);
+
+        expect(newResponse.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(newResponse.text).toContain(`request.body should NOT have additional properties`);
+      });
+
+      it('should return 400 status code if productStatus is null', async function () {
+        const response = await requestSender.createRecord(app, createFakePayload());
+        expect(response.status).toBe(httpStatusCodes.CREATED);
+        expect(response.headers).toHaveProperty('content-type', 'application/json; charset=utf-8');
+        const responseBody = response.body as unknown as Metadata;
+        const id = responseBody.id;
+        const payload: IUpdateStatus = createFakeUpdateStatus();
+        const entity = { productStatus: null };
+        Object.assign(payload, entity);
+        const newResponse = await requestSender.publishRecord(app, id, payload);
+
+        expect(newResponse.status).toBe(httpStatusCodes.BAD_REQUEST);
+        expect(newResponse.text).toContain(`request.body.productStatus should be string`);
+      });
+    });
+
+    describe('Sad Path 😥', function () {
+      it('should return 500 status code if a db exception happens', async function () {
+        const metadata = createFakeMetadata();
+        const payload = createFakeUpdateStatus();
+        const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
+        const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
+
+        const response = await requestSender.publishRecord(mockedApp, metadata.id, payload);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');

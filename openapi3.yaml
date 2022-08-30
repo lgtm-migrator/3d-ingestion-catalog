@@ -106,6 +106,28 @@ paths:
           description: No Content
         5XX:
           $ref: '#/components/responses/unexpectedError'
+  /metadata/ChangeStatus/{identifier}:
+    patch:
+      operationId: publishRecord
+      summary: Update status publish of record
+      tags:
+        - metadata
+      parameters:
+        - $ref: '#/components/parameters/identifier'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './Schema/3dCatalog/3dMetadata.yaml#/components/schemas/updateStatus'
+      responses:
+        '200':
+          $ref: '#/components/responses/success'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/notFound'
+        5XX:
+          $ref: '#/components/responses/unexpectedError'
 components:
   parameters:
     identifier:
@@ -115,6 +137,14 @@ components:
       schema:
         type: string
       description: Metadata record identifier
+    status:
+      in: path
+      name: status
+      required: true
+      schema:
+        type: string
+        pattern: '^(UNPUBLISHED|PUBLISHED)$'
+      description: Metadata record status, "PUBLISHED" or "UNPUBLISHED"
   responses:
     success:
       description: OK

@@ -3,7 +3,7 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { EntityNotFoundError, IdAlreadyExistsError } from '../../../../src/metadata/models/errors';
 import { Metadata } from '../../../../src/metadata/models/generated';
 import { MetadataManager } from '../../../../src/metadata/models/metadataManager';
-import { createFakeMetadata, createFakeUpdateMetadata } from '../../../helpers/helpers';
+import { createFakeID, createFakeMetadata, createFakeUpdateMetadata, createFakeUpdateStatus } from '../../../helpers/helpers';
 
 let metadataManager: MetadataManager;
 
@@ -183,29 +183,32 @@ describe('MetadataManager', () => {
     });
 
     it('resolves without errors if id exists', async () => {
+      const identifier = createFakeID();
       const metadata = createFakeUpdateMetadata();
       findOne.mockResolvedValue(metadata);
       save.mockResolvedValue(metadata);
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata);
+      const updatePromise = metadataManager.updatePartialRecord(identifier, metadata);
 
       await expect(updatePromise).resolves.toStrictEqual(metadata);
     });
 
     it('rejects on DB error', async () => {
+      const identifier = createFakeID();
       const metadata = createFakeUpdateMetadata();
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata);
+      const updatePromise = metadataManager.updatePartialRecord(identifier, metadata);
 
       await expect(updatePromise).rejects.toThrow(QueryFailedError);
     });
 
     it('rejects if record does not exists', async () => {
+      const identifier = createFakeID();
       const metadata = createFakeUpdateMetadata();
       findOne.mockResolvedValue(undefined);
 
-      const updatePromise = metadataManager.updatePartialRecord(metadata);
+      const updatePromise = metadataManager.updatePartialRecord(identifier, metadata);
 
       await expect(updatePromise).rejects.toThrow(EntityNotFoundError);
     });
@@ -236,6 +239,49 @@ describe('MetadataManager', () => {
       const deletePromise = metadataManager.deleteRecord(metadata.id);
 
       await expect(deletePromise).rejects.toThrow(QueryFailedError);
+    });
+  });
+
+  describe('#publishRecord', () => {
+    const findOne = jest.fn();
+    const save = jest.fn();
+    beforeEach(() => {
+      const repository = { findOne, save } as unknown as Repository<Metadata>;
+      metadataManager = new MetadataManager(repository, jsLogger({ enabled: false }));
+    });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('resolves without errors if id exists', async () => {
+      const identifier = createFakeID();
+      const record = createFakeUpdateStatus();
+      findOne.mockResolvedValue(record);
+      save.mockResolvedValue(record);
+
+      const updatePromise = metadataManager.publishRecord(identifier, record);
+
+      await expect(updatePromise).resolves.toStrictEqual(record);
+    });
+
+    it('rejects on DB error', async () => {
+      const identifier = createFakeID();
+      const record = createFakeUpdateStatus();
+      findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
+
+      const updatePromise = metadataManager.publishRecord(identifier, record);
+
+      await expect(updatePromise).rejects.toThrow(QueryFailedError);
+    });
+
+    it('rejects if record does not exists', async () => {
+      const identifier = createFakeID();
+      const record = createFakeUpdateStatus();
+      findOne.mockResolvedValue(undefined);
+
+      const updatePromise = metadataManager.publishRecord(identifier, record);
+
+      await expect(updatePromise).rejects.toThrow(EntityNotFoundError);
     });
   });
 
