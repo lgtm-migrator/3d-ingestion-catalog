@@ -459,7 +459,7 @@ describe('MetadataController', function () {
     });
   });
 
-  describe('PATCH /metadata/ChangeStatus/{identifier}', function () {
+  describe('PATCH /metadata/Status/{identifier}', function () {
     describe('Happy Path 🙂', function () {
       it('should return 200 status code and the updated status record', async function () {
         const response = await requestSender.createRecord(app, createFakePayload());
@@ -468,7 +468,7 @@ describe('MetadataController', function () {
         const id = (response.body as unknown as Metadata).id;
         const payload: IUpdateStatus = createFakeUpdateStatus();
 
-        const updateResponse = await requestSender.publishRecord(app, id, payload);
+        const updateResponse = await requestSender.updateStatusRecord(app, id, payload);
         const { anyText, anyTextTsvector, footprint, wkbGeometry, ...updatedResponseBody } = updateResponse.body as Metadata;
 
         expect(updateResponse.status).toBe(httpStatusCodes.OK);
@@ -482,7 +482,7 @@ describe('MetadataController', function () {
         const metadata = createFakeMetadata();
         const payload = createFakeUpdateStatus();
 
-        const response = await requestSender.publishRecord(app, metadata.id, payload);
+        const response = await requestSender.updateStatusRecord(app, metadata.id, payload);
 
         expect(response.status).toBe(httpStatusCodes.NOT_FOUND);
         expect(response.body).toHaveProperty('message', `Metadata record ${metadata.id} does not exist`);
@@ -498,7 +498,7 @@ describe('MetadataController', function () {
         const entity = { avi: 'aviavi' };
         Object.assign(payload, entity);
 
-        const newResponse = await requestSender.publishRecord(app, id, payload);
+        const newResponse = await requestSender.updateStatusRecord(app, id, payload);
 
         expect(newResponse.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(newResponse.text).toContain(`request.body should NOT have additional properties`);
@@ -513,7 +513,7 @@ describe('MetadataController', function () {
         const payload: IUpdateStatus = createFakeUpdateStatus();
         const entity = { productStatus: null };
         Object.assign(payload, entity);
-        const newResponse = await requestSender.publishRecord(app, id, payload);
+        const newResponse = await requestSender.updateStatusRecord(app, id, payload);
 
         expect(newResponse.status).toBe(httpStatusCodes.BAD_REQUEST);
         expect(newResponse.text).toContain(`request.body.productStatus should be string`);
@@ -527,7 +527,7 @@ describe('MetadataController', function () {
         const findMock = jest.fn().mockRejectedValue(new QueryFailedError('select *', [], new Error('failed')));
         const mockedApp = requestSender.getMockedRepoApp({ findOne: findMock });
 
-        const response = await requestSender.publishRecord(mockedApp, metadata.id, payload);
+        const response = await requestSender.updateStatusRecord(mockedApp, metadata.id, payload);
 
         expect(response.status).toBe(httpStatusCodes.INTERNAL_SERVER_ERROR);
         expect(response.body).toHaveProperty('message', 'failed');

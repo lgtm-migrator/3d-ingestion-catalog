@@ -83,7 +83,7 @@ export class MetadataManager {
     }
   }
 
-  public async publishRecord(identifier: string, payload: IUpdateStatus): Promise<Metadata> {
+  public async updateStatusRecord(identifier: string, payload: IUpdateStatus): Promise<Metadata> {
     this.logger.debug({ msg: 'Update status record', modelId: identifier, status: payload.productStatus });
     try {
       const record: Metadata | undefined = await this.repository.findOne(identifier);

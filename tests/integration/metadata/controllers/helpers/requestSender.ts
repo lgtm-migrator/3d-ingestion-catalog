@@ -39,8 +39,8 @@ export async function deleteRecord(app: Application, identifier: string): Promis
   return supertest.agent(app).delete(`/metadata/${identifier}`).set('Content-Type', 'application/json');
 }
 
-export async function publishRecord(app: Application, identifier: string, payload: IUpdateStatus): Promise<supertest.Response> {
-  return supertest.agent(app).patch(`/metadata/ChangeStatus/${identifier}`).set('Content-Type', 'application/json').send(payload);
+export async function updateStatusRecord(app: Application, identifier: string, payload: IUpdateStatus): Promise<supertest.Response> {
+  return supertest.agent(app).patch(`/metadata/Status/${identifier}`).set('Content-Type', 'application/json').send(payload);
 }
 
 export async function findLastVersion(app: Application, identifier: string): Promise<supertest.Response> {

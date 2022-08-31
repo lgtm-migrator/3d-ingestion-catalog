@@ -259,7 +259,7 @@ describe('MetadataManager', () => {
       findOne.mockResolvedValue(record);
       save.mockResolvedValue(record);
 
-      const updatePromise = metadataManager.publishRecord(identifier, record);
+      const updatePromise = metadataManager.updateStatusRecord(identifier, record);
 
       await expect(updatePromise).resolves.toStrictEqual(record);
     });
@@ -269,7 +269,7 @@ describe('MetadataManager', () => {
       const record = createFakeUpdateStatus();
       findOne.mockRejectedValue(new QueryFailedError('select *', [], new Error()));
 
-      const updatePromise = metadataManager.publishRecord(identifier, record);
+      const updatePromise = metadataManager.updateStatusRecord(identifier, record);
 
       await expect(updatePromise).rejects.toThrow(QueryFailedError);
     });
@@ -279,7 +279,7 @@ describe('MetadataManager', () => {
       const record = createFakeUpdateStatus();
       findOne.mockResolvedValue(undefined);
 
-      const updatePromise = metadataManager.publishRecord(identifier, record);
+      const updatePromise = metadataManager.updateStatusRecord(identifier, record);
 
       await expect(updatePromise).rejects.toThrow(EntityNotFoundError);
     });

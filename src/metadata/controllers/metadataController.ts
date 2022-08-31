@@ -19,7 +19,7 @@ type GetRequestHandler = RequestHandler<MetadataParams, Metadata, number>;
 type CreateRequestHandler = RequestHandler<undefined, Metadata, IPayload>;
 type UpdatePartialRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdatePayload>;
 type DeleteRequestHandler = RequestHandler<MetadataParams>;
-type PublishRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdateStatus>;
+type UpdateStatusRequestHandler = RequestHandler<MetadataParams, Metadata, IUpdateStatus>;
 // type UpdateRequestHandler = RequestHandler<MetadataParams, Metadata, IPayload>;
 
 @injectable()
@@ -97,11 +97,11 @@ export class MetadataController {
     }
   };
 
-  public publish: PublishRequestHandler = async (req, res, next) => {
+  public updateStatus: UpdateStatusRequestHandler = async (req, res, next) => {
     try {
       const { identifier } = req.params;
       const payload: IUpdateStatus = req.body;
-      const record = await this.manager.publishRecord(identifier, payload);
+      const record = await this.manager.updateStatusRecord(identifier, payload);
       return res.status(httpStatus.OK).json(record);
     } catch (error) {
       if (error instanceof EntityNotFoundError) {
