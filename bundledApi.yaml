@@ -85,7 +85,7 @@ paths:
           description: No Content
         5XX:
           $ref: '#/components/responses/unexpectedError'
-  /metadata/Status/{identifier}:
+  /metadata/status/{identifier}:
     patch:
       operationId: publishRecord
       summary: Update status publish of record

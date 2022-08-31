@@ -459,7 +459,7 @@ describe('MetadataController', function () {
     });
   });
 
-  describe('PATCH /metadata/Status/{identifier}', function () {
+  describe('PATCH /metadata/status/{identifier}', function () {
     describe('Happy Path 🙂', function () {
       it('should return 200 status code and the updated status record', async function () {
         const response = await requestSender.createRecord(app, createFakePayload());

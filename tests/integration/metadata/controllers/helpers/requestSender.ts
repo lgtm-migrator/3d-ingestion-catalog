@@ -40,7 +40,7 @@ export async function deleteRecord(app: Application, identifier: string): Promis
 }
 
 export async function updateStatusRecord(app: Application, identifier: string, payload: IUpdateStatus): Promise<supertest.Response> {
-  return supertest.agent(app).patch(`/metadata/Status/${identifier}`).set('Content-Type', 'application/json').send(payload);
+  return supertest.agent(app).patch(`/metadata/status/${identifier}`).set('Content-Type', 'application/json').send(payload);
 }
 
 export async function findLastVersion(app: Application, identifier: string): Promise<supertest.Response> {
