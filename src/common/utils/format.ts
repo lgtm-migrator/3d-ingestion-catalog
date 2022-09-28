@@ -1,4 +1,5 @@
 import { Link } from '@map-colonies/mc-model-types';
+import { IPayload, IUpdatePayload } from '../dataModels/records';
 
 export const deserializeLinks = (linksStr: string | undefined): Link[] => {
   if (linksStr == undefined) {
@@ -16,7 +17,7 @@ export const linksToString = (links: Link[]): string => {
   return stringLinks.join('^');
 };
 
-export const formatStrings = <T>(payload: T): T => {
+export const formatStrings = <T extends IUpdatePayload | IPayload>(payload: T): T => {
   const keyValuePairs = Object.entries(payload);
   const entries: [string, unknown][] = keyValuePairs.map(([k, v]) => {
     if (v != undefined && typeof v === 'string' && v.includes("'")) {
