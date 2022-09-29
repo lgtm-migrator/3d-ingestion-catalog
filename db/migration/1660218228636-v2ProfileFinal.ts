@@ -10,7 +10,7 @@ export class v2ProfileFinal1660218228636 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "records" DROP COLUMN "relative_accuracy_le_90"`);
     await queryRunner.query(`ALTER TABLE "records" ADD "relative_accuracy_se_90" real`);
     await queryRunner.query(`ALTER TABLE "records" ADD "product_source" text NOT NULL`);
-    await queryRunner.query(`ALTER TABLE "records" ADD "product_status" text DEFAULT 'UNPUBLISHED'`);
+    await queryRunner.query(`ALTER TABLE "records" ADD "product_status" text NOT NULL DEFAULT 'UNPUBLISHED'`);
     await queryRunner.query(`ALTER TABLE "records" ALTER COLUMN "update_date" DROP NOT NULL`);
     await queryRunner.query(`ALTER TABLE "records" ALTER COLUMN "update_date" SET DEFAULT now()`);
     await queryRunner.query(`ALTER TABLE "records" ALTER COLUMN "product_bbox" SET NOT NULL`);
