@@ -46,7 +46,7 @@ db:
   requirePassword: true
   sslEnable: false
   useExternal: true
-  secretName: catalog-3d-ingestion-catalog-secret
+  secretName: catalog-3d-dev-secret
   certFileName: certFile
   keyFileName: keyFile
   caFileName: caFile
